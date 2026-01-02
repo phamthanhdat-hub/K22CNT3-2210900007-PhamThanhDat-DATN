@@ -1,0 +1,285 @@
+body {
+    font-family: "Segoe UI", sans-serif;
+    background: #fff6f8;
+    margin: 0;
+}
+
+/* HEADER */
+.header {
+    background: #fff;
+    padding: 10px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,.05);
+}
+
+.header-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    font-weight: 700;
+    color: #ff6b81;
+    font-size: 20px;
+}
+
+.search {
+    background: #fff1f3;
+    padding: 6px 10px;
+    border-radius: 20px;
+}
+
+.search input {
+    border: none;
+    background: transparent;
+    outline: none;
+}
+
+nav a {
+    margin: 0 10px;
+    color: #444;
+    text-decoration: none;
+}
+
+.btn-login {
+    background: #ff6b81;
+    color: #fff;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+}
+
+/* HERO */
+.hero {
+    padding: 60px 0;
+}
+
+.hero-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hero-text h1 {
+    font-weight: 700;
+}
+
+.hero-btn button {
+    margin-right: 10px;
+}
+
+.btn-primary {
+    background: #ff6b81;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    color: #fff;
+}
+
+.btn-outline {
+    border: 1px solid #ff6b81;
+    background: transparent;
+    color: #ff6b81;
+    padding: 10px 20px;
+    border-radius: 20px;
+}
+
+/* BENEFIT */
+.benefit {
+    padding: 60px 0;
+}
+
+.benefit-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    margin-top: 20px;
+}
+
+/* PROMO */
+.promo-box {
+    background: #ffe3ea;
+    padding: 30px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* PRODUCT */
+.product {
+    padding: 60px 0;
+}
+
+.product-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 12px;
+    text-align: center;
+}
+
+.product-card img {
+    width: 100%;
+    border-radius: 12px;
+}
+
+.btn-add {
+    background: #ff6b81;
+    color: #fff;
+    border: none;
+    padding: 6px;
+    width: 100%;
+    border-radius: 20px;
+    margin-top: 6px;
+}
+
+/* NEWSLETTER */
+.newsletter {
+    background: #ffeef3;
+    padding: 50px 0;
+}
+
+.newsletter-form input {
+    padding: 8px;
+    width: 250px;
+    border-radius: 20px;
+    border: none;
+}
+
+.newsletter-form button {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    background: #ff6b81;
+    color: #fff;
+}
+
+/* FOOTER */
+.footer {
+    background: #fff;
+    padding: 20px 0;
+}
+
+
+/* FOOTER */
+.footer {
+    background: #fff;
+    padding: 20px 0;
+}
+/* =========================
+   LOGO HIỆU ỨNG BABYCUTIE
+   ========================= */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 20px;
+    color: #ff6b81;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* ẢNH LOGO */
+.logo img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(255, 107, 129, 0.35);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* CHỮ LOGO */
+.logo span {
+    font-size: 25px;
+    font-weight: 700;
+    color: #ff6b81;
+    letter-spacing: 0.6px;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+/* =========================
+   HOVER EFFECT
+   ========================= */
+.logo:hover img {
+    transform: scale(1.12) rotate(-4deg);
+    box-shadow: 0 8px 20px rgba(255, 107, 129, 0.55);
+}
+
+.logo:hover span {
+    color: #ff3f61;
+    text-shadow: 0 3px 8px rgba(255, 107, 129, 0.4);
+}
+/* =========================
+   HEADER ACTIONS
+   ========================= */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* ICON GIỎ HÀNG */
+.cart-icon {
+    position: relative;
+    background: #fff1f3;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cart-icon i {
+    color: #ff6b81;
+    font-size: 18px;
+}
+
+/* HOVER */
+.cart-icon:hover {
+    background: #ff6b81;
+}
+
+.cart-icon:hover i {
+    color: #fff;
+}
+
+/* BADGE SỐ LƯỢNG */
+.cart-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ff3f61;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.hero-img {
+    flex: 0 0 420px;   /* KHÓA KÍCH THƯỚC */
+    max-width: 420px;
+    height: 300px;
+
+    background: linear-gradient(135deg, #ffe3ea, #fff);
+    border-radius: 28px;
+    padding: 16px;
+
+    box-shadow:
+        0 20px 40px rgba(255, 107, 129, 0.18),
+        0 8px 16px rgba(0,0,0,0.05);
+}
+.hero-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;   /* QUAN TRỌNG */
+    border-radius: 22px;
+}
