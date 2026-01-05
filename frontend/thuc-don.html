@@ -1,160 +1,138 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Thực đơn cháo dinh dưỡng | BabyCutie</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Thực đơn cháo dinh dưỡng | BabyCutie</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-    <!-- CSS CHUNG (giống Trang chủ) -->
-    <link rel="stylesheet" href="css/style.css">
-
-    <!-- CSS RIÊNG TRANG THỰC ĐƠN -->
-    <link rel="stylesheet" href="css/thuc-don.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/thuc-don.css">
 </head>
 <body>
 
-<!-- ===== HEADER (DÙNG CHUNG VỚI TRANG CHỦ) ===== -->
+<!-- HEADER -->
 <header class="header">
     <div class="container header-wrap">
-
-        <!-- LOGO -->
-        <div class="logo">
-            <img src="images/logo2.jpg" alt="BabyCutie">
+        <div class="logo" onclick="location='index.html'">
+            <img src="images/logo2.jpg">
             <span>BabyCutie</span>
         </div>
-
-        <!-- MENU -->
-        <nav class="nav">
+        <nav>
             <a href="index.html">Trang chủ</a>
             <a href="thuc-don.html" class="active">Thực đơn</a>
             <a href="tin-tuc.html">Tin tức</a>
             <a href="lien-he.html">Liên hệ</a>
         </nav>
-
-        <!-- ACTION -->
-        <div class="header-actions">
-            <div class="cart-icon">
-                <i class="fa fa-shopping-cart"></i>
-                <span class="cart-count">0</span>
-
     </div>
 </header>
 
-<!-- ===== MAIN ===== -->
-<div class="container main mt-4">
-    <div class="row">
+<!-- MAIN -->
+<section class="menu-page">
+    <div class="container">
+        <div class="row">
 
-        <!-- ===== BỘ LỌC ===== -->
-        <aside class="col-md-3">
-    <div class="filter-box">
-        <h6>Bộ lọc tìm kiếm</h6>
+            <!-- ===== FILTER ===== -->
+            <aside class="col-lg-3 filter-box">
+                <h5>☰ Bộ lọc</h5>
 
-        <!-- DANH MỤC -->
-        <details class="filter-dropdown" open>
-            <summary>
-                Danh mục
-                <i class="fa fa-chevron-down"></i>
-            </summary>
-            <div class="filter-content">
-                <label><input type="checkbox"> Cháo mặn (thịt/cá)</label>
-                <label><input type="checkbox"> Cháo rau củ</label>
-                <label><input type="checkbox"> Cháo hạt & ngũ cốc</label>
-                <label><input type="checkbox"> Tráng miệng</label>
-            </div>
-        </details>
+                <div class="filter-group">
+                    <h6>Danh mục</h6>
+                    <label><input type="checkbox" checked> Cháo Mặn</label>
+                    <label><input type="checkbox"> Cháo Rau Củ</label>
+                    <label><input type="checkbox"> Cháo Hạt & Ngũ Cốc</label>
+                    <label><input type="checkbox"> Pudding & Tráng Miệng</label>
+                </div>
 
-        <!-- KHOẢNG GIÁ -->
-        <details class="filter-dropdown">
-            <summary>
-                Khoảng giá
-                <i class="fa fa-chevron-down"></i>
-            </summary>
-            <div class="filter-content">
-                <label><input type="radio" name="price"> Dưới 30.000đ</label>
-                <label><input type="radio" name="price"> 30.000đ – 50.000đ</label>
-                <label><input type="radio" name="price"> Trên 50.000đ</label>
-            </div>
-        </details>
+                <div class="filter-group">
+                    <h6>Độ tuổi phù hợp</h6>
+                    <label><input type="checkbox"> 6 – 12 tháng</label>
+                    <label><input type="checkbox"> 1 – 3 tuổi</label>
+                </div>
 
-        <!-- ĐỘ TUỔI -->
-        <details class="filter-dropdown">
-            <summary>
-                Độ tuổi
-                <i class="fa fa-chevron-down"></i>
-            </summary>
-            <div class="filter-content">
-                <label><input type="radio" name="age"> 6 – 12 tháng</label>
-                <label><input type="radio" name="age"> 1 – 3 tuổi</label>
-                <label><input type="radio" name="age"> Trên 3 tuổi</label>
-            </div>
-        </details>
+                <div class="filter-group">
+                    <h6>Khoảng giá</h6>
+                    <label><input type="checkbox"> Dưới 30.000đ</label>
+                    <label><input type="checkbox" checked> 30.000đ – 50.000đ</label>
+                    <label><input type="checkbox"> Trên 50.000đ</label>
+                </div>
+
+                <div class="combo-box">
+                    <p><b>Combo tiết kiệm</b></p>
+                    <p>Giảm 15% đơn đầu tiên</p>
+                    <button class="btn-primary">Xem ngay</button>
+                </div>
+            </aside>
+
+            <!-- ===== PRODUCT LIST ===== -->
+            <main class="col-lg-9">
+
+                <!-- TITLE -->
+                <div class="menu-head">
+                    <div>
+                        <h3>Thực đơn cháo dinh dưỡng</h3>
+                        <p>Hương vị tự nhiên, trọn vẹn yêu thương</p>
+                    </div>
+                    <select>
+                        <option>Phổ biến nhất</option>
+                        <option>Giá thấp → cao</option>
+                        <option>Giá cao → thấp</option>
+                    </select>
+                </div>
+
+                <!-- PRODUCTS -->
+                <div class="row g-4">
+
+                    <!-- CARD -->
+                    <div class="col-md-4">
+                        <div class="food-card">
+                            <span class="badge-hot">Best Seller</span>
+                            <img src="images/cahoibido.jpg">
+                            <h5>Cháo Cá Hồi & Súp Lơ</h5>
+                            <div class="rating">★★★★★ <span>(45)</span></div>
+                            <p class="price">45.000đ</p>
+                            <button class="btn-add">🛒 Thêm</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="food-card">
+                            <span class="badge-new">Mới</span>
+                            <img src="images/bido.jpg">
+                            <h5>Cháo Bí Đỏ & Phô Mai</h5>
+                            <div class="rating">★★★★★ <span>(12)</span></div>
+                            <p class="price">35.000đ</p>
+                            <button class="btn-add">🛒 Thêm</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="food-card">
+                            <img src="images/bo.jpg">
+                            <h5>Cháo Gạo Lứt & Bò</h5>
+                            <div class="rating">★★★★★ <span>(89)</span></div>
+                            <p class="price">42.000đ</p>
+                            <button class="btn-add">🛒 Thêm</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="pagination-box">
+                    <button>‹</button>
+                    <button class="active">1</button>
+                    <button>2</button>
+                    <button>3</button>
+                    <button>›</button>
+                </div>
+
+            </main>
+        </div>
     </div>
-</aside>
-
-
-        <!-- ===== DANH SÁCH SẢN PHẨM ===== -->
-        <section class="col-md-9">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4>Thực đơn cháo dinh dưỡng</h4>
-                <select class="form-select w-auto">
-                    <option>Phổ biến nhất</option>
-                    <option>Giá thấp → cao</option>
-                    <option>Giá cao → thấp</option>
-                </select>
-            </div>
-
-            <div class="row">
-
-                <!-- CARD -->
-                <div class="col-md-4 mb-4">
-                    <div class="product-card">
-                        <span class="badge badge-hot">BEST SELL</span>
-                        <img src="images/demo1.jpg">
-                        <h6>Cháo Cá Hồi & Súp Lơ</h6>
-                        <p class="desc">Giàu Omega-3, tốt cho trí não</p>
-                        <div class="price">45.000đ</div>
-                        <button class="btn-add">
-                            <i class="fa fa-cart-plus"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-4">
-                    <div class="product-card">
-                        <span class="badge badge-new">MỚI</span>
-                        <img src="images/demo2.jpg">
-                        <h6>Cháo Bí Đỏ & Phô Mai</h6>
-                        <p class="desc">Vị ngọt tự nhiên, dễ ăn</p>
-                        <div class="price">35.000đ</div>
-                        <button class="btn-add">
-                            <i class="fa fa-cart-plus"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-4">
-                    <div class="product-card">
-                        <img src="images/demo3.jpg">
-                        <h6>Cháo Cải Bó Xôi & Thịt Bò</h6>
-                        <p class="desc">Bổ sung sắt & vitamin</p>
-                        <div class="price">42.000đ</div>
-                        <button class="btn-add">
-                            <i class="fa fa-cart-plus"></i>
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-    </div>
-</div>
-
+</section>
+<script src="js/thuc-don.js"></script>
 </body>
 </html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng ký khách hàng | BabyCutie</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="location='index.html'">
+            <img src="images/logo2.jpg">
+            <span>BabyCutie</span>
+        </div>
+        <nav>
+            <a href="index.html">Trang chủ</a>
+            <a href="login-khach.html">Đăng nhập</a>
+        </nav>
+    </div>
+</header>
+
+<section class="login-page">
+    <div class="login-box">
+
+        <h2>📝 Đăng ký tài khoản</h2>
+        <p>Tạo tài khoản để đặt cháo cho bé</p>
+
+        <div class="input-group">
+            <input id="hoTen" placeholder="Họ tên">
+        </div>
+
+        <div class="input-group">
+            <input id="email" type="email" placeholder="Email">
+        </div>
+
+        <div class="input-group">
+            <input id="matKhau" type="password" placeholder="Mật khẩu">
+        </div>
+
+        <div class="input-group">
+            <input id="dienThoai" placeholder="Số điện thoại">
+        </div>
+
+        <div class="input-group">
+            <input id="diaChi" placeholder="Địa chỉ">
+        </div>
+
+        <button class="btn-primary w-100" onclick="dangKy()">
+            Đăng ký
+        </button>
+
+        <hr>
+
+        <p>
+            Đã có tài khoản?
+            <a href="login-khach.html"><b>Đăng nhập</b></a>
+        </p>
+
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container footer-wrap">
+        <div><b>BabyCutie</b></div>
+        <div>Cháo dinh dưỡng cho bé yêu</div>
+    </div>
+</footer>
+
+<script>
+function dangKy() {
+    const hoTen = document.getElementById("hoTen").value;
+    const email = document.getElementById("email").value;
+    const matKhau = document.getElementById("matKhau").value;
+    const dienThoai = document.getElementById("dienThoai").value;
+    const diaChi = document.getElementById("diaChi").value;
+
+    if (!hoTen || !email || !matKhau) {
+        alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
+        return;
+    }
+
+    fetch("http://127.0.0.1:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            hoTen,
+            email,
+            matKhau,
+            dienThoai,
+            diaChi
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("🎉 Đăng ký thành công! Vui lòng đăng nhập");
+            location.href = "login-khach.html";
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(() => alert("❌ Lỗi đăng ký"));
+}
+</script>
+
+</body>
+</html>

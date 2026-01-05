@@ -1,0 +1,277 @@
+/* =========================================
+   HOME PAGE – BABYCUTIE
+========================================= */
+
+/* ---------- HERO ---------- */
+.hero {
+    padding: 90px 0;
+}
+
+.hero-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+}
+
+.hero-text h1 {
+    font-size: 46px;
+    font-weight: 800;
+    color: #ff5f7e;
+    line-height: 1.3;
+}
+
+.hero-text p {
+    margin: 20px 0 30px;
+    font-size: 16px;
+    color: #555;
+}
+
+.hero-btn button {
+    margin-right: 12px;
+}
+
+/* HERO IMAGE FLOAT */
+.hero-img img {
+    max-width: 480px;
+    animation: floatHero 3.5s ease-in-out infinite;
+}
+
+@keyframes floatHero {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+}
+
+/* ---------- BENEFIT ---------- */
+.benefit {
+    background: #ffffff;
+    padding: 80px 0;
+}
+
+.benefit h2 {
+    color: #ff5f7e;
+    font-weight: 700;
+}
+
+.benefit .sub {
+    color: #777;
+    margin-bottom: 45px;
+}
+
+.benefit-card {
+    background: #fff6f8;
+    border-radius: 26px;
+    padding: 35px 25px;
+    transition: all 0.35s ease;
+}
+
+.benefit-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 18px 40px rgba(255,107,129,0.25);
+}
+
+.benefit-card h5 {
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+/* ---------- PRODUCT ---------- */
+.product {
+    padding: 90px 0;
+}
+
+.product-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.product-head h2 {
+    color: #ff5f7e;
+    font-weight: 700;
+}
+
+.product-head a {
+    font-weight: 500;
+    color: #ff5f7e;
+}
+
+/* PRODUCT CARD */
+.product-card {
+    background: #ffffff;
+    border-radius: 28px;
+    padding: 20px 20px 25px;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    transition: all 0.35s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 45px rgba(255,107,129,0.35);
+}
+
+/* IMAGE */
+.product-card img {
+    border-radius: 20px;
+    margin-bottom: 15px;
+    transition: transform 0.4s ease;
+}
+
+.product-card:hover img {
+    transform: scale(1.08);
+}
+
+/* TITLE */
+.product-card h5 {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+/* PRICE */
+.product-card .price {
+    color: #ff5f7e;
+    font-weight: 800;
+    font-size: 17px;
+    margin-bottom: 8px;
+}
+
+/* INGREDIENTS */
+.ingredients {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.ingredients li {
+    margin-bottom: 4px;
+}
+
+/* ===============================
+   NUTRITION BOX – HIỂN THỊ HÀNG NGANG
+================================ */
+.nutrition {
+    background: #fff1f4;
+    border-radius: 16px;
+    padding: 10px 8px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 0 15px;
+}
+
+/* MỖI CHỈ SỐ */
+.nutrition span {
+    flex: 1;
+    text-align: center;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 6px 4px;
+    font-size: 13px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* GIÁ TRỊ */
+.nutrition span b {
+    display: block;
+    color: #ff5f7e;
+    font-weight: 700;
+}
+
+/* BUTTON */
+.product-card button {
+    width: 100%;
+    border-radius: 30px;
+    padding: 10px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+    color: #fff;
+    border: none;
+    transition: 0.3s;
+}
+
+.product-card button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255,107,129,0.45);
+}
+
+/* BADGE */
+.product-card::after {
+    content: "🍲 Bán chạy";
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: #ff5f7e;
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 992px) {
+    .hero-wrap {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-img img {
+        max-width: 380px;
+    }
+}
+/* ===============================
+   BUTTON – XEM THỰC ĐƠN
+================================ */
+.btn-outline {
+    background: transparent;
+    border: 2px solid #ff5f7e;
+    color: #ff5f7e;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s ease;
+}
+
+/* HIỆU ỨNG NỀN CHẠY */
+.btn-outline::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(255,95,126,0.15),
+        rgba(255,143,163,0.25)
+    );
+    transition: all 0.4s ease;
+    z-index: -1;
+}
+
+/* HOVER */
+.btn-outline:hover {
+    color: #ffffff;
+    border-color: #ff5f7e;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255,107,129,0.45);
+}
+
+/* HOVER – NỀN TRƯỢT VÀO */
+.btn-outline:hover::before {
+    left: 0;
+}
+
+/* ACTIVE */
+.btn-outline:active {
+    transform: scale(0.97);
+}

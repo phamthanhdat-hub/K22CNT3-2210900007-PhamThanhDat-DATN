@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Liên hệ | BabyCutie</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/lien-he.css">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="location='index.html'">
+            <img src="images/logo2.jpg">
+            <span>BabyCutie</span>
+        </div>
+        <nav>
+            <a href="index.html">Trang chủ</a>
+            <a href="thuc-don.html">Thực đơn</a>
+            <a href="tin-tuc.html">Tin tức</a>
+            <a href="lien-he.html" class="active">Liên hệ</a>
+        </nav>
+    </div>
+</header>
+
+<!-- ===== BANNER ===== -->
+<section class="page-banner">
+    <h1>📞 Liên hệ</h1>
+</section>
+
+<!-- ===== FORM LIÊN HỆ ===== -->
+<section class="container contact mt-4">
+
+    <input id="hoTen" placeholder="Họ tên">
+    <input id="email" placeholder="Email">
+    <textarea id="noiDung" placeholder="Nội dung"></textarea>
+
+    <button onclick="guiLienHe()">
+        Gửi liên hệ
+    </button>
+
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="container footer-wrap">
+        <div><b>BabyCutie</b></div>
+        <div>Hà Nội</div>
+    </div>
+</footer>
+
+<!-- ===== JS GỬI LIÊN HỆ ===== -->
+<script>
+function guiLienHe() {
+    const hoTen = document.getElementById("hoTen").value;
+    const email = document.getElementById("email").value;
+    const noiDung = document.getElementById("noiDung").value;
+
+    if (!hoTen || !email || !noiDung) {
+        alert("Vui lòng nhập đầy đủ thông tin");
+        return;
+    }
+
+    fetch("http://127.0.0.1:5000/api/lien-he", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            hoTen: hoTen,
+            email: email,
+            noiDung: noiDung
+        })
+    })
+    .then(res => res.json())
+    .then(() => {
+        alert("✅ Gửi liên hệ thành công!");
+        document.getElementById("hoTen").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("noiDung").value = "";
+    })
+    .catch(() => {
+        alert("❌ Có lỗi xảy ra, vui lòng thử lại");
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,204 +1,142 @@
 // ===============================
-function layUuDai() {
-    return JSON.parse(localStorage.getItem("uuDai"));
+// GIỎ HÀNG – DỰA CSDL CHAO BABY CUTIE
+// ===============================
+
+// demo: sau login bạn nên lưu nguoiDung_id
+const nguoiDung_id = 2; // Nguyễn Thị Lan (demo)
+
+const cartBody = document.getElementById("cartBody");
+const tongTienEl = document.getElementById("tongTien");
+
+// ===============================
+// LOAD GIỎ HÀNG
+// ===============================
+function loadCart() {
+    fetch(`http://127.0.0.1:5000/api/gio-hang/${nguoiDung_id}`)
+        .then(res => res.json())
+        .then(data => {
+            cartBody.innerHTML = "";
+            let tong = 0;
+
+            data.forEach(item => {
+                const tamTinh = item.gia * item.soLuong;
+                tong += tamTinh;
+
+                cartBody.innerHTML += `
+                <tr>
+                    <td>${item.tenSanPham}</td>
+                    <td>${item.gia.toLocaleString()}đ</td>
+                    <td>
+                        <input type="number" min="1"
+                            value="${item.soLuong}"
+                            onchange="updateQty(${item.gioHang_id}, this.value)">
+                    </td>
+                    <td>${tamTinh.toLocaleString()}đ</td>
+                    <td>
+                        <button onclick="removeItem(${item.gioHang_id})">❌</button>
+                    </td>
+                </tr>
+                `;
+            });
+
+            tongTienEl.innerText = tong.toLocaleString();
+        });
 }
 
-// GIỎ HÀNG - BABYCUTIE
 // ===============================
-const CART_KEY = "BABYCUTIE_CART";
-
+// CẬP NHẬT SỐ LƯỢNG
 // ===============================
-// LẤY / LƯU GIỎ HÀNG
-// ===============================
-function layGioHang() {
-    return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-}
-
-function luuGioHang(cart) {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    capNhatSoLuongGio();
-}
-
-// Badge số lượng trên header
-function capNhatSoLuongGio() {
-    const badge = document.getElementById("cartCount");
-    if (!badge) return;
-
-    const cart = layGioHang();
-    const tongSoLuong = cart.reduce((sum, sp) => sum + sp.soLuong, 0);
-    badge.innerText = tongSoLuong;
+function updateQty(id, soLuong) {
+    fetch(`http://127.0.0.1:5000/api/gio-hang/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ soLuong: soLuong })
+    }).then(loadCart);
 }
 
 // ===============================
-// RENDER GIỎ HÀNG
+// XÓA SẢN PHẨM
 // ===============================
-function renderGioHang() {
-    const cart = layGioHang();
-    const container = document.getElementById("danhSachGioHang");
+function removeItem(id) {
+    fetch(`http://127.0.0.1:5000/api/gio-hang/${id}`, {
+        method: "DELETE"
+    }).then(loadCart);
+}
 
-    let tongTien = 0;
-    let tongProtein = 0;
-    let tongCarb = 0;
-    let tongFat = 0;
+// ===============================
+// ĐẶT HÀNG + THANH TOÁN
+// ===============================
+function datHang() {
+    // lấy phương thức thanh toán (radio)
+    const phuongThuc = document.querySelector(
+        "input[name='pttt']:checked"
+    ).value;
 
-    // Giỏ trống
-    if (cart.length === 0) {
-        container.innerHTML = `
-            <div class="text-center p-4 bg-white rounded">
-                <p>🛒 Giỏ hàng của bạn đang trống</p>
-                <a href="thuc-don.html" class="btn btn-primary btn-sm">
-                    Quay lại thực đơn
-                </a>
-            </div>
-        `;
-        capNhatTong(0, 0, 0, 0);
-        return;
-    }
-
-    let html = "";
-
-    cart.forEach(sp => {
-        const thanhTien = sp.gia * sp.soLuong;
-
-        tongTien += thanhTien;
-        tongProtein += (sp.protein || 0) * sp.soLuong;
-        tongCarb += (sp.carb || 0) * sp.soLuong;
-        tongFat += (sp.fat || 0) * sp.soLuong;
-
-        html += `
-        <div class="cart-item mb-3 p-3 bg-white rounded">
-            <div class="row align-items-center">
-                <div class="col-md-2">
-                    <img src="${sp.img}" class="img-fluid rounded">
-                </div>
-
-                <div class="col-md-4">
-                    <h6>${sp.ten}</h6>
-                    <small class="text-muted">
-                        🥩 ${sp.protein || 0}g |
-                        🍚 ${sp.carb || 0}g |
-                        🧈 ${sp.fat || 0}g
-                    </small>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-sm btn-light"
-                            onclick="giamSoLuong(${sp.id})">−</button>
-                        <span class="mx-2">${sp.soLuong}</span>
-                        <button class="btn btn-sm btn-light"
-                            onclick="tangSoLuong(${sp.id})">+</button>
-                    </div>
-                </div>
-
-                <div class="col-md-2 fw-bold">
-                    ${thanhTien.toLocaleString()}đ
-                </div>
-
-                <div class="col-md-1 text-danger"
-                     style="cursor:pointer"
-                     onclick="xoaSanPham(${sp.id})">
-                    <i class="fa fa-trash"></i>
-                </div>
-            </div>
-        </div>
-        `;
+    // 1️⃣ tạo đơn hàng
+    fetch("http://127.0.0.1:5000/api/don-hang", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            nguoiDung_id: nguoiDung_id,
+            diaChiGiaoHang: "TP Hồ Chí Minh"
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        // 2️⃣ ghi thanh toán
+        return fetch("http://127.0.0.1:5000/api/thanh-toan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                donHang_id: data.donHang_id,
+                phuongThuc: phuongThuc
+            })
+        });
+    })
+    .then(res => res.json())
+    .then(() => {
+        alert("🎉 Đặt hàng & thanh toán thành công!");
+        loadCart();
+    })
+    .catch(err => {
+        alert("Có lỗi xảy ra khi đặt hàng!");
+        console.error(err);
     });
-
-    container.innerHTML = html;
-    capNhatTong(tongTien, tongProtein, tongCarb, tongFat);
 }
+function apDungKhuyenMai() {
+    const ma = document.getElementById("maKhuyenMai").value;
 
-// ===============================
-// CẬP NHẬT TỔNG
-// ===============================
-function capNhatTong(tien, protein, carb, fat) {
-    const uuDai = layUuDai();
-    let giamGia = 0;
-
-    if (uuDai && uuDai.giamGia) {
-        giamGia = Math.round(tien * uuDai.giamGia / 100);
-    }
-
-    const tongThanhToan = tien - giamGia;
-
-    document.getElementById("tongTien").innerText =
-        tien.toLocaleString() + "đ";
-
-    document.getElementById("tongProtein").innerText = protein + "g";
-    document.getElementById("tongCarb").innerText = carb + "g";
-    document.getElementById("tongFat").innerText = fat + "g";
-
-    // Hiển thị ưu đãi (nếu có)
-    const box = document.getElementById("uuDaiBox");
-    if (box) {
-        if (uuDai) {
-            box.innerHTML = `
-                <p>🎁 Mã: <b>${uuDai.ma}</b></p>
-                <p>Giảm: <b>-${giamGia.toLocaleString()}đ</b></p>
-                <p class="fw-bold text-danger">
-                    Thanh toán: ${tongThanhToan.toLocaleString()}đ
-                </p>
-            `;
-        } else {
-            box.innerHTML = "";
-        }
-    }
-}
-
-// ===============================
-// TĂNG / GIẢM / XOÁ
-// ===============================
-function tangSoLuong(id) {
-    let cart = layGioHang();
-    cart = cart.map(sp =>
-        sp.id === id ? { ...sp, soLuong: sp.soLuong + 1 } : sp
-    );
-    luuGioHang(cart);
-    renderGioHang();
-}
-
-function giamSoLuong(id) {
-    let cart = layGioHang();
-    cart = cart
-        .map(sp =>
-            sp.id === id ? { ...sp, soLuong: sp.soLuong - 1 } : sp
-        )
-        .filter(sp => sp.soLuong > 0);
-
-    luuGioHang(cart);
-    renderGioHang();
-}
-
-function xoaSanPham(id) {
-    let cart = layGioHang().filter(sp => sp.id !== id);
-    luuGioHang(cart);
-    renderGioHang();
-}
-
-// ===============================
-// THANH TOÁN (DEMO)
-// ===============================
-function thanhToan() {
-    if (layGioHang().length === 0) {
-        alert("Giỏ hàng trống!");
+    if (!ma) {
+        alert("Vui lòng nhập mã khuyến mãi");
         return;
     }
 
-    alert("🎉 Thanh toán thành công (demo)");
+    // ⚠️ Áp mã cho ĐƠN HÀNG MỚI NHẤT của user
+    fetch("http://127.0.0.1:5000/api/don-hang")
+        .then(res => res.json())
+        .then(ds => {
+            const donHangMoiNhat = ds.find(d => d.hoTen);
 
-    localStorage.removeItem(CART_KEY);
-    localStorage.removeItem("uuDai"); // XÓA ƯU ĐÃI
-
-    renderGioHang();
-    capNhatSoLuongGio();
+            return fetch("http://127.0.0.1:5000/api/khuyen-mai/ap-dung", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    donHang_id: donHangMoiNhat.id,
+                    maKhuyenMai: ma
+                })
+            });
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert("Áp mã thành công! Giảm: " +
+                data.soTienGiam.toLocaleString() + "đ");
+            document.getElementById("tongTien").innerText =
+                data.tongTienMoi.toLocaleString();
+        })
+        .catch(err => {
+            alert("Mã không hợp lệ hoặc đã hết hạn");
+        });
 }
 
-
 // ===============================
-// LOAD TRANG
-// ===============================
-document.addEventListener("DOMContentLoaded", () => {
-    capNhatSoLuongGio();
-    renderGioHang();
-});
+loadCart();

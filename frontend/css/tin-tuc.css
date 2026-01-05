@@ -1,0 +1,113 @@
+/* =========================================
+   TIN TỨC – BABYCUTIE
+========================================= */
+
+/* DANH SÁCH TIN */
+#newsList {
+    max-width: 880px;
+    margin: 0 auto 60px;
+}
+
+/* THẺ TIN */
+.news-card {
+    background: #ffffff;
+    border-radius: 26px;
+    padding: 34px 36px;
+    margin-bottom: 36px;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+    animation: newsFadeUp 0.6s ease;
+    transition: all 0.35s ease;
+}
+
+/* HOVER */
+.news-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 55px rgba(255,107,129,0.28);
+}
+
+/* ICON TRANG TRÍ */
+.news-card::before {
+    content: "🍼";
+    position: absolute;
+    top: -25px;
+    right: -25px;
+    font-size: 90px;
+    opacity: 0.07;
+}
+
+/* TIÊU ĐỀ */
+.news-card h4 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ff5f7e;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+/* META */
+.news-card small {
+    display: block;
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 22px;
+}
+
+/* NỘI DUNG CHUNG */
+.news-card p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.85;
+    margin-bottom: 18px;
+    text-align: justify;
+}
+
+/* TIÊU ĐỀ NHỎ TRONG BÀI */
+.news-card p b {
+    display: inline-block;
+    margin-bottom: 6px;
+    color: #ff5f7e;
+    font-weight: 700;
+}
+
+/* PHẦN KẾT LUẬN */
+.news-card p:last-child {
+    background: #fff1f4;
+    padding: 16px 18px;
+    border-radius: 16px;
+}
+
+/* ANIMATION */
+@keyframes newsFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* TRẠNG THÁI RỖNG */
+#newsList > p {
+    text-align: center;
+    font-size: 16px;
+    color: #888;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .news-card {
+        padding: 24px 22px;
+    }
+
+    .news-card h4 {
+        font-size: 21px;
+    }
+
+    .news-card p {
+        font-size: 15px;
+    }
+}

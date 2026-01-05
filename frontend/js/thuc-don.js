@@ -14,19 +14,20 @@ function taiSanPham(thamSo = "") {
             danhSachSanPham = data;
             hienThiSanPham(data);
         })
-        .catch(() => {
+        .catch(err => {
+            console.error(err);
             alert("Không thể kết nối server");
         });
 }
 
 /* ===============================
-   HIỂN THỊ SẢN PHẨM
+   HIỂN THỊ SẢN PHẨM (FULL THÔNG TIN)
 ================================ */
 function hienThiSanPham(ds) {
     const khuVuc = document.querySelector(".col-md-9 .row");
     let html = "";
 
-    if (ds.length === 0) {
+    if (!ds || ds.length === 0) {
         khuVuc.innerHTML = "<p>Không có sản phẩm phù hợp</p>";
         return;
     }
@@ -35,14 +36,28 @@ function hienThiSanPham(ds) {
         html += `
         <div class="col-md-4 mb-4">
             <div class="product-card">
-                <span class="badge badge-hot">${sp.doTuoi} tháng</span>
-                <img src="${sp.hinhAnh}">
-                <h6>${sp.tenSanPham}</h6>
-                <p class="desc">Phù hợp cho bé ${sp.doTuoi} tháng</p>
-                <div class="price">${Number(sp.gia).toLocaleString()}đ</div>
+
+                <img src="images/${sp.hinhAnh}" alt="${sp.tenSanPham}">
+
+                <h5>${sp.tenSanPham}</h5>
+                <p class="price">${Number(sp.gia).toLocaleString()}đ</p>
+
+                <!-- MÔ TẢ -->
+                <p class="desc">${sp.moTa || ""}</p>
+
+                <!-- DINH DƯỠNG -->
+                <div class="nutrition">
+                    <span>💪 Protein <b>${sp.protein || 0}g</b></span>
+                    <span>🍚 Carb <b>${sp.carb || 0}g</b></span>
+                    <span>🥑 Fat <b>${sp.chatBeo || 0}g</b></span>
+                </div>
+
+                <small class="age">👶 Độ tuổi: ${sp.doTuoi}</small>
+
                 <button class="btn-add" onclick="themVaoGio(${sp.id})">
-                    <i class="fa fa-cart-plus"></i>
+                    🛒 Thêm vào giỏ
                 </button>
+
             </div>
         </div>
         `;
@@ -54,7 +69,7 @@ function hienThiSanPham(ds) {
 /* ===============================
    TÌM KIẾM
 ================================ */
-document.querySelector(".search-box input").addEventListener("input", function () {
+document.querySelector(".search-box input")?.addEventListener("input", function () {
     const tuKhoa = this.value.toLowerCase();
 
     const ketQua = danhSachSanPham.filter(sp =>
@@ -95,7 +110,7 @@ document.querySelectorAll("input[name='gia']").forEach((radio, index) => {
 /* ===============================
    SẮP XẾP
 ================================ */
-document.querySelector("select").addEventListener("change", function () {
+document.querySelector("select")?.addEventListener("change", function () {
     let ds = [...danhSachSanPham];
 
     if (this.value.includes("thấp")) {
@@ -131,7 +146,7 @@ function themVaoGio(id) {
     }
 
     localStorage.setItem("gioHang", JSON.stringify(gioHang));
-    alert("Đã thêm vào giỏ hàng");
+    alert("✅ Đã thêm vào giỏ hàng");
 }
 
 /* ===============================

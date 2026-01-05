@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ================= ADMIN HEADER ================= -->
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo">
+            <span>🛠 BabyCutie Admin</span>
+        </div>
+
+        <button class="btn-login" onclick="logoutAdmin()">Đăng xuất</button>
+    </div>
+</header>
+
+<!-- ================= DASHBOARD ================= -->
+<section class="container mt-5">
+
+    <h2 class="mb-4">📊 Bảng điều khiển</h2>
+
+    <!-- STATISTIC -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="admin-card">
+                <h4>👶 Người dùng</h4>
+                <p>120</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="admin-card">
+                <h4>🍲 Sản phẩm</h4>
+                <p>18</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="admin-card">
+                <h4>🧾 Đơn hàng</h4>
+                <p>56</p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="admin-card">
+                <h4>💰 Doanh thu</h4>
+                <p>12.500.000đ</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="row mt-5">
+
+        <!-- QUẢN LÝ SẢN PHẨM -->
+        <div class="col-md-4">
+            <div class="admin-menu" onclick="location='admin-san-pham.html'">
+                <i class="fa fa-box"></i>
+                <h5>Quản lý sản phẩm</h5>
+                <p>Thêm – sửa – xóa cháo dinh dưỡng</p>
+            </div>
+        </div>
+
+        <!-- ✅ QUẢN LÝ ĐƠN HÀNG (ĐÃ GẮN LINK) -->
+        <div class="col-md-4">
+            <div class="admin-menu" onclick="location='admin-don-hang.html'">
+                <i class="fa fa-receipt"></i>
+                <h5>Quản lý đơn hàng</h5>
+                <p>Xác nhận & xử lý đơn</p>
+            </div>
+        </div>
+
+        <!-- QUẢN LÝ NGƯỜI DÙNG -->
+        <div class="col-md-4">
+            <div class="admin-menu">
+                <i class="fa fa-users"></i>
+                <h5>Quản lý người dùng</h5>
+                <p>Khách hàng & phân quyền</p>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+<script>
+function logoutAdmin() {
+    window.location.href = "login-admin.html";
+}
+</script>
+
+</body>
+</html>

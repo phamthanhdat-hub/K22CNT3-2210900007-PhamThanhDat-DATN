@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập Admin | BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<section class="login-page">
+    <div class="login-box">
+
+        <h2>🛠 Đăng nhập Quản trị</h2>
+        <p>Chỉ dành cho quản trị viên hệ thống</p>
+
+        <form onsubmit="loginAdmin(event)">
+            <div class="input-group">
+                <i class="fa fa-user-shield"></i>
+                <input type="text" id="adminUser" placeholder="Tên đăng nhập" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fa fa-lock"></i>
+                <input type="password" id="adminPass" placeholder="Mật khẩu" required>
+            </div>
+
+            <button class="btn-primary w-100">
+                Đăng nhập Admin
+            </button>
+        </form>
+
+        <p class="text-center mt-3">
+            ← <a href="index.html">Quay về trang chủ</a>
+        </p>
+
+    </div>
+</section>
+
+<script>
+function loginAdmin(e) {
+    e.preventDefault();
+
+    const user = document.getElementById("adminUser").value;
+    const pass = document.getElementById("adminPass").value;
+
+    // demo cứng để nộp đồ án
+    if (user === "admin" && pass === "123456") {
+        window.location.href = "admin-dashboard.html";
+    } else {
+        alert("Sai tài khoản hoặc mật khẩu Admin!");
+    }
+}
+</script>
+<form id="adminLoginForm">
+    <input type="text" id="email" placeholder="Email admin">
+    <input type="password" id="matKhau" placeholder="Mật khẩu">
+    <button type="submit">Đăng nhập Admin</button>
+</form>
+<script>
+document.getElementById("adminLoginForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    fetch("http://127.0.0.1:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: document.getElementById("email").value,
+            matKhau: document.getElementById("matKhau").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.vaiTro !== "admin") {
+            alert("Bạn không có quyền admin");
+            return;
+        }
+        window.location.href = "admin-dashboard.html";
+    });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý sản phẩm | Admin BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo">
+            <span>🛠 Quản lý sản phẩm</span>
+        </div>
+        <button class="btn-login" onclick="location='admin-dashboard.html'">
+            ← Dashboard
+        </button>
+    </div>
+</header>
+
+<!-- CONTENT -->
+<section class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>🍲 Danh sách sản phẩm</h3>
+        <button class="btn btn-danger" onclick="openForm()">➕ Thêm sản phẩm</button>
+    </div>
+
+    <!-- TABLE -->
+    <table class="table table-bordered table-hover bg-white">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá (đ)</th>
+                <th>Hình ảnh</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody id="productTable"></tbody>
+    </table>
+
+</section>
+
+<!-- MODAL FORM -->
+<div class="modal fade" id="productModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Sản phẩm</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="productId">
+
+                <div class="mb-2">
+                    <label>Tên sản phẩm</label>
+                    <input class="form-control" id="tenSanPham">
+                </div>
+
+                <div class="mb-2">
+                    <label>Giá</label>
+                    <input class="form-control" id="giaSanPham">
+                </div>
+
+                <div class="mb-2">
+                    <label>Hình ảnh (tên file)</label>
+                    <input class="form-control" id="hinhAnh">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-danger" onclick="saveProduct()">Lưu</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/admin-san-pham.js"></script>
+</body>
+</html>
