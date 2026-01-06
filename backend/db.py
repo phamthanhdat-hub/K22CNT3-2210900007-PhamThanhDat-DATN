@@ -1,10 +1,11 @@
 import pyodbc
 
-def get_connection():
+def get_db():
     return pyodbc.connect(
         "DRIVER={SQL Server};"
         "SERVER=DESKTOP-HD2ANFT\\MSSQLSERVER03;"
-        "DATABASE=ChaoBabyCutie;"
+        "DATABASE=PTD_DB;"
         "Trusted_Connection=yes;"
     )
 
+print("DB CONNECT OK")

@@ -39,49 +39,8 @@
 
     </div>
 </section>
+<script src="js/login-admin.js"></script>
 
-<script>
-function loginAdmin(e) {
-    e.preventDefault();
-
-    const user = document.getElementById("adminUser").value;
-    const pass = document.getElementById("adminPass").value;
-
-    // demo cứng để nộp đồ án
-    if (user === "admin" && pass === "123456") {
-        window.location.href = "admin-dashboard.html";
-    } else {
-        alert("Sai tài khoản hoặc mật khẩu Admin!");
-    }
-}
-</script>
-<form id="adminLoginForm">
-    <input type="text" id="email" placeholder="Email admin">
-    <input type="password" id="matKhau" placeholder="Mật khẩu">
-    <button type="submit">Đăng nhập Admin</button>
-</form>
-<script>
-document.getElementById("adminLoginForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    fetch("http://127.0.0.1:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            email: document.getElementById("email").value,
-            matKhau: document.getElementById("matKhau").value
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.vaiTro !== "admin") {
-            alert("Bạn không có quyền admin");
-            return;
-        }
-        window.location.href = "admin-dashboard.html";
-    });
-});
-</script>
 
 </body>
 </html>

@@ -1,22 +1,35 @@
-/* ===== MENU PAGE ===== */
+/* =========================================
+   BABYCUTIE – MENU PAGE (ELEGANT & SMOOTH)
+========================================= */
+
 .menu-page {
-    background: #fff0f4;
-    padding: 40px 0;
+    background: linear-gradient(180deg, #fff3f6, #ffffff);
+    padding: 50px 0 90px;
 }
 
-/* FILTER */
+/* ================= FILTER ================= */
 .filter-box {
-    background: #fff;
-    border-radius: 20px;
-    padding: 20px;
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.06);
+    position: sticky;
+    top: 110px;
+}
+
+.filter-box h5 {
+    font-weight: 700;
+    color: #ff5f7e;
+    margin-bottom: 18px;
 }
 
 .filter-group {
-    margin-top: 20px;
+    margin-top: 22px;
 }
 
 .filter-group h6 {
     font-weight: 600;
+    color: #333;
     margin-bottom: 10px;
 }
 
@@ -24,107 +37,199 @@
     display: block;
     font-size: 14px;
     margin-bottom: 6px;
+    cursor: pointer;
+    color: #555;
 }
 
+.filter-group input {
+    accent-color: #ff5f7e;
+    margin-right: 6px;
+}
+
+/* ================= COMBO ================= */
 .combo-box {
-    margin-top: 30px;
-    background: linear-gradient(135deg,#ff9a9e,#fad0c4);
+    margin-top: 28px;
+    background: linear-gradient(135deg, #ff8fa3, #ffc2d1);
     color: #fff;
-    padding: 20px;
-    border-radius: 20px;
+    padding: 22px;
+    border-radius: 22px;
     text-align: center;
 }
 
-/* HEADER */
+.combo-box p {
+    margin: 0;
+}
+
+.combo-box button {
+    background: #fff;
+    color: #ff5f7e;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-weight: 600;
+    margin-top: 12px;
+    transition: all 0.3s ease;
+}
+
+.combo-box button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255,255,255,0.4);
+}
+
+/* ================= HEADER ================= */
 .menu-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 32px;
 }
 
 .menu-head h3 {
+    font-weight: 800;
     color: #ff5f7e;
-    font-weight: 700;
 }
 
-/* FOOD CARD */
+.menu-head p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.menu-head select {
+    border-radius: 20px;
+    padding: 6px 14px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+/* ================= FOOD CARD ================= */
 .food-card {
-    background: #fff;
-    border-radius: 24px;
-    padding: 15px;
+    background: #ffffff;
+    border-radius: 26px;
+    padding: 18px 18px 22px;
     text-align: center;
     position: relative;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    transition: 0.35s;
+    box-shadow: 0 14px 35px rgba(0,0,0,0.08);
+    transition: all 0.35s ease;
+    overflow: hidden;
 }
 
 .food-card:hover {
     transform: translateY(-8px);
+    box-shadow: 0 24px 50px rgba(255,107,129,0.35);
 }
 
+/* IMAGE */
 .food-card img {
+    width: 100%;
     border-radius: 18px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+    transition: transform 0.4s ease;
 }
 
-/* BADGE */
+.food-card:hover img {
+    transform: scale(1.08);
+}
+
+/* ================= BADGE ================= */
 .badge-hot,
 .badge-new {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    padding: 4px 10px;
+    top: 14px;
+    left: 14px;
+    padding: 4px 12px;
     border-radius: 20px;
     font-size: 12px;
     color: #fff;
+    font-weight: 600;
 }
 
-.badge-hot { background: #ff5f7e; }
-.badge-new { background: #ffb703; }
+.badge-hot {
+    background: #ff5f7e;
+}
 
-/* RATING */
+.badge-new {
+    background: #52b788;
+}
+
+/* ================= TITLE ================= */
+.food-card h5 {
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+/* ================= RATING ================= */
 .rating {
     font-size: 14px;
     color: #ffb703;
+    margin-bottom: 6px;
 }
 
 .rating span {
-    color: #888;
+    color: #999;
+    font-size: 13px;
 }
 
-/* PRICE */
+/* ================= PRICE ================= */
 .price {
-    font-weight: 700;
+    font-weight: 800;
     color: #ff5f7e;
+    font-size: 18px;
     margin: 8px 0;
 }
 
-/* BUTTON */
+/* ================= ADD BUTTON ================= */
 .btn-add {
-    background: #ff5f7e;
+    background: linear-gradient(135deg, #ff6b81, #ff8fa3);
     color: #fff;
     border: none;
-    padding: 8px 18px;
+    padding: 10px 22px;
     border-radius: 30px;
     font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
 }
 
-/* PAGINATION */
+.btn-add:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(255,107,129,0.45);
+}
+
+/* ================= PAGINATION ================= */
 .pagination-box {
-    margin-top: 40px;
+    margin-top: 45px;
     text-align: center;
 }
 
 .pagination-box button {
-    border: none;
+    border: 1px solid #ddd;
     background: #fff;
     margin: 0 4px;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 50%;
+    font-size: 14px;
+    transition: 0.3s;
 }
 
+.pagination-box button:hover,
 .pagination-box .active {
     background: #ff5f7e;
     color: #fff;
+    border-color: #ff5f7e;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 992px) {
+    .filter-box {
+        position: static;
+        margin-bottom: 30px;
+    }
+
+    .menu-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
 }

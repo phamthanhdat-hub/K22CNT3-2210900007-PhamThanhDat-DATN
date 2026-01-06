@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify, request
 from db import get_db
 
-san_pham_bp = Blueprint("san_pham", __name__)
+thuc_don_bp = Blueprint("thuc_don_bp", __name__)
 
 # =====================================================
-# GET ALL SẢN PHẨM (DÙNG CHO TRANG THỰC ĐƠN + TRANG CHỦ)
+# GET ALL SẢN PHẨM
 # =====================================================
-@san_pham_bp.route("/", methods=["GET"])
+@thuc_don_bp.route("/", methods=["GET"])
 def get_all_san_pham():
     conn = get_db()
     cursor = conn.cursor()
@@ -54,7 +54,7 @@ def get_all_san_pham():
 # =====================================================
 # GET CHI TIẾT 1 SẢN PHẨM
 # =====================================================
-@san_pham_bp.route("/<int:id>", methods=["GET"])
+@thuc_don_bp.route("/<int:id>", methods=["GET"])
 def get_san_pham_by_id(id):
     conn = get_db()
     cursor = conn.cursor()
@@ -88,10 +88,9 @@ def get_san_pham_by_id(id):
 # =====================================================
 # ADMIN - THÊM SẢN PHẨM
 # =====================================================
-@san_pham_bp.route("/", methods=["POST"])
+@thuc_don_bp.route("/", methods=["POST"])
 def create_san_pham():
     data = request.json
-
     conn = get_db()
     cursor = conn.cursor()
 
@@ -119,7 +118,7 @@ def create_san_pham():
 # =====================================================
 # ADMIN - CẬP NHẬT SẢN PHẨM
 # =====================================================
-@san_pham_bp.route("/<int:id>", methods=["PUT"])
+@thuc_don_bp.route("/<int:id>", methods=["PUT"])
 def update_san_pham(id):
     data = request.json
     conn = get_db()
@@ -150,7 +149,7 @@ def update_san_pham(id):
 # =====================================================
 # ADMIN - XÓA MỀM SẢN PHẨM
 # =====================================================
-@san_pham_bp.route("/<int:id>", methods=["DELETE"])
+@thuc_don_bp.route("/<int:id>", methods=["DELETE"])
 def delete_san_pham(id):
     conn = get_db()
     cursor = conn.cursor()
