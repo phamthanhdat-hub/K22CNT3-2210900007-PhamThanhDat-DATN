@@ -305,6 +305,14 @@ function capNhatSoLuongGio() {
     let tong = gioHang.reduce((sum, sp) => sum + sp.soLuong, 0);
     document.getElementById("cartCount").innerText = tong;
 }
+fetch("http://127.0.0.1:5000/api/gio-hang", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+    },
+    body: JSON.stringify({ sanPham_id: id, soLuong: 1 })
+});
 
 // khi load lại trang
 capNhatSoLuongGio();
