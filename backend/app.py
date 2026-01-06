@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 
 from routes.auth import auth_bp
@@ -14,6 +14,13 @@ from routes.auth_admin import admin_auth_bp
 
 app = Flask(__name__)
 CORS(app)
+
+# =========================
+# SERVE IMAGE (CHO FRONTEND)
+# =========================
+@app.route("/images/<path:filename>")
+def serve_image(filename):
+    return send_from_directory("images", filename)
 
 # =========================
 # USER API

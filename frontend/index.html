@@ -95,7 +95,7 @@
         </div>
 
         <div class="hero-img">
-            <img src="images/bn.jpg" alt="Cháo dinh dưỡng">
+            <img src="images/trem.jpg" alt="Cháo dinh dưỡng">
         </div>
 
     </div>
@@ -143,10 +143,13 @@
             <a href="thuc-don.html">Xem tất cả →</a>
         </div>
 
+        <!-- JS sẽ render sản phẩm ở đây -->
         <div class="row" id="sanPhamNoiBat">
-            
+            <!-- sản phẩm từ API -->
+        </div>
+    </div>
+</section>
 
-<div class="row" id="sanPhamNoiBat">
     <!-- Sản phẩm sẽ được render từ API -->
 </div>
 
@@ -166,13 +169,58 @@
 </footer>
 
 <!-- ================= JS ================= -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
+const API_URL = "http://127.0.0.1:5000/api/thuc-don";
+const sanPhamNoiBat = document.getElementById("sanPhamNoiBat");
+
+// Load sản phẩm nổi bật
+fetch(API_URL)
+    .then(res => res.json())
+    .then(data => {
+        // Lấy tối đa 6 sản phẩm đầu
+        const dsNoiBat = data.slice(0, 6);
+        let html = "";
+
+        dsNoiBat.forEach(sp => {
+            html += `
+                <div class="col-md-4 mb-4">
+                    <div class="product-card">
+
+                        <img 
+                            src="http://127.0.0.1:5000/images/${sp.hinhAnh}" 
+                           
+                        >
+
+                        <h5>${sp.tenSanPham}</h5>
+                        <p class="price">${Number(sp.gia).toLocaleString()}đ</p>
+
+                        <div class="nutrition">
+                            <span>💪 Protein <b>${sp.protein || 0}g</b></span>
+                            <span>🍚 Carb <b>${sp.carb || 0}g</b></span>
+                            <span>🥑 Fat <b>${sp.chatBeo || 0}g</b></span>
+                        </div>
+
+                        <button onclick="addToCart(${sp.id})">
+                            Thêm vào giỏ
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        sanPhamNoiBat.innerHTML = html;
+    })
+    .catch(err => {
+        console.error("Lỗi load sản phẩm:", err);
+        sanPhamNoiBat.innerHTML = "<p>Không thể tải sản phẩm</p>";
+    });
+
+// Giỏ hàng demo
 let count = 0;
-function addToCart() {
+function addToCart(id) {
     count++;
     document.getElementById("cartCount").innerText = count;
+    console.log("Thêm sản phẩm ID:", id);
 }
 </script>
 

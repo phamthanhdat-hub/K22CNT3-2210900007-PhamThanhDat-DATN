@@ -18,32 +18,85 @@
 }
 
 .filter-box h5 {
-    font-weight: 700;
+    font-weight: 800;
     color: #ff5f7e;
     margin-bottom: 18px;
 }
 
+/* ===== FILTER GROUP (DANH MỤC / ĐỘ TUỔI / GIÁ) ===== */
 .filter-group {
     margin-top: 22px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.05);
 }
 
 .filter-group h6 {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 10px;
+    font-weight: 700;
+    color: #ff5f7e;
+    margin-bottom: 14px;
+    font-size: 15px;
 }
 
+/* ===== FILTER ITEM ===== */
 .filter-group label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff5f7;
+    padding: 10px 14px;
+    border-radius: 14px;
     font-size: 14px;
-    margin-bottom: 6px;
     cursor: pointer;
-    color: #555;
+    color: #444;
+    transition: all 0.25s ease;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
 }
 
-.filter-group input {
-    accent-color: #ff5f7e;
-    margin-right: 6px;
+.filter-group label:hover {
+    background: #ffe3ea;
+    transform: translateX(2px);
+}
+
+/* ===== CUSTOM CHECKBOX / RADIO ===== */
+.filter-group input[type="checkbox"],
+.filter-group input[type="radio"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    border: 2px solid #ffb6c1;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.filter-group input[type="radio"] {
+    border-radius: 50%;
+}
+
+/* CHECKED */
+.filter-group input:checked {
+    background: #ff5f7e;
+    border-color: #ff5f7e;
+}
+
+.filter-group input:checked::after {
+    content: "✓";
+    position: absolute;
+    top: -2px;
+    left: 3px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* ACTIVE TEXT */
+.filter-group input:checked + span {
+    color: #ff5f7e;
+    font-weight: 700;
 }
 
 /* ================= COMBO ================= */
@@ -66,7 +119,7 @@
     border: none;
     padding: 8px 18px;
     border-radius: 30px;
-    font-weight: 600;
+    font-weight: 700;
     margin-top: 12px;
     transition: all 0.3s ease;
 }
@@ -119,7 +172,6 @@
     box-shadow: 0 24px 50px rgba(255,107,129,0.35);
 }
 
-/* IMAGE */
 .food-card img {
     width: 100%;
     border-radius: 18px;
@@ -131,7 +183,7 @@
     transform: scale(1.08);
 }
 
-/* ================= BADGE ================= */
+/* BADGE */
 .badge-hot,
 .badge-new {
     position: absolute;
@@ -152,14 +204,14 @@
     background: #52b788;
 }
 
-/* ================= TITLE ================= */
+/* TITLE */
 .food-card h5 {
     font-weight: 700;
     margin-bottom: 4px;
     color: #333;
 }
 
-/* ================= RATING ================= */
+/* RATING */
 .rating {
     font-size: 14px;
     color: #ffb703;
@@ -171,7 +223,7 @@
     font-size: 13px;
 }
 
-/* ================= PRICE ================= */
+/* PRICE */
 .price {
     font-weight: 800;
     color: #ff5f7e;
@@ -179,7 +231,7 @@
     margin: 8px 0;
 }
 
-/* ================= ADD BUTTON ================= */
+/* ADD BUTTON */
 .btn-add {
     background: linear-gradient(135deg, #ff6b81, #ff8fa3);
     color: #fff;
@@ -187,7 +239,7 @@
     padding: 10px 22px;
     border-radius: 30px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     width: 100%;
     transition: all 0.3s ease;
 }
