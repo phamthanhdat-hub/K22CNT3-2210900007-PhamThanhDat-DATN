@@ -21,6 +21,26 @@
     transition: all 0.35s ease;
 }
 
+/* HÌNH ẢNH TIN TỨC */
+.news-image {
+    width: 100%;
+    margin-bottom: 24px;
+    border-radius: 16px;
+    overflow: hidden;
+    max-height: 400px;
+}
+
+.news-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.news-card:hover .news-image img {
+    transform: scale(1.05);
+}
+
 /* HOVER */
 .news-card:hover {
     transform: translateY(-6px);
@@ -71,11 +91,41 @@
     font-weight: 700;
 }
 
-/* PHẦN KẾT LUẬN */
-.news-card p:last-child {
+/* NỘI DUNG TIN TỨC */
+.news-content {
+    margin-bottom: 20px;
+}
+
+/* PHẦN LỜI KHUYÊN */
+.news-tips {
     background: #fff1f4;
     padding: 16px 18px;
     border-radius: 16px;
+    margin-top: 20px;
+}
+
+.news-tips p {
+    margin-bottom: 0;
+}
+
+/* NÚT ĐỌC THÊM */
+.btn-read-more {
+    background: transparent;
+    border: 2px solid #ff5f7e;
+    color: #ff5f7e;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-read-more:hover {
+    background: #ff5f7e;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 95, 126, 0.3);
 }
 
 /* ANIMATION */
@@ -97,6 +147,13 @@
     color: #888;
 }
 
+/* LOADING SPINNER */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.25em;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
     .news-card {
@@ -109,5 +166,9 @@
 
     .news-card p {
         font-size: 15px;
+    }
+
+    .news-image {
+        max-height: 250px;
     }
 }
