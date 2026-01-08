@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from db import get_db
 
-from utils.jwt_helper import tao_token   
+from utils.jwt_helper import tao_token, lay_user_tu_token   
 
 # =================================================
 # AUTH ROUTES
@@ -158,6 +158,88 @@ def register():
 
     except Exception as e:
         # Rollback nếu có lỗi
+        if 'conn' in locals():
+            conn.rollback()
+        
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
+
+
+# =========================
+# CẬP NHẬT THÔNG TIN KHÁCH HÀNG
+# =========================
+@auth_bp.route("/update-profile", methods=["PUT"])
+def update_profile():
+    try:
+        data = request.json
+        
+        if not data or "id" not in data:
+            return jsonify({
+                "success": False,
+                "message": "Thiếu thông tin người dùng"
+            }), 400
+
+        nguoiDung_id = data["id"]
+        hoTen = data.get("hoTen", "").strip()
+        dienThoai = data.get("dienThoai", "").strip()
+        diaChi = data.get("diaChi", "").strip()
+
+        # Validation
+        if not hoTen or len(hoTen) < 2:
+            return jsonify({
+                "success": False,
+                "message": "Họ và tên phải có ít nhất 2 ký tự"
+            }), 400
+
+        if not dienThoai:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng nhập số điện thoại"
+            }), 400
+
+        # Validate số điện thoại
+        import re
+        phone_pattern = r'^[0-9]{10,11}$'
+        if not re.match(phone_pattern, dienThoai):
+            return jsonify({
+                "success": False,
+                "message": "Số điện thoại không hợp lệ (phải có 10-11 chữ số)"
+            }), 400
+
+        if not diaChi or len(diaChi) < 10:
+            return jsonify({
+                "success": False,
+                "message": "Địa chỉ phải có ít nhất 10 ký tự"
+            }), 400
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Kiểm tra user tồn tại
+        cursor.execute("SELECT id FROM NguoiDung WHERE id = ?", (nguoiDung_id,))
+        if not cursor.fetchone():
+            return jsonify({
+                "success": False,
+                "message": "Không tìm thấy người dùng"
+            }), 404
+
+        # Cập nhật thông tin vào database
+        cursor.execute("""
+            UPDATE NguoiDung
+            SET hoTen = ?, dienThoai = ?, diaChi = ?
+            WHERE id = ?
+        """, (hoTen, dienThoai, diaChi, nguoiDung_id))
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Cập nhật thông tin thành công"
+        })
+
+    except Exception as e:
         if 'conn' in locals():
             conn.rollback()
         

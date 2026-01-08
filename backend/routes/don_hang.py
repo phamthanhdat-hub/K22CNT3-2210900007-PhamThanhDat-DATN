@@ -91,56 +91,171 @@ def get_chi_tiet_don_hang(donHang_id):
 # =====================================================
 @don_hang_bp.route("", methods=["POST"])
 def tao_don_hang():
-    data = request.json
-    nguoiDung_id = data["nguoiDung_id"]
-    diaChi = data.get("diaChiGiaoHang", "")
+    try:
+        data = request.json
+        
+        if not data or "nguoiDung_id" not in data:
+            return jsonify({
+                "success": False,
+                "message": "Thiếu thông tin người dùng"
+            }), 400
 
-    conn = get_db()
-    cursor = conn.cursor()
+        nguoiDung_id = data["nguoiDung_id"]
+        hoTen = data.get("hoTen", "").strip()
+        dienThoai = data.get("dienThoai", "").strip()
+        diaChi = data.get("diaChiGiaoHang", "").strip()
 
-    # Lấy giỏ hàng
-    cursor.execute("""
-        SELECT gh.sanPham_id, gh.soLuong, sp.gia
-        FROM GioHang gh
-        JOIN SanPham sp ON gh.sanPham_id = sp.id
-        WHERE gh.nguoiDung_id = ?
-    """, (nguoiDung_id,))
-    gio_hang = cursor.fetchall()
+        # Validation thông tin
+        if not hoTen or len(hoTen) < 2:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng nhập họ và tên (ít nhất 2 ký tự)"
+            }), 400
 
-    if not gio_hang:
-        return jsonify({"message": "Giỏ hàng trống"}), 400
+        if not dienThoai:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng nhập số điện thoại"
+            }), 400
 
-    tongTien = sum(row[1] * row[2] for row in gio_hang)
+        # Validate số điện thoại (10-11 số)
+        import re
+        phone_pattern = r'^[0-9]{10,11}$'
+        if not re.match(phone_pattern, dienThoai):
+            return jsonify({
+                "success": False,
+                "message": "Số điện thoại không hợp lệ (phải có 10-11 chữ số)"
+            }), 400
 
-    # Tạo đơn hàng
-    cursor.execute("""
-        INSERT INTO DonHang (nguoiDung_id, tongTien, diaChiGiaoHang)
-        OUTPUT INSERTED.id
-        VALUES (?, ?, ?)
-    """, (nguoiDung_id, tongTien, diaChi))
+        if not diaChi or len(diaChi) < 10:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng nhập địa chỉ giao hàng chi tiết (ít nhất 10 ký tự)"
+            }), 400
 
-    donHang_id = cursor.fetchone()[0]
+        conn = get_db()
+        cursor = conn.cursor()
 
-    # Thêm chi tiết đơn hàng
-    for sp_id, soLuong, gia in gio_hang:
+        # Lấy giỏ hàng từ database
         cursor.execute("""
-            INSERT INTO ChiTietDonHang
-            (donHang_id, sanPham_id, soLuong, gia)
-            VALUES (?, ?, ?, ?)
-        """, (donHang_id, sp_id, soLuong, gia))
+            SELECT gh.sanPham_id, gh.soLuong, sp.gia, sp.tenSanPham, sp.trangThai
+            FROM GioHang gh
+            JOIN SanPham sp ON gh.sanPham_id = sp.id
+            WHERE gh.nguoiDung_id = ?
+        """, (nguoiDung_id,))
+        gio_hang = cursor.fetchall()
 
-    # Xóa giỏ hàng
-    cursor.execute("""
-        DELETE FROM GioHang WHERE nguoiDung_id = ?
-    """, (nguoiDung_id,))
+        if not gio_hang:
+            return jsonify({
+                "success": False,
+                "message": "Giỏ hàng trống. Vui lòng thêm sản phẩm vào giỏ hàng"
+            }), 400
 
-    conn.commit()
+        # Kiểm tra sản phẩm còn khả dụng không
+        unavailable_products = [row[3] for row in gio_hang if not row[4]]
+        if unavailable_products:
+            return jsonify({
+                "success": False,
+                "message": f"Sản phẩm không còn khả dụng: {', '.join(unavailable_products)}"
+            }), 400
 
-    return jsonify({
-        "success": True,
-        "donHang_id": donHang_id,
-        "tongTien": tongTien
-    })
+        # Tính tổng tiền ban đầu
+        tongTienGoc = sum(row[1] * row[2] for row in gio_hang)
+        tongTien = tongTienGoc
+        khuyenMai_id = data.get("khuyenMai_id")
+        soTienGiam = 0
+
+        # Xử lý khuyến mãi nếu có
+        if khuyenMai_id:
+            cursor.execute("""
+                SELECT loaiGiamGia, giaTriGiam, giaTriToiDa, donHangToiThieu,
+                       ngayBatDau, ngayKetThuc, trangThai
+                FROM KhuyenMai
+                WHERE id = ?
+            """, (khuyenMai_id,))
+            
+            km = cursor.fetchone()
+            if km:
+                (loai, giaTri, giaTriToiDa, donHangToiThieu,
+                 ngayBatDau, ngayKetThuc, trangThai) = km
+                
+                from datetime import datetime
+                now = datetime.now()
+                
+                # Kiểm tra khuyến mãi hợp lệ
+                if trangThai and (not ngayBatDau or now >= ngayBatDau) and (not ngayKetThuc or now <= ngayKetThuc):
+                    if not donHangToiThieu or tongTienGoc >= donHangToiThieu:
+                        # Tính số tiền giảm
+                        if loai and loai.strip() == "phan_tram":
+                            soTienGiam = tongTienGoc * float(giaTri) / 100
+                            if giaTriToiDa:
+                                soTienGiam = min(soTienGiam, float(giaTriToiDa))
+                        else:  # tien_mat
+                            soTienGiam = float(giaTri)
+                        
+                        soTienGiam = int(soTienGiam)
+                        tongTien = tongTienGoc - soTienGiam
+
+        # Lấy thời gian nhận hàng (nếu có)
+        thoiGianNhanHang = data.get("thoiGianNhanHang", "").strip() or None
+        
+        # Tạo đơn hàng trong database
+        # Lưu thời gian nhận hàng vào diaChiGiaoHang hoặc tạo cột mới
+        # Tạm thời lưu vào diaChiGiaoHang với format: "diaChi | thoiGianNhanHang"
+        diaChiFull = diaChi
+        if thoiGianNhanHang:
+            diaChiFull = f"{diaChi} | Thời gian nhận: {thoiGianNhanHang}"
+        
+        cursor.execute("""
+            INSERT INTO DonHang (nguoiDung_id, tongTien, diaChiGiaoHang)
+            OUTPUT INSERTED.id
+            VALUES (?, ?, ?)
+        """, (nguoiDung_id, tongTien, diaChiFull))
+
+        donHang_id = cursor.fetchone()[0]
+
+        # Thêm chi tiết đơn hàng vào database
+        for sp_id, soLuong, gia, _, _ in gio_hang:
+            cursor.execute("""
+                INSERT INTO ChiTietDonHang
+                (donHang_id, sanPham_id, soLuong, gia)
+                VALUES (?, ?, ?, ?)
+            """, (donHang_id, sp_id, soLuong, gia))
+
+        # Lưu khuyến mãi vào DonHang_KhuyenMai nếu có
+        if khuyenMai_id and soTienGiam > 0:
+            cursor.execute("""
+                INSERT INTO DonHang_KhuyenMai
+                (donHang_id, khuyenMai_id, soTienGiam)
+                VALUES (?, ?, ?)
+            """, (donHang_id, khuyenMai_id, soTienGiam))
+
+        # Xóa giỏ hàng sau khi tạo đơn hàng thành công
+        cursor.execute("""
+            DELETE FROM GioHang WHERE nguoiDung_id = ?
+        """, (nguoiDung_id,))
+
+        # Commit tất cả vào database
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Tạo đơn hàng thành công",
+            "donHang_id": donHang_id,
+            "tongTien": tongTien,
+            "tongTienGoc": tongTienGoc,
+            "soTienGiam": soTienGiam
+        })
+
+    except Exception as e:
+        # Rollback nếu có lỗi
+        if 'conn' in locals():
+            conn.rollback()
+        
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
 
 
 # =====================================================

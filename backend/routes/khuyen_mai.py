@@ -45,7 +45,108 @@ def get_all_khuyen_mai():
     return jsonify(data)
 
 # =========================
-# ÁP DỤNG KHUYẾN MÃI
+# TÍNH TOÁN KHUYẾN MÃI (TRƯỚC KHI TẠO ĐƠN HÀNG)
+# =========================
+@khuyen_mai_bp.route("/tinh-toan", methods=["POST"])
+def tinh_toan_khuyen_mai():
+    """Tính toán số tiền giảm dựa trên mã khuyến mãi và tổng tiền giỏ hàng"""
+    try:
+        data = request.json
+        maKhuyenMai = data.get("maKhuyenMai", "").strip()
+        tongTien = data.get("tongTien", 0)
+
+        if not maKhuyenMai:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng nhập mã khuyến mãi"
+            }), 400
+
+        if tongTien <= 0:
+            return jsonify({
+                "success": False,
+                "message": "Tổng tiền không hợp lệ"
+            }), 400
+
+        conn = get_db()
+        cursor = conn.cursor()
+        now = datetime.now()
+
+        # Lấy thông tin khuyến mãi
+        cursor.execute("""
+            SELECT id, loaiGiamGia, giaTriGiam,
+                   giaTriToiDa, donHangToiThieu,
+                   ngayBatDau, ngayKetThuc, trangThai, tenKhuyenMai
+            FROM KhuyenMai
+            WHERE maKhuyenMai = ?
+        """, (maKhuyenMai,))
+        
+        km = cursor.fetchone()
+
+        if not km:
+            return jsonify({
+                "success": False,
+                "message": "Mã khuyến mãi không tồn tại"
+            }), 404
+
+        (khuyenMai_id, loai, giaTri, giaTriToiDa,
+         donHangToiThieu, ngayBatDau, ngayKetThuc, trangThai, tenKhuyenMai) = km
+
+        # Kiểm tra trạng thái và thời gian
+        if not trangThai:
+            return jsonify({
+                "success": False,
+                "message": "Mã khuyến mãi đã bị vô hiệu hóa"
+            }), 400
+
+        if ngayBatDau and now < ngayBatDau:
+            return jsonify({
+                "success": False,
+                "message": f"Mã khuyến mãi chưa có hiệu lực. Có hiệu lực từ {ngayBatDau.strftime('%d/%m/%Y')}"
+            }), 400
+
+        if ngayKetThuc and now > ngayKetThuc:
+            return jsonify({
+                "success": False,
+                "message": f"Mã khuyến mãi đã hết hạn. Hết hạn vào {ngayKetThuc.strftime('%d/%m/%Y')}"
+            }), 400
+
+        # Kiểm tra đơn hàng tối thiểu
+        if donHangToiThieu and tongTien < donHangToiThieu:
+            return jsonify({
+                "success": False,
+                "message": f"Đơn hàng tối thiểu {int(donHangToiThieu):,}đ để áp dụng mã này"
+            }), 400
+
+        # Tính số tiền giảm
+        if loai and loai.strip() == "phan_tram":
+            soTienGiam = tongTien * float(giaTri) / 100
+            if giaTriToiDa:
+                soTienGiam = min(soTienGiam, float(giaTriToiDa))
+        else:  # tien_mat
+            soTienGiam = float(giaTri)
+
+        soTienGiam = int(soTienGiam)
+        tongTienSauGiam = tongTien - soTienGiam
+
+        return jsonify({
+            "success": True,
+            "message": f"Áp dụng mã '{tenKhuyenMai}' thành công",
+            "khuyenMai_id": khuyenMai_id,
+            "maKhuyenMai": maKhuyenMai,
+            "tenKhuyenMai": tenKhuyenMai,
+            "soTienGiam": soTienGiam,
+            "tongTienTruocGiam": tongTien,
+            "tongTienSauGiam": tongTienSauGiam
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
+
+# =========================
+# ÁP DỤNG KHUYẾN MÃI (SAU KHI TẠO ĐƠN HÀNG)
 # =========================
 @khuyen_mai_bp.route("/ap-dung", methods=["POST"])
 def ap_dung_khuyen_mai():

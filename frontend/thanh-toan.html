@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán | BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/gio-hang.css">
+    <link rel="stylesheet" href="css/thanh-toan.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="location='index.html'">
+            <img src="images/logo2.jpg">
+            <span>BabyCutie</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="security-badge">
+                <i class="fa fa-shield-alt"></i> Bảo mật 100%
+            </div>
+            <a href="gio-hang.html" class="btn-back-cart">
+                <i class="fa fa-arrow-left"></i> Quay lại giỏ hàng
+            </a>
+        </div>
+    </div>
+</header>
+
+<section class="container mt-4">
+    <h2 class="checkout-title">💳 Thanh toán đơn hàng</h2>
+
+    <div class="row g-4">
+        <!-- ===== CỘT TRÁI: THÔNG TIN GIAO HÀNG ===== -->
+        <div class="col-lg-7">
+            <!-- PHẦN 1: THÔNG TIN GIAO HÀNG -->
+            <div class="checkout-section">
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    <h5 class="section-title">Thông tin giao hàng</h5>
+                </div>
+
+                <!-- Địa chỉ đã lưu -->
+                <div class="saved-addresses mb-4">
+                    <label class="address-option">
+                        <input type="radio" name="addressType" value="saved" checked onchange="handleAddressTypeChange()">
+                        <div class="address-card address-card-selected">
+                            <div class="address-header">
+                                <span class="address-label">Nhà riêng</span>
+                                <span class="address-default">MẶC ĐỊNH</span>
+                                <button class="btn-edit-address" onclick="editAddress('home')">
+                                    <i class="fa fa-pencil-alt"></i>
+                                </button>
+                            </div>
+                            <div class="address-info" id="savedAddressHome">
+                                <strong id="savedNameHome">-</strong> - <span id="savedPhoneHome">-</span><br>
+                                <span id="savedAddressHomeText">-</span>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="address-option">
+                        <input type="radio" name="addressType" value="office" onchange="handleAddressTypeChange()">
+                        <div class="address-card">
+                            <div class="address-header">
+                                <span class="address-label">Văn phòng</span>
+                                <button class="btn-edit-address" onclick="editAddress('office')">
+                                    <i class="fa fa-pencil-alt"></i>
+                                </button>
+                            </div>
+                            <div class="address-info" id="savedAddressOffice">
+                                <strong id="savedNameOffice">-</strong> - <span id="savedPhoneOffice">-</span><br>
+                                <span id="savedAddressOfficeText">-</span>
+                            </div>
+                        </div>
+                    </label>
+                    <button class="btn-add-address" onclick="showNewAddressForm()">
+                        <i class="fa fa-plus"></i> Thêm địa chỉ mới
+                    </button>
+                </div>
+
+                <!-- Hoặc nhập thông tin người nhận mới -->
+                <div class="new-address-form" id="newAddressForm" style="display: none;">
+                    <h6 class="form-subtitle">Hoặc nhập thông tin người nhận mới</h6>
+                    <form id="customerInfoForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Họ và tên</label>
+                                <input 
+                                    type="text" 
+                                    id="hoTen" 
+                                    class="form-control" 
+                                    placeholder="Ví dụ: Nguyễn Vân A"
+                                    autocomplete="name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số điện thoại</label>
+                                <input 
+                                    type="tel" 
+                                    id="dienThoai" 
+                                    class="form-control" 
+                                    placeholder="Ví dụ: 0912345678"
+                                    pattern="[0-9]{10,11}"
+                                    autocomplete="tel">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tỉnh/Thành phố</label>
+                                <select id="tinhThanh" class="form-select">
+                                    <option value="">Chọn tỉnh/thành phố</option>
+                                    <option value="da-nang" selected>Đà Nẵng</option>
+                                    <option value="ho-chi-minh">TP. Hồ Chí Minh</option>
+                                    <option value="ha-noi">Hà Nội</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quận/Huyện</label>
+                                <select id="quanHuyen" class="form-select">
+                                    <option value="">Chọn quận/huyện</option>
+                                    <option value="hai-chau" selected>Quận Hải Châu</option>
+                                    <option value="thanh-khe">Quận Thanh Khê</option>
+                                    <option value="lien-chieu">Quận Liên Chiểu</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ cụ thể</label>
+                            <input 
+                                type="text" 
+                                id="diaChi" 
+                                class="form-control" 
+                                placeholder="Số nhà, tên đường...">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Thời gian nhận hàng mong muốn -->
+                <div class="delivery-time-section mt-4">
+                    <h6 class="delivery-time-title">
+                        <i class="fa fa-clock"></i> Thời gian nhận hàng mong muốn
+                    </h6>
+                    <div class="delivery-time-options">
+                        <button class="time-option active" onclick="selectDeliveryTime('immediate', this)">
+                            Ngay lập tức
+                        </button>
+                        <button class="time-option" onclick="selectDeliveryTime('11-12', this)">
+                            11:00-12:00
+                        </button>
+                        <button class="time-option" onclick="selectDeliveryTime('16-17', this)">
+                            16:00-17:00
+                        </button>
+                        <button class="time-option" onclick="selectDeliveryTime('other', this)">
+                            Khác...
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHẦN 2: PHƯƠNG THỨC THANH TOÁN -->
+            <div class="checkout-section mt-4">
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    <h5 class="section-title">Phương thức thanh toán</h5>
+                </div>
+                <div class="payment-methods-list">
+                    <label class="payment-method-item payment-method-selected">
+                        <input type="radio" name="pttt" value="COD" checked onchange="handlePaymentMethodChange()">
+                        <span class="payment-option">
+                            <i class="fa fa-money-bill-wave payment-icon-cod"></i>
+                            <div>
+                                <strong>Thanh toán khi nhận hàng (COD)</strong>
+                                <small>Thanh toán bằng tiền mặt trực tiếp cho shipper khi nhận được cháo.</small>
+                            </div>
+                        </span>
+                    </label>
+                    <label class="payment-method-item">
+                        <input type="radio" name="pttt" value="Chuyển khoản" onchange="handlePaymentMethodChange()">
+                        <span class="payment-option">
+                            <i class="fa fa-university payment-icon-bank"></i>
+                            <div>
+                                <strong>Chuyển khoản ngân hàng (VietQR)</strong>
+                                <small>Quét mã QR để thanh toán nhanh chóng, an toàn và chính xác.</small>
+                            </div>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CỘT PHẢI: TÓM TẮT ĐƠN HÀNG ===== -->
+        <div class="col-lg-5">
+            <div class="order-summary-checkout">
+                <h5 class="section-title">📋 Tóm tắt đơn hàng</h5>
+                
+                <!-- Danh sách sản phẩm -->
+                <div class="order-items-list" id="orderItemsList">
+                    <!-- Sẽ được render từ giỏ hàng -->
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <!-- Mã giảm giá -->
+                <div class="promo-code-section mb-3">
+                    <label class="form-label small">Mã giảm giá</label>
+                    <div class="d-flex gap-2">
+                        <input 
+                            type="text" 
+                            id="maKhuyenMai" 
+                            class="form-control form-control-sm" 
+                            placeholder="Nhập mã voucher">
+                        <button class="btn btn-sm btn-primary" onclick="apDungKhuyenMai()">
+                            Áp dụng
+                        </button>
+                    </div>
+                    <div id="promoInfo" class="mt-2 small text-success" style="display: none;"></div>
+                </div>
+
+                <!-- Tổng phụ -->
+                <div class="summary-row">
+                    <span>Tạm tính</span>
+                    <span id="summaryTongPhu">0₫</span>
+                </div>
+
+                <!-- Phí vận chuyển -->
+                <div class="summary-row">
+                    <span>Phí vận chuyển</span>
+                    <span id="summaryPhiVanChuyen">15.000₫</span>
+                </div>
+
+                <!-- Giảm giá -->
+                <div class="summary-row text-success" id="summaryGiamGiaRow" style="display: none;">
+                    <span>Giảm giá</span>
+                    <span id="summaryGiamGia">-0₫</span>
+                </div>
+
+                <!-- Tổng cộng -->
+                <div class="summary-row total-row">
+                    <span class="fw-bold">Tổng cộng</span>
+                    <span class="fw-bold text-primary total-amount" id="summaryTongCong">0₫</span>
+                </div>
+                <p class="small text-muted mb-3">(đã bao gồm VAT)</p>
+
+                <!-- Nút đặt hàng -->
+                <button class="btn btn-primary w-100 btn-checkout-large" onclick="datHang()" id="checkoutBtn">
+                    Hoàn tất đặt hàng <i class="fa fa-arrow-right"></i>
+                </button>
+
+                <!-- Thông báo chất lượng -->
+                <div class="quality-notice mt-3">
+                    <i class="fa fa-check-circle"></i>
+                    <span>Đảm bảo dinh dưỡng & vệ sinh an toàn</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MODAL QR CODE CHUYỂN KHOẢN -->
+<div class="modal fade" id="qrPaymentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff6b81, #ff8fa3); color: #fff;">
+                <h5 class="modal-title">
+                    <i class="fa fa-qrcode"></i> Thanh toán chuyển khoản
+                </h5>
+                <button type="button" class="btn-close btn-close-white" onclick="closeQRModal()"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="bank-info mb-4">
+                    <h6 class="mb-3">
+                        <i class="fa fa-university"></i> Thông tin tài khoản ngân hàng
+                    </h6>
+                    <div class="bank-details">
+                        <p>
+                            <strong><i class="fa fa-user"></i> Chủ tài khoản:</strong> 
+                            <span id="accountHolder" class="fw-bold" style="color: #ff6b81; font-size: 16px;">PHẠM THÀNH ĐẠT</span>
+                        </p>
+                        <p>
+                            <strong><i class="fa fa-phone"></i> Số điện thoại:</strong> 
+                            <span id="phoneNumber" class="fw-bold" style="color: #ff6b81; font-size: 16px;">0984868340</span>
+                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('0984868340')">
+                                <i class="fa fa-copy"></i> Copy
+                            </button>
+                        </p>
+                        <p>
+                            <strong><i class="fa fa-money-bill-wave"></i> Số tiền:</strong> 
+                            <span id="paymentAmount" class="text-danger fw-bold" style="font-size: 20px;">0đ</span>
+                        </p>
+                        <p>
+                            <strong><i class="fa fa-file-text"></i> Nội dung chuyển khoản:</strong> 
+                            <span id="paymentContent" class="text-muted fw-bold">DonHang#</span>
+                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyPaymentContent()">
+                                <i class="fa fa-copy"></i> Copy
+                            </button>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="qr-code-container mb-4">
+                    <h6 class="mb-3">
+                        <i class="fa fa-qrcode"></i> Quét mã QR để thanh toán
+                    </h6>
+                    <div class="qr-image-wrapper">
+                        <img id="qrImage" src="images/qr.jpg" alt="QR Code">
+                    </div>
+                </div>
+
+                <div class="payment-steps">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <p>Quét mã QR</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <p>Nhập số tiền</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <p>Xác nhận thanh toán</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                    <i class="fa fa-clock"></i> 
+                    <strong>Lưu ý:</strong> Sau khi chuyển khoản, vui lòng chờ 5-10 phút để hệ thống xác nhận. 
+                    Đơn hàng sẽ được xử lý sau khi nhận được thanh toán.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeQRModal()">
+                    <i class="fa fa-times"></i> Đóng
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmTransferBtn" onclick="confirmBankTransfer(event)">
+                    <i class="fa fa-check"></i> Đã chuyển khoản
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/thanh-toan.js"></script>
+
+</body>
+</html>
