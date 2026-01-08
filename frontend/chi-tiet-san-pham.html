@@ -31,7 +31,13 @@
                 <span>🍚 Carb: <span id="productCarb"></span>g</span> |
                 <span>🥑 Fat: <span id="productChatBeo"></span>g</span>
             </div>
-            <button class="btn btn-danger btn-lg" onclick="addToCart()">🛒 Thêm vào giỏ</button>
+            <button class="btn btn-danger btn-lg" id="addToCartBtn" onclick="addToCart()">🛒 Thêm vào giỏ</button>
+            <div id="cartQuantityInfo" class="mt-2" style="display: none;">
+                <small class="text-success">
+                    <i class="fa fa-check-circle"></i> 
+                    Đã có <strong id="currentQuantity">0</strong> sản phẩm trong giỏ hàng
+                </small>
+            </div>
         </div>
     </div>
 
@@ -171,6 +177,12 @@ function addToCart() {
         window.location.href = "login-khach.html";
         return;
     }
+
+    const btn = document.getElementById("addToCartBtn");
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang thêm...';
+
     fetch("http://127.0.0.1:5000/api/gio-hang", {
         method: "POST",
         headers: {
@@ -181,10 +193,68 @@ function addToCart() {
     })
     .then(r => r.json())
     .then(data => {
+        btn.disabled = false;
+        
         if (data.success) {
-            alert("✅ Đã thêm vào giỏ hàng!");
+            // Cập nhật số lượng hiển thị
+            checkCartQuantity();
+            // Toast notification
+            showToast("✅ Đã thêm vào giỏ hàng!", "success");
+        } else {
+            btn.innerHTML = originalText;
+            showToast("Lỗi: " + (data.message || "Không thể thêm vào giỏ"), "error");
         }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        showToast("Lỗi kết nối. Vui lòng thử lại.", "error");
+        console.error("Error:", err);
     });
+}
+
+// Kiểm tra số lượng sản phẩm trong giỏ
+function checkCartQuantity() {
+    if (!token) return;
+
+    fetch("http://127.0.0.1:5000/api/gio-hang", {
+        headers: {"Authorization": "Bearer " + token}
+    })
+    .then(res => res.json())
+    .then(cartItems => {
+        const item = cartItems.find(i => i.sanPham_id === parseInt(productId));
+        const quantityInfo = document.getElementById("cartQuantityInfo");
+        const currentQuantity = document.getElementById("currentQuantity");
+        const btn = document.getElementById("addToCartBtn");
+
+        if (item && item.soLuong > 0) {
+            currentQuantity.textContent = item.soLuong;
+            quantityInfo.style.display = "block";
+            btn.innerHTML = `🛒 Đã thêm (${item.soLuong})`;
+            btn.style.background = "linear-gradient(135deg, #28a745, #20c997)";
+        } else {
+            quantityInfo.style.display = "none";
+            btn.innerHTML = "🛒 Thêm vào giỏ";
+            btn.style.background = "";
+        }
+    })
+    .catch(err => console.error("Error:", err));
+}
+
+// Toast notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type} show`;
+    toast.innerHTML = `
+        <i class="fa ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
 }
 
 loadDanhGia();

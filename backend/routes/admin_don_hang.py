@@ -102,17 +102,142 @@ def get_chi_tiet_don_hang(donHang_id):
 # =====================================================
 @admin_don_hang_bp.route("/<int:id>/trang-thai", methods=["PUT"])
 def cap_nhat_trang_thai(id):
-    data = request.json
-    trangThai = data["trangThai"]
+    try:
+        data = request.json
+        trangThai = data.get("trangThai", "").strip()
 
-    conn = get_db()
-    cursor = conn.cursor()
+        if not trangThai:
+            return jsonify({
+                "success": False,
+                "message": "Trạng thái không được để trống"
+            }), 400
 
-    cursor.execute("""
-        UPDATE DonHang
-        SET trangThai = ?
-        WHERE id = ?
-    """, (trangThai, id))
+        conn = get_db()
+        cursor = conn.cursor()
 
-    conn.commit()
-    return jsonify({"success": True})
+        # Kiểm tra đơn hàng có tồn tại không
+        cursor.execute("""
+            SELECT id
+            FROM DonHang
+            WHERE id = ?
+        """, (id,))
+
+        if not cursor.fetchone():
+            return jsonify({
+                "success": False,
+                "message": "Không tìm thấy đơn hàng"
+            }), 404
+
+        cursor.execute("""
+            UPDATE DonHang
+            SET trangThai = ?
+            WHERE id = ?
+        """, (trangThai, id))
+
+        conn.commit()
+        return jsonify({
+            "success": True,
+            "message": "Cập nhật trạng thái thành công"
+        })
+
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
+
+
+# =====================================================
+# 4️⃣ ADMIN – CẬP NHẬT THÔNG TIN ĐƠN HÀNG
+# =====================================================
+@admin_don_hang_bp.route("/<int:id>", methods=["PUT"])
+def update_don_hang(id):
+    try:
+        data = request.json
+        
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Kiểm tra đơn hàng có tồn tại không
+        cursor.execute("""
+            SELECT id, tongTien
+            FROM DonHang
+            WHERE id = ?
+        """, (id,))
+
+        don_hang = cursor.fetchone()
+        
+        if not don_hang:
+            return jsonify({
+                "success": False,
+                "message": "Không tìm thấy đơn hàng"
+            }), 404
+
+        # Cập nhật các trường có thể chỉnh sửa
+        updates = []
+        params = []
+
+        if "tongTien" in data:
+            tongTien = float(data["tongTien"])
+            if tongTien < 0:
+                return jsonify({
+                    "success": False,
+                    "message": "Tổng tiền không hợp lệ"
+                }), 400
+            updates.append("tongTien = ?")
+            params.append(tongTien)
+
+        if "diaChiGiaoHang" in data:
+            diaChi = data["diaChiGiaoHang"].strip()
+            if diaChi and len(diaChi) >= 10:
+                updates.append("diaChiGiaoHang = ?")
+                params.append(diaChi)
+            elif diaChi:
+                return jsonify({
+                    "success": False,
+                    "message": "Địa chỉ giao hàng phải có ít nhất 10 ký tự"
+                }), 400
+
+        if "trangThai" in data:
+            trangThai = data["trangThai"].strip()
+            if trangThai:
+                updates.append("trangThai = ?")
+                params.append(trangThai)
+
+        if not updates:
+            return jsonify({
+                "success": False,
+                "message": "Không có thông tin nào để cập nhật"
+            }), 400
+
+        params.append(id)
+
+        # Thực hiện cập nhật
+        sql = f"""
+            UPDATE DonHang
+            SET {', '.join(updates)}
+            WHERE id = ?
+        """
+        cursor.execute(sql, params)
+
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Cập nhật đơn hàng thành công"
+        })
+
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "message": "Dữ liệu không hợp lệ"
+        }), 400
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500

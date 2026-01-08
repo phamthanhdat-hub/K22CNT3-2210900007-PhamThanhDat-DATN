@@ -38,19 +38,26 @@ function loadCustomerInfo() {
         if (data.success && data.nguoiDung) {
             const userInfo = data.nguoiDung;
             
-            // Load địa chỉ đã lưu từ database
-            if (userInfo.hoTen && userInfo.dienThoai && userInfo.diaChi) {
+            // Load địa chỉ nhà riêng từ database
+            if (userInfo.hoTen && userInfo.dienThoai) {
                 document.getElementById("savedNameHome").textContent = userInfo.hoTen;
                 document.getElementById("savedPhoneHome").textContent = userInfo.dienThoai;
-                document.getElementById("savedAddressHomeText").textContent = userInfo.diaChi;
+                
+                // Parse địa chỉ nhà riêng nếu có format "diaChi | Thời gian: ..."
+                const diaChiHome = userInfo.diaChi || '';
+                const diaChiHomeParts = diaChiHome.split(" | ");
+                document.getElementById("savedAddressHomeText").textContent = diaChiHomeParts[0] || '-';
+                
+                // Load địa chỉ văn phòng
+                document.getElementById("savedNameOffice").textContent = userInfo.hoTen;
+                document.getElementById("savedPhoneOffice").textContent = userInfo.dienThoai;
+                const diaChiOffice = userInfo.diaChiVanPhong || '';
+                document.getElementById("savedAddressOfficeText").textContent = diaChiOffice || '-';
                 
                 // Điền vào form mới nếu cần
                 document.getElementById("hoTen").value = userInfo.hoTen;
                 document.getElementById("dienThoai").value = userInfo.dienThoai;
-                
-                // Parse địa chỉ nếu có format "diaChi | Thời gian: ..."
-                const diaChiParts = userInfo.diaChi.split(" | ");
-                document.getElementById("diaChi").value = diaChiParts[0];
+                document.getElementById("diaChi").value = diaChiHomeParts[0] || '';
             } else {
                 // Nếu chưa có địa chỉ, hiển thị form mới
                 showNewAddressForm();
@@ -110,10 +117,9 @@ function loadSavedAddress(type) {
                 const diaChiParts = (userInfo.diaChi || '').split(" | ");
                 document.getElementById("savedAddressHomeText").textContent = diaChiParts[0] || '-';
             } else if (type === 'office') {
-                // Văn phòng có thể lưu riêng trong tương lai, tạm thời dùng thông tin chính
                 document.getElementById("savedNameOffice").textContent = userInfo.hoTen || '-';
                 document.getElementById("savedPhoneOffice").textContent = userInfo.dienThoai || '-';
-                document.getElementById("savedAddressOfficeText").textContent = '-';
+                document.getElementById("savedAddressOfficeText").textContent = userInfo.diaChiVanPhong || '-';
             }
         }
     })
@@ -126,11 +132,258 @@ function showNewAddressForm() {
     document.getElementById("newAddressForm").style.display = "block";
     document.querySelector('input[name="addressType"][value="saved"]').checked = false;
     document.querySelector('input[name="addressType"][value="office"]').checked = false;
+    
+    // Ẩn nút Lưu lại và Hủy khi thêm địa chỉ mới (không phải chỉnh sửa)
+    if (!currentEditingAddressType) {
+        document.getElementById("addressActionButtons").style.display = "none";
+    }
+    
+    // Scroll to form
+    document.getElementById("newAddressForm").scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+// Lưu loại địa chỉ đang chỉnh sửa
+let currentEditingAddressType = 'home';
+
 function editAddress(type) {
+    currentEditingAddressType = type; // Lưu loại địa chỉ đang chỉnh sửa
     showNewAddressForm();
-    loadSavedAddress(type);
+    
+    // Hiển thị nút Lưu lại và Hủy ngay lập tức khi bắt đầu chỉnh sửa
+    document.getElementById("addressActionButtons").style.display = "flex";
+    
+    // Load thông tin từ database và điền vào form
+    fetch("http://127.0.0.1:5000/api/auth/profile", {
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.nguoiDung) {
+            const userInfo = data.nguoiDung;
+            
+            // Điền thông tin vào form
+            document.getElementById("hoTen").value = userInfo.hoTen || '';
+            document.getElementById("dienThoai").value = userInfo.dienThoai || '';
+            
+            // Lấy địa chỉ tùy theo loại
+            let diaChiToEdit = '';
+            if (type === 'home') {
+                const diaChiFull = userInfo.diaChi || '';
+                const diaChiParts = diaChiFull.split(" | ");
+                diaChiToEdit = diaChiParts[0] || '';
+            } else if (type === 'office') {
+                diaChiToEdit = userInfo.diaChiVanPhong || '';
+            }
+            
+            // Parse địa chỉ thành các phần: địa chỉ cụ thể, quận/huyện, tỉnh/thành phố
+            // Format: "Số nhà, tên đường, Quận/Huyện, Tỉnh/Thành phố"
+            const diaChiArray = diaChiToEdit.split(',').map(s => s.trim());
+            
+            if (diaChiArray.length >= 3) {
+                // Địa chỉ cụ thể (phần đầu)
+                const diaChiCuThe = diaChiArray.slice(0, -2).join(', ');
+                document.getElementById("diaChi").value = diaChiCuThe;
+                
+                // Quận/Huyện (phần thứ 2 từ cuối)
+                const quanHuyen = diaChiArray[diaChiArray.length - 2];
+                // Map tên quận/huyện về value của select
+                const quanHuyenSelect = document.getElementById("quanHuyen");
+                for (let option of quanHuyenSelect.options) {
+                    if (option.text.includes(quanHuyen) || quanHuyen.includes(option.text)) {
+                        quanHuyenSelect.value = option.value;
+                        break;
+                    }
+                }
+                
+                // Tỉnh/Thành phố (phần cuối)
+                const tinhThanh = diaChiArray[diaChiArray.length - 1];
+                const tinhThanhSelect = document.getElementById("tinhThanh");
+                for (let option of tinhThanhSelect.options) {
+                    if (option.text.includes(tinhThanh) || tinhThanh.includes(option.text)) {
+                        tinhThanhSelect.value = option.value;
+                        break;
+                    }
+                }
+            } else {
+                // Nếu không parse được, điền toàn bộ vào địa chỉ cụ thể
+                document.getElementById("diaChi").value = diaChiToEdit;
+            }
+            
+            // Bỏ chọn radio button địa chỉ đã lưu
+            document.querySelector('input[name="addressType"][value="saved"]').checked = false;
+            document.querySelector('input[name="addressType"][value="office"]').checked = false;
+        } else {
+            // Nếu không load được, vẫn hiển thị nút để người dùng có thể nhập mới
+            console.warn("Không thể load thông tin địa chỉ, nhưng vẫn cho phép chỉnh sửa");
+        }
+    })
+    .catch(err => {
+        console.error("Error loading address for edit:", err);
+        // Vẫn hiển thị nút để người dùng có thể nhập và lưu
+    });
+}
+
+/* ===============================
+   LƯU ĐỊA CHỈ NGAY LẬP TỨC
+================================ */
+function saveAddressNow() {
+    const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
+    
+    if (!userInfo.id) {
+        showToast("Vui lòng đăng nhập", "error");
+        return;
+    }
+    
+    // Validate thông tin
+    const hoTen = document.getElementById("hoTen").value.trim();
+    const dienThoai = document.getElementById("dienThoai").value.trim();
+    const tinhThanh = document.getElementById("tinhThanh").value;
+    const quanHuyen = document.getElementById("quanHuyen").value;
+    const diaChiCuThe = document.getElementById("diaChi").value.trim();
+    
+    // Validate
+    if (!hoTen || hoTen.length < 2) {
+        showToast("Vui lòng nhập họ và tên (ít nhất 2 ký tự)", "error");
+        document.getElementById("hoTen").focus();
+        return;
+    }
+    
+    const phonePattern = /^[0-9]{10,11}$/;
+    if (!dienThoai || !phonePattern.test(dienThoai)) {
+        showToast("Vui lòng nhập số điện thoại hợp lệ (10-11 chữ số)", "error");
+        document.getElementById("dienThoai").focus();
+        return;
+    }
+    
+    if (!diaChiCuThe || diaChiCuThe.length < 5) {
+        showToast("Vui lòng nhập địa chỉ cụ thể", "error");
+        document.getElementById("diaChi").focus();
+        return;
+    }
+    
+    // Tạo địa chỉ đầy đủ
+    const diaChiParts = [diaChiCuThe];
+    if (quanHuyen) {
+        const quanHuyenText = document.querySelector(`#quanHuyen option[value="${quanHuyen}"]`)?.text || '';
+        if (quanHuyenText) diaChiParts.push(quanHuyenText);
+    }
+    if (tinhThanh) {
+        const tinhThanhText = document.querySelector(`#tinhThanh option[value="${tinhThanh}"]`)?.text || '';
+        if (tinhThanhText) diaChiParts.push(tinhThanhText);
+    }
+    const diaChi = diaChiParts.filter(x => x).join(", ");
+    
+    if (diaChi.length < 10) {
+        showToast("Địa chỉ phải có ít nhất 10 ký tự", "error");
+        return;
+    }
+    
+    // Đánh dấu đang lưu từ nút "Lưu lại"
+    window.isSavingAddressNow = true;
+    
+    // Gọi hàm updateCustomerInfo với thông tin đã nhập
+    const addressTypeToUpdate = currentEditingAddressType || 'home';
+    
+    const updateBody = {
+        id: userInfo.id,
+        hoTen: hoTen,
+        dienThoai: dienThoai,
+        addressType: addressTypeToUpdate
+    };
+    
+    if (addressTypeToUpdate === "home") {
+        updateBody.diaChi = diaChi;
+    } else {
+        updateBody.diaChiVanPhong = diaChi;
+    }
+    
+    // Disable nút trong khi đang lưu
+    const saveBtn = document.getElementById("saveAddressBtn");
+    const originalText = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang lưu...';
+    
+    // Gọi API để lưu
+    fetch("http://127.0.0.1:5000/api/auth/update-profile", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(updateBody)
+    })
+    .then(res => res.json())
+    .then(data => {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+        
+        if (data.success) {
+            // Cập nhật localStorage
+            userInfo.hoTen = hoTen;
+            userInfo.dienThoai = dienThoai;
+            if (addressTypeToUpdate === "home") {
+                userInfo.diaChi = diaChi;
+            } else {
+                userInfo.diaChiVanPhong = diaChi;
+            }
+            localStorage.setItem("user_info", JSON.stringify(userInfo));
+            
+            // Cập nhật hiển thị địa chỉ đã lưu
+            if (addressTypeToUpdate === "home") {
+                document.getElementById("savedNameHome").textContent = hoTen;
+                document.getElementById("savedPhoneHome").textContent = dienThoai;
+                document.getElementById("savedAddressHomeText").textContent = diaChi;
+            } else {
+                document.getElementById("savedNameOffice").textContent = hoTen;
+                document.getElementById("savedPhoneOffice").textContent = dienThoai;
+                document.getElementById("savedAddressOfficeText").textContent = diaChi;
+            }
+            
+            // Ẩn form và reset
+            document.getElementById("newAddressForm").style.display = "none";
+            document.getElementById("addressActionButtons").style.display = "none";
+            currentEditingAddressType = null;
+            window.isSavingAddressNow = false;
+            
+            // Chọn lại địa chỉ vừa lưu
+            if (addressTypeToUpdate === "home") {
+                document.querySelector('input[name="addressType"][value="saved"]').checked = true;
+            } else {
+                document.querySelector('input[name="addressType"][value="office"]').checked = true;
+            }
+            
+            showToast(`✅ Đã lưu địa chỉ ${addressTypeToUpdate === "home" ? "nhà riêng" : "văn phòng"} thành công!`, "success");
+        } else {
+            showToast(data.message || "Lỗi khi lưu địa chỉ", "error");
+            window.isSavingAddressNow = false;
+        }
+    })
+    .catch(err => {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+        showToast("Lỗi kết nối khi lưu địa chỉ", "error");
+        console.error("Error saving address:", err);
+        window.isSavingAddressNow = false;
+    });
+}
+
+/* ===============================
+   HỦY CHỈNH SỬA ĐỊA CHỈ
+================================ */
+function cancelEditAddress() {
+    // Ẩn form
+    document.getElementById("newAddressForm").style.display = "none";
+    document.getElementById("addressActionButtons").style.display = "none";
+    
+    // Reset biến
+    currentEditingAddressType = null;
+    
+    // Chọn lại địa chỉ đã lưu trước đó
+    if (document.querySelector('input[name="addressType"][value="saved"]')) {
+        document.querySelector('input[name="addressType"][value="saved"]').checked = true;
+    }
 }
 
 /* ===============================
@@ -383,30 +636,85 @@ function validateCustomerInfo() {
 ================================ */
 function updateCustomerInfo() {
     const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
-    const saveInfo = document.getElementById("saveInfo")?.checked || false;
+    const saveInfoEl = document.getElementById("saveInfo");
+    const saveInfo = saveInfoEl ? saveInfoEl.checked : false;
 
-    if (!saveInfo || !userInfo.id) {
+    // Nếu không có checkbox hoặc không được chọn, không lưu
+    if (!saveInfoEl || !saveInfo || !userInfo.id) {
         return Promise.resolve();
     }
 
     const addressType = document.querySelector('input[name="addressType"]:checked')?.value;
     let hoTen, dienThoai, diaChi;
     
-    if (addressType === "saved" || addressType === "office") {
-        // Lấy từ thông tin đã lưu
-        hoTen = userInfo.hoTen || '';
-        dienThoai = userInfo.dienThoai || '';
-        const diaChiFull = userInfo.diaChi || '';
-        const diaChiParts = diaChiFull.split(" | ");
-        diaChi = diaChiParts[0] || '';
-    } else {
+    // Xác định loại địa chỉ đang chỉnh sửa
+    const newAddressForm = document.getElementById("newAddressForm");
+    let addressTypeToUpdate = 'home'; // Mặc định là nhà riêng
+    
+    if (newAddressForm && newAddressForm.style.display !== "none") {
+        // Nếu đang chỉnh sửa từ form, dùng loại đã lưu
+        addressTypeToUpdate = currentEditingAddressType || 'home';
+        
         // Lấy từ form mới
         hoTen = document.getElementById("hoTen").value.trim();
         dienThoai = document.getElementById("dienThoai").value.trim();
         const tinhThanh = document.getElementById("tinhThanh").value;
         const quanHuyen = document.getElementById("quanHuyen").value;
         const diaChiCuThe = document.getElementById("diaChi").value.trim();
-        diaChi = [diaChiCuThe, quanHuyen, tinhThanh].filter(x => x).join(", ");
+        
+        // Tạo địa chỉ đầy đủ
+        const diaChiParts = [diaChiCuThe];
+        if (quanHuyen) {
+            const quanHuyenText = document.querySelector(`#quanHuyen option[value="${quanHuyen}"]`)?.text || '';
+            if (quanHuyenText) diaChiParts.push(quanHuyenText);
+        }
+        if (tinhThanh) {
+            const tinhThanhText = document.querySelector(`#tinhThanh option[value="${tinhThanh}"]`)?.text || '';
+            if (tinhThanhText) diaChiParts.push(tinhThanhText);
+        }
+        diaChi = diaChiParts.filter(x => x).join(", ");
+    } else if (addressType === "saved" || addressType === "office") {
+        // Lấy từ thông tin đã lưu
+        addressTypeToUpdate = addressType === "saved" ? "home" : "office";
+        hoTen = userInfo.hoTen || '';
+        dienThoai = userInfo.dienThoai || '';
+        if (addressType === "saved") {
+            const diaChiFull = userInfo.diaChi || '';
+            const diaChiParts = diaChiFull.split(" | ");
+            diaChi = diaChiParts[0] || '';
+        } else {
+            diaChi = userInfo.diaChiVanPhong || '';
+        }
+    } else {
+        // Không có thông tin, không cập nhật
+        return Promise.resolve();
+    }
+
+    // Validate trước khi cập nhật
+    if (!hoTen || hoTen.length < 2 || !dienThoai) {
+        return Promise.resolve();
+    }
+    
+    if (addressTypeToUpdate === "home" && (!diaChi || diaChi.length < 10)) {
+        return Promise.resolve();
+    }
+    
+    if (addressTypeToUpdate === "office" && (!diaChi || diaChi.length < 10)) {
+        return Promise.resolve();
+    }
+
+    // Chuẩn bị body để gửi
+    const updateBody = {
+        id: userInfo.id,
+        hoTen: hoTen,
+        dienThoai: dienThoai,
+        addressType: addressTypeToUpdate
+    };
+    
+    if (addressTypeToUpdate === "home") {
+        updateBody.diaChi = diaChi;
+    } else {
+        updateBody.diaChiVanPhong = diaChi;
     }
 
     // Cập nhật vào database
@@ -416,12 +724,7 @@ function updateCustomerInfo() {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
         },
-        body: JSON.stringify({
-            id: userInfo.id,
-            hoTen: hoTen,
-            dienThoai: dienThoai,
-            diaChi: diaChi
-        })
+        body: JSON.stringify(updateBody)
     })
     .then(res => res.json())
     .then(data => {
@@ -429,9 +732,28 @@ function updateCustomerInfo() {
             // Cập nhật localStorage sau khi lưu vào database
             userInfo.hoTen = hoTen;
             userInfo.dienThoai = dienThoai;
-            userInfo.diaChi = diaChi;
+            if (addressTypeToUpdate === "home") {
+                userInfo.diaChi = diaChi;
+            } else {
+                userInfo.diaChiVanPhong = diaChi;
+            }
             localStorage.setItem("user_info", JSON.stringify(userInfo));
+            
+            // Cập nhật lại hiển thị địa chỉ đã lưu
+            if (addressTypeToUpdate === "home") {
+                document.getElementById("savedNameHome").textContent = hoTen;
+                document.getElementById("savedPhoneHome").textContent = dienThoai;
+                document.getElementById("savedAddressHomeText").textContent = diaChi;
+            } else {
+                document.getElementById("savedNameOffice").textContent = hoTen;
+                document.getElementById("savedPhoneOffice").textContent = dienThoai;
+                document.getElementById("savedAddressOfficeText").textContent = diaChi;
+            }
+            
             console.log("Đã cập nhật thông tin vào database");
+            showToast(`✅ Đã lưu địa chỉ ${addressTypeToUpdate === "home" ? "nhà riêng" : "văn phòng"}`, "success");
+        } else {
+            console.error("Lỗi cập nhật:", data.message);
         }
         return Promise.resolve();
     })
@@ -481,19 +803,15 @@ function datHang() {
         const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
         
         if (addressType === "saved") {
-            const address = savedAddresses.home || {
-                hoTen: userInfo.hoTen || '',
-                dienThoai: userInfo.dienThoai || '',
-                diaChi: userInfo.diaChi || ''
-            };
-            hoTen = address.hoTen;
-            dienThoai = address.dienThoai;
-            diaChi = address.diaChi;
-        } else {
-            const address = savedAddresses.office || {};
-            hoTen = address.hoTen || userInfo.hoTen || '';
-            dienThoai = address.dienThoai || userInfo.dienThoai || '';
-            diaChi = address.diaChi || '';
+            hoTen = userInfo.hoTen || '';
+            dienThoai = userInfo.dienThoai || '';
+            const diaChiFull = userInfo.diaChi || '';
+            const diaChiParts = diaChiFull.split(" | ");
+            diaChi = diaChiParts[0] || '';
+        } else if (addressType === "office") {
+            hoTen = userInfo.hoTen || '';
+            dienThoai = userInfo.dienThoai || '';
+            diaChi = userInfo.diaChiVanPhong || '';
         }
     } else {
         hoTen = document.getElementById("hoTen").value.trim();
@@ -582,6 +900,8 @@ function processCODOrder(nguoiDung_id, hoTen, dienThoai, diaChi, thoiGianNhanHan
         if (data.success) {
             showToast("🎉 Đặt hàng thành công! Bạn sẽ thanh toán khi nhận hàng.", "success");
             localStorage.removeItem("checkout_data");
+            // Cập nhật cart count về 0 vì giỏ hàng đã được xóa
+            updateHeaderCartCount();
             setTimeout(() => {
                 window.location.href = "don-hang-cua-toi.html";
             }, 2000);
@@ -744,6 +1064,9 @@ function confirmBankTransfer(event) {
             tempDonHangId = null;
             tempTongTien = 0;
             
+            // Cập nhật cart count về 0 vì giỏ hàng đã được xóa
+            updateHeaderCartCount();
+            
             setTimeout(() => {
                 window.location.href = "don-hang-cua-toi.html";
             }, 2000);
@@ -775,6 +1098,33 @@ function copyToClipboard(text) {
 function copyPaymentContent() {
     const content = document.getElementById("paymentContent").textContent;
     copyToClipboard(content);
+}
+
+/* ===============================
+   CẬP NHẬT CART COUNT TRÊN HEADER
+================================ */
+function updateHeaderCartCount() {
+    const cartCountEl = document.getElementById("cartCount");
+    if (!cartCountEl) return;
+
+    fetch(API_GIO_HANG, {
+        headers: {"Authorization": "Bearer " + token}
+    })
+    .then(res => res.json())
+    .then(data => {
+        const total = data.reduce((sum, item) => sum + item.soLuong, 0);
+        cartCountEl.textContent = total;
+        
+        if (total > 0) {
+            cartCountEl.style.display = "flex";
+        } else {
+            cartCountEl.style.display = "none";
+        }
+    })
+    .catch(err => {
+        console.error("Error updating header cart count:", err);
+        if (cartCountEl) cartCountEl.textContent = "0";
+    });
 }
 
 /* ===============================

@@ -18,6 +18,13 @@
             <img src="images/logo2.jpg">
             <span>BabyCutie</span>
         </div>
+        
+        <!-- SEARCH -->
+        <div class="search">
+            <i class="fa fa-search" id="searchIcon" onclick="handleSearch(event)"></i>
+            <input type="text" id="searchInput" placeholder="Tìm món ăn cho bé..." onkeyup="handleSearch(event)">
+        </div>
+        
         <button class="btn-login" onclick="location='thuc-don.html'">
             ← Tiếp tục mua
         </button>
@@ -310,79 +317,225 @@ let selectedKhuyenMai = null;
    LOAD GIỎ HÀNG
 ================================ */
 function loadCart() {
+    // Kiểm tra token
+    if (!token) {
+        console.error("No token found");
+        alert("Vui lòng đăng nhập");
+        window.location.href = "login-khach.html";
+        return;
+    }
+
+    console.log("Loading cart with token:", token.substring(0, 20) + "...");
+
+    const cartItemsList = document.getElementById("cartItemsList");
+    const cartItemCount = document.getElementById("cartItemCount");
+    const checkoutBtn = document.getElementById("checkoutBtn");
+
+    // Hiển thị loading
+    if (cartItemsList) {
+        cartItemsList.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fa fa-spinner fa-spin fa-2x text-primary"></i>
+                <p class="mt-3">Đang tải giỏ hàng...</p>
+            </div>
+        `;
+    }
+
     fetch(API_GIO_HANG, {
+        method: "GET",
         headers: {
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
         }
     })
-    .then(res => res.json())
+    .then(res => {
+        console.log("Response status:", res.status);
+        
+        // Kiểm tra status code
+        if (res.status === 401) {
+            console.error("Unauthorized - token expired or invalid");
+            alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user_info");
+            window.location.href = "login-khach.html";
+            return null;
+        }
+        if (!res.ok) {
+            console.error("HTTP error:", res.status, res.statusText);
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    })
     .then(data => {
-        cartBody.innerHTML = "";
+        console.log("Cart data received:", data);
+        
+        // Kiểm tra nếu data là null (do lỗi 401)
+        if (data === null) return;
+
+        // Kiểm tra nếu data là object có message (lỗi)
+        if (data && typeof data === 'object' && data.message && !Array.isArray(data)) {
+            console.error("API Error:", data.message);
+            if (cartItemsList) {
+                cartItemsList.innerHTML = `
+                    <div class="empty-cart-state">
+                        <i class="fa fa-exclamation-triangle text-warning"></i>
+                        <h4>Lỗi tải giỏ hàng</h4>
+                        <p class="text-muted">${data.message}</p>
+                        <button class="btn btn-primary mt-3" onclick="loadCart()">
+                            <i class="fa fa-refresh"></i> Thử lại
+                        </button>
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        // Đảm bảo data là array
+        if (!Array.isArray(data)) {
+            console.error("Invalid data format - expected array, got:", typeof data, data);
+            if (cartItemsList) {
+                cartItemsList.innerHTML = `
+                    <div class="empty-cart-state">
+                        <i class="fa fa-exclamation-triangle text-warning"></i>
+                        <h4>Lỗi định dạng dữ liệu</h4>
+                        <p class="text-muted">Vui lòng thử lại sau</p>
+                        <button class="btn btn-primary mt-3" onclick="loadCart()">
+                            <i class="fa fa-refresh"></i> Thử lại
+                        </button>
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        console.log("Cart items count:", data.length);
+
         let tong = 0;
 
         if (data.length === 0) {
-            document.getElementById("cartItemsList").innerHTML = `
-                <div class="empty-cart-state">
-                    <i class="fa fa-shopping-cart"></i>
-                    <h4>Giỏ hàng trống</h4>
-                    <p class="text-muted">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-                    <a href="thuc-don.html" class="btn btn-primary mt-3">
-                        <i class="fa fa-shopping-bag"></i> Tiếp tục mua sắm
-                    </a>
-                </div>
-            `;
-            document.getElementById("cartItemCount").textContent = "0";
+            if (cartItemsList) {
+                cartItemsList.innerHTML = `
+                    <div class="empty-cart-state">
+                        <i class="fa fa-shopping-cart"></i>
+                        <h4>Giỏ hàng trống</h4>
+                        <p class="text-muted">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
+                        <a href="thuc-don.html" class="btn btn-primary mt-3">
+                            <i class="fa fa-shopping-bag"></i> Tiếp tục mua sắm
+                        </a>
+                    </div>
+                `;
+            }
+            if (cartItemCount) cartItemCount.textContent = "0";
             updateOrderSummary(0);
-            document.getElementById("checkoutBtn").disabled = true;
+            if (checkoutBtn) checkoutBtn.disabled = true;
             return;
         }
 
         // Enable button thanh toán
-        document.getElementById("checkoutBtn").disabled = false;
+        if (checkoutBtn) checkoutBtn.disabled = false;
 
-        const cartItemsList = document.getElementById("cartItemsList");
-        const cartItemCount = document.getElementById("cartItemCount");
-        cartItemsList.innerHTML = "";
+        // Clear và render lại
+        if (cartItemsList) cartItemsList.innerHTML = "";
         
         data.forEach(item => {
+            // Kiểm tra dữ liệu hợp lệ
+            if (!item.gioHang_id || !item.tenSanPham || !item.gia || !item.soLuong) {
+                console.warn("Invalid cart item:", item);
+                return;
+            }
+
             const tamTinh = item.gia * item.soLuong;
             tong += tamTinh;
 
-            cartItemsList.innerHTML += `
-                <div class="cart-item-card">
-                    <div class="cart-item-image">
-                        <img src="${IMAGE_URL + item.hinhAnh}" alt="${item.tenSanPham}">
+            if (cartItemsList) {
+                cartItemsList.innerHTML += `
+                    <div class="cart-item-card">
+                        <div class="cart-item-image">
+                            <img src="${IMAGE_URL + (item.hinhAnh || 'default.jpg')}" alt="${item.tenSanPham}" 
+                                 onerror="this.src='${IMAGE_URL}default.jpg'">
+                        </div>
+                        <div class="cart-item-info">
+                            <h6 class="cart-item-name">${item.tenSanPham}</h6>
+                            <div class="cart-item-price">${Number(item.gia).toLocaleString()}₫</div>
+                        </div>
+                        <div class="cart-item-quantity">
+                            <button class="qty-btn qty-btn-minus" onclick="updateQty(${item.gioHang_id}, ${item.soLuong - 1})" ${item.soLuong <= 1 ? 'disabled' : ''}>
+                                −
+                            </button>
+                            <span class="qty-value">${item.soLuong}</span>
+                            <button class="qty-btn qty-btn-plus" onclick="updateQty(${item.gioHang_id}, ${item.soLuong + 1})">
+                                +
+                            </button>
+                        </div>
+                        <div class="cart-item-subtotal">
+                            <strong>${tamTinh.toLocaleString()}₫</strong>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="btn-remove" onclick="removeItem(${item.gioHang_id})" title="Xóa">
+                                X
+                            </button>
+                        </div>
                     </div>
-                    <div class="cart-item-info">
-                        <h6 class="cart-item-name">${item.tenSanPham}</h6>
-                        <div class="cart-item-price">${item.gia.toLocaleString()}₫</div>
-                    </div>
-                    <div class="cart-item-quantity">
-                        <button class="qty-btn" onclick="updateQty(${item.gioHang_id}, ${item.soLuong - 1})" ${item.soLuong <= 1 ? 'disabled' : ''}>
-                            <i class="fa fa-minus"></i>
-                        </button>
-                        <span class="qty-value">${item.soLuong}</span>
-                        <button class="qty-btn" onclick="updateQty(${item.gioHang_id}, ${item.soLuong + 1})">
-                            <i class="fa fa-plus"></i>
-                        </button>
-                    </div>
-                    <div class="cart-item-subtotal">
-                        <strong>${tamTinh.toLocaleString()}₫</strong>
-                    </div>
-                    <div class="cart-item-actions">
-                        <button class="btn-remove" onclick="removeItem(${item.gioHang_id})" title="Xóa">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
+                `;
+            }
         });
 
         // Cập nhật số lượng sản phẩm
-        cartItemCount.textContent = data.length;
+        if (cartItemCount) cartItemCount.textContent = data.length;
         
         // Cập nhật tổng tiền
         updateOrderSummary(tong);
+        
+        // Cập nhật cart count trên header
+        updateHeaderCartCount();
+        
+        console.log("Cart loaded successfully. Total items:", data.length, "Total amount:", tong);
+    })
+    .catch(err => {
+        console.error("Error loading cart:", err);
+        console.error("Error details:", err.message, err.stack);
+        if (cartItemsList) {
+            cartItemsList.innerHTML = `
+                <div class="empty-cart-state">
+                    <i class="fa fa-exclamation-triangle text-danger"></i>
+                    <h4>Lỗi kết nối</h4>
+                    <p class="text-muted">Không thể tải giỏ hàng. Vui lòng kiểm tra kết nối và thử lại.</p>
+                    <p class="text-muted small">Chi tiết: ${err.message}</p>
+                    <button class="btn btn-primary mt-3" onclick="loadCart()">
+                        <i class="fa fa-refresh"></i> Thử lại
+                    </button>
+                </div>
+            `;
+        }
+    });
+}
+
+/* ===============================
+   CẬP NHẬT CART COUNT TRÊN HEADER
+================================ */
+function updateHeaderCartCount() {
+    const cartCountEl = document.getElementById("cartCount");
+    if (!cartCountEl) return;
+
+    fetch(API_GIO_HANG, {
+        headers: {"Authorization": "Bearer " + token}
+    })
+    .then(res => res.json())
+    .then(data => {
+        const total = data.reduce((sum, item) => sum + item.soLuong, 0);
+        cartCountEl.textContent = total;
+        
+        if (total > 0) {
+            cartCountEl.style.display = "flex";
+            cartCountEl.classList.add("bounce");
+            setTimeout(() => cartCountEl.classList.remove("bounce"), 500);
+        } else {
+            cartCountEl.style.display = "none";
+        }
+    })
+    .catch(err => {
+        console.error("Error updating header cart count:", err);
+        if (cartCountEl) cartCountEl.textContent = "0";
     });
 }
 
@@ -423,6 +576,7 @@ function updateQty(id, soLuong) {
         if (data.success) {
             showToast("✅ Đã cập nhật số lượng", "success");
             loadCart();
+            updateHeaderCartCount();
         } else {
             showToast(data.message || "Không thể cập nhật số lượng", "error");
             loadCart(); // Reload để reset
@@ -450,6 +604,7 @@ function removeItem(id) {
         if (data.success) {
             showToast("✅ Đã xóa sản phẩm khỏi giỏ hàng", "success");
             loadCart();
+            updateHeaderCartCount();
         } else {
             showToast(data.message || "Không thể xóa sản phẩm", "error");
             loadCart();
@@ -1169,8 +1324,19 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ===============================
    LOAD BAN ĐẦU
 ================================ */
-loadCart();
-loadCustomerInfo();
+// Đảm bảo DOM đã load xong
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM loaded, initializing cart...");
+        loadCart();
+        loadCustomerInfo();
+    });
+} else {
+    // DOM đã sẵn sàng
+    console.log("DOM ready, initializing cart...");
+    loadCart();
+    loadCustomerInfo();
+}
 
 // Đảm bảo các trường luôn có thể chỉnh sửa
 document.addEventListener('DOMContentLoaded', function() {

@@ -20,12 +20,59 @@
             <span>BabyCutie</span>
         </div>
         
+        <!-- SEARCH -->
+        <div class="search">
+            <i class="fa fa-search" id="searchIcon" onclick="handleSearch(event)"></i>
+            <input type="text" id="searchInput" placeholder="Tìm món ăn cho bé..." onkeyup="handleSearch(event)">
+        </div>
+        
         <nav class="main-menu">
             <a href="index.html">Trang chủ</a>
             <a href="thuc-don.html">Thực đơn</a>
             <a href="tin-tuc.html" class="active">Tin tức</a>
             <a href="lien-he.html">Liên hệ</a>
         </nav>
+
+        <!-- CART -->
+        <div class="cart-icon" onclick="window.location='gio-hang.html'">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-count" id="cartCount">0</span>
+        </div>
+
+        <!-- LOGIN / USER INFO -->
+        <div class="login-group">
+            <div id="userInfo" style="display: none;">
+                <div class="dropdown">
+                    <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-user"></i> <span id="userName"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="don-hang-cua-toi.html">📦 Đơn hàng của tôi</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="loginBtn">
+                <div class="dropdown">
+                    <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-user"></i> Đăng nhập
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="login-khach.html">
+                                👨‍👩‍👧 Khách hàng
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="login-admin.html">
+                                🛠 Admin
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
 </header>
 
@@ -38,17 +85,20 @@
 </section>
 
 <!-- ===== DANH SÁCH TIN ===== -->
-<section class="container mt-5 mb-5">
-    <div id="newsList" class="news-grid"></div>
-    
-    <div id="loadingNews" class="text-center py-5">
-        <div class="loading"></div>
-        <p class="mt-3 text-muted">Đang tải tin tức...</p>
-    </div>
-    
-    <div id="emptyNews" class="text-center py-5" style="display: none;">
-        <i class="fa fa-newspaper" style="font-size: 64px; color: #ddd; margin-bottom: 20px;"></i>
-        <p class="text-muted">Chưa có tin tức nào</p>
+<section class="news-section">
+    <div class="container">
+        <div id="newsList" class="news-grid"></div>
+        
+        <div id="loadingNews" class="text-center py-5">
+            <div class="loading"></div>
+            <p class="mt-3">Đang tải tin tức...</p>
+        </div>
+        
+        <div id="emptyNews" class="text-center py-5" style="display: none;">
+            <i class="fa fa-newspaper"></i>
+            <h3 style="color: #999; margin-top: 20px; font-weight: 700;">Chưa có tin tức nào</h3>
+            <p class="text-muted" style="font-size: 16px; margin-top: 10px;">Hãy quay lại sau để xem các tin tức mới nhất!</p>
+        </div>
     </div>
 </section>
 
@@ -67,7 +117,71 @@
 </footer>
 
 <!-- ===== JS RIÊNG ===== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/tin-tuc.js"></script>
+<script src="js/search-common.js"></script>
+<script>
+// Kiểm tra đăng nhập và hiển thị thông tin
+const token = localStorage.getItem("token");
+const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
+
+if (token && userInfo.hoTen) {
+    document.getElementById("userInfo").style.display = "block";
+    document.getElementById("loginBtn").style.display = "none";
+    document.getElementById("userName").textContent = userInfo.hoTen;
+} else {
+    document.getElementById("userInfo").style.display = "none";
+    document.getElementById("loginBtn").style.display = "block";
+}
+
+function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_info");
+    if (typeof showToast === 'function') {
+        showToast("Đã đăng xuất thành công", "info");
+    }
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// Cập nhật số lượng giỏ hàng
+function updateCartCount() {
+    const token = localStorage.getItem("token");
+    const cartCountEl = document.getElementById("cartCount");
+    
+    if (!token || !cartCountEl) {
+        if (cartCountEl) cartCountEl.textContent = "0";
+        return;
+    }
+    
+    fetch("http://127.0.0.1:5000/api/gio-hang", {
+        headers: {"Authorization": "Bearer " + token}
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch cart');
+        return res.json();
+    })
+    .then(data => {
+        const total = data.reduce((sum, item) => sum + item.soLuong, 0);
+        cartCountEl.textContent = total;
+        
+        if (total > 0) {
+            cartCountEl.style.display = "flex";
+        } else {
+            cartCountEl.style.display = "none";
+        }
+    })
+    .catch(() => {
+        if (cartCountEl) cartCountEl.textContent = "0";
+    });
+}
+
+// Cập nhật cart count khi load trang
+if (token) {
+    updateCartCount();
+}
+</script>
 
 </body>
 </html>

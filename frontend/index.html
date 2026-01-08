@@ -60,22 +60,22 @@
                 </div>
             </div>
             <div id="loginBtn">
-                <div class="dropdown">
-                    <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fa fa-user"></i> Đăng nhập
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item" href="login-khach.html">
-                                👨‍👩‍👧 Khách hàng
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="login-admin.html">
-                                🛠 Admin
-                            </a>
-                        </li>
-                    </ul>
+            <div class="dropdown">
+                <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fa fa-user"></i> Đăng nhập
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item" href="login-khach.html">
+                            👨‍👩‍👧 Khách hàng
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="login-admin.html">
+                            🛠 Admin
+                        </a>
+                    </li>
+                </ul>
                 </div>
             </div>
         </div>
@@ -294,7 +294,7 @@
                 </button>
             </div>
         </div>
-    </div>
+</div>
 </section>
 
 
@@ -366,15 +366,15 @@ function loadSanPhamNoiBat() {
         </div>
     `;
 
-    fetch(API_URL)
+fetch(API_URL)
         .then(res => {
             if (!res.ok) throw new Error('Network response was not ok');
             return res.json();
         })
-        .then(data => {
-            // Lấy tối đa 6 sản phẩm đầu
-            const dsNoiBat = data.slice(0, 6);
-            let html = "";
+    .then(data => {
+        // Lấy tối đa 6 sản phẩm đầu
+        const dsNoiBat = data.slice(0, 6);
+        let html = "";
 
             if (dsNoiBat.length === 0) {
                 html = `
@@ -383,9 +383,9 @@ function loadSanPhamNoiBat() {
                     </div>
                 `;
             } else {
-                dsNoiBat.forEach(sp => {
-                    html += `
-                        <div class="col-md-4 mb-4">
+        dsNoiBat.forEach(sp => {
+            html += `
+                <div class="col-md-4 mb-4">
                             <div class="product-card" onclick="viewProductDetail(${sp.id})" style="cursor: pointer;">
                                 <div class="product-image-wrapper">
                                     <img 
@@ -404,29 +404,29 @@ function loadSanPhamNoiBat() {
                                     <p class="price">${Number(sp.gia).toLocaleString('vi-VN')}đ</p>
                                     
                                     ${sp.moTa ? `<p class="desc">${sp.moTa.substring(0, 60)}${sp.moTa.length > 60 ? '...' : ''}</p>` : ''}
-                                    
-                                    <div class="nutrition">
+
+                        <div class="nutrition">
                                         <span>💪 <b>${sp.protein || 0}g</b></span>
                                         <span>🍚 <b>${sp.carb || 0}g</b></span>
                                         <span>🥑 <b>${sp.chatBeo || 0}g</b></span>
-                                    </div>
-                                    
+                        </div>
+
                                     ${sp.doTuoi ? `<small class="age">👶 ${sp.doTuoi}</small>` : ''}
                                     
                                     <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${sp.id})">
                                         <i class="fa fa-cart-plus"></i> Thêm vào giỏ
-                                    </button>
+                        </button>
                                 </div>
-                            </div>
-                        </div>
-                    `;
-                });
+                    </div>
+                </div>
+            `;
+        });
             }
 
-            sanPhamNoiBat.innerHTML = html;
-        })
-        .catch(err => {
-            console.error("Lỗi load sản phẩm:", err);
+        sanPhamNoiBat.innerHTML = html;
+    })
+    .catch(err => {
+        console.error("Lỗi load sản phẩm:", err);
             sanPhamNoiBat.innerHTML = `
                 <div class="col-12 text-center py-5">
                     <i class="fa fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
@@ -483,6 +483,8 @@ function addToCart(id) {
         if (data.success) {
             showToast("✅ Đã thêm vào giỏ hàng!", "success");
             updateCartCount();
+            // Cập nhật số lượng trên nút
+            updateProductButtonQuantity(id);
             // Animation cho cart icon
             const cartIcon = document.querySelector('.cart-icon');
             cartIcon.classList.add('bounce');
@@ -504,7 +506,8 @@ function addToCart(id) {
 // Cập nhật số lượng giỏ hàng
 function updateCartCount() {
     if (!token) {
-        document.getElementById("cartCount").textContent = "0";
+        const cartCountEl = document.getElementById("cartCount");
+        if (cartCountEl) cartCountEl.textContent = "0";
         return;
     }
     
@@ -518,18 +521,67 @@ function updateCartCount() {
     .then(data => {
         const total = data.reduce((sum, item) => sum + item.soLuong, 0);
         const cartCountEl = document.getElementById("cartCount");
-        cartCountEl.textContent = total;
-        
-        // Hiển thị/ẩn badge
-        if (total > 0) {
-            cartCountEl.style.display = "flex";
-        } else {
-            cartCountEl.style.display = "none";
+        if (cartCountEl) {
+            cartCountEl.textContent = total;
+            
+            // Hiển thị/ẩn badge
+            if (total > 0) {
+                cartCountEl.style.display = "flex";
+                // Animation
+                cartCountEl.classList.add("bounce");
+                setTimeout(() => cartCountEl.classList.remove("bounce"), 500);
+            } else {
+                cartCountEl.style.display = "none";
+            }
         }
     })
     .catch(() => {
-        document.getElementById("cartCount").textContent = "0";
+        const cartCountEl = document.getElementById("cartCount");
+        if (cartCountEl) cartCountEl.textContent = "0";
     });
+}
+
+// Cập nhật số lượng trên nút sản phẩm
+function updateProductButtonQuantity(sanPhamId) {
+    if (!token) return;
+
+    fetch("http://127.0.0.1:5000/api/gio-hang", {
+        headers: {"Authorization": "Bearer " + token}
+    })
+    .then(res => res.json())
+    .then(cartItems => {
+        const item = cartItems.find(i => i.sanPham_id === sanPhamId);
+        const buttons = document.querySelectorAll(`button[onclick*="addToCart(${sanPhamId})"]`);
+        
+        buttons.forEach(btn => {
+            if (item && item.soLuong > 0) {
+                btn.innerHTML = `<i class="fa fa-cart-plus"></i> Đã thêm (${item.soLuong})`;
+                btn.style.background = "linear-gradient(135deg, #28a745, #20c997)";
+                btn.style.color = "#fff";
+            } else {
+                btn.innerHTML = '<i class="fa fa-cart-plus"></i> Thêm vào giỏ';
+                btn.style.background = "";
+                btn.style.color = "";
+            }
+        });
+    })
+    .catch(err => console.error("Error updating button:", err));
+}
+
+// Cập nhật tất cả nút sản phẩm khi load
+function updateAllProductButtons() {
+    if (!token) return;
+
+    fetch("http://127.0.0.1:5000/api/gio-hang", {
+        headers: {"Authorization": "Bearer " + token}
+    })
+    .then(res => res.json())
+    .then(cartItems => {
+        cartItems.forEach(item => {
+            updateProductButtonQuantity(item.sanPham_id);
+        });
+    })
+    .catch(err => console.error("Error:", err));
 }
 
 // Search functionality - Enter key và click icon

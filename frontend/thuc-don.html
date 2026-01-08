@@ -28,8 +28,8 @@
 
         <!-- SEARCH -->
         <div class="search">
-            <i class="fa fa-search"></i>
-            <input type="text" placeholder="Tìm món ăn cho bé...">
+            <i class="fa fa-search" id="searchIcon" onclick="handleSearch(event)"></i>
+            <input type="text" id="searchInput" placeholder="Tìm món ăn cho bé..." onkeyup="handleSearch(event)">
         </div>
 
         <!-- MENU -->
@@ -46,6 +46,39 @@
             <span class="cart-count" id="cartCount">0</span>
         </div>
 
+        <!-- LOGIN / USER INFO -->
+        <div class="login-group">
+            <div id="userInfo" style="display: none;">
+                <div class="dropdown">
+                    <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-user"></i> <span id="userName"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="don-hang-cua-toi.html">📦 Đơn hàng của tôi</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="loginBtn">
+                <div class="dropdown">
+                    <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-user"></i> Đăng nhập
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="login-khach.html">
+                                👨‍👩‍👧 Khách hàng
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="login-admin.html">
+                                🛠 Admin
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
     </div>
 </header>
@@ -62,9 +95,18 @@
 
                 <div class="filter-group">
                     <h6>Danh mục</h6>
-                    <label><input type="checkbox" checked> Cháo Thịt</label>
-                    <label><input type="checkbox"> Cháo Cá</label>
-                    <label><input type="checkbox"> Cháo Hạt & Ngũ Cốc</label>
+                    <label>
+                        <input type="radio" name="danhMuc" value="chao-thit" data-danhmuc="thit">
+                        <span>🍖 Cháo thịt</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="danhMuc" value="chao-ca" data-danhmuc="ca">
+                        <span>🐟 Cháo cá</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="danhMuc" value="chao-dinh-duong" data-danhmuc="dinh-duong">
+                        <span>🥣 Cháo dinh dưỡng</span>
+                    </label>
                 </div>
 
                 <div class="filter-group">
@@ -75,9 +117,12 @@
 
                 <div class="filter-group">
                     <h6>Khoảng giá</h6>
-                    <label><input type="radio" name="gia"> Dưới 30.000đ</label>
-                    <label><input type="radio" name="gia"> 30.000đ – 50.000đ</label>
-                    <label><input type="radio" name="gia"> Trên 50.000đ</label>
+                    <label><input type="radio" name="gia" value="duoi30"> Dưới 30.000đ</label>
+                    <label><input type="radio" name="gia" value="30-50"> 30.000đ – 50.000đ</label>
+                    <label><input type="radio" name="gia" value="tren50"> Trên 50.000đ</label>
+                    <button class="btn-reset-filter" onclick="resetFilters()" style="margin-top: 10px; width: 100%; padding: 8px; background: #f0f0f0; border: none; border-radius: 12px; cursor: pointer; font-size: 13px; color: #666;">
+                        <i class="fa fa-refresh"></i> Xóa bộ lọc
+                    </button>
                 </div>
 
                 <div class="combo-box">
@@ -96,15 +141,16 @@
                         <h3>Thực đơn cháo dinh dưỡng</h3>
                         <p>Hương vị tự nhiên, trọn vẹn yêu thương</p>
                     </div>
-                    <select>
-                        <option>Phổ biến nhất</option>
-                        <option>Giá thấp → cao</option>
-                        <option>Giá cao → thấp</option>
+                    <select id="sortSelect">
+                        <option value="pho-bien">Phổ biến nhất</option>
+                        <option value="gia-thap-cao">Giá thấp → cao</option>
+                        <option value="gia-cao-thap">Giá cao → thấp</option>
+                        
                     </select>
                 </div>
 
                 <!-- 🔽 JS SẼ RENDER SẢN PHẨM Ở ĐÂY -->
-                <div class="row g-4">
+                <div class="row g-4" id="productGrid">
                     <!-- sản phẩm từ API -->
                 </div>
 
@@ -113,255 +159,98 @@
     </div>
 </section>
 
-<!-- ================= JS ================= -->
-
-<script>
-const API_URL = "http://127.0.0.1:5000/api/thuc-don";
-
-let danhSachSanPham = [];
-
-/* ===============================
-   LOAD SẢN PHẨM TỪ API
-================================ */
-function taiSanPham(thamSo = "") {
-    let url = API_URL + thamSo;
-
-    fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            danhSachSanPham = data;
-            hienThiSanPham(data);
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Không thể kết nối server");
-        });
-}
-
-/* ===============================
-   HIỂN THỊ SẢN PHẨM (FULL THÔNG TIN)
-================================ */
-function hienThiSanPham(ds) {
-    const khuVuc = document.querySelector(".col-md-9 .row");
-    let html = "";
-
-    if (!ds || ds.length === 0) {
-        khuVuc.innerHTML = "<p>Không có sản phẩm phù hợp</p>";
-        return;
-    }
-
-    ds.forEach(sp => {
-        html += `
-        <div class="col-md-4 mb-4">
-            <div class="product-card">
-
-                <img 
-                    src="http://127.0.0.1:5000/images/${sp.hinhAnh}" 
-                    
-                >
-
-                <h5>${sp.tenSanPham}</h5>
-                <p class="price">${Number(sp.gia).toLocaleString()}đ</p>
-
-                <p class="desc">${sp.moTa || ""}</p>
-
-                <div class="nutrition">
-                    <span>💪 Protein <b>${sp.protein || 0}g</b></span>
-                    <span>🍚 Carb <b>${sp.carb || 0}g</b></span>
-                    <span>🥑 Fat <b>${sp.chatBeo || 0}g</b></span>
-                </div>
-
-                <small class="age">👶 Độ tuổi: ${sp.doTuoi || "6–24 tháng"}</small>
-
-                <button class="btn-add" onclick="themVaoGio(${sp.id})">
-                    🛒 Thêm vào giỏ
-                </button>
-
-            </div>
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+    <div class="container footer-wrap">
+        <div>
+            <b>BabyCutie</b>
+            <p>Cháo dinh dưỡng cho bé yêu</p>
         </div>
-        `;
-    });
+        <div>
+            <p>📞 Hotline: 1900 1234</p>
+            <p>📧 babycutie@gmail.com</p>
+        </div>
+    </div>
+</footer>
 
-    khuVuc.innerHTML = html;
+<!-- ================= TOAST NOTIFICATION ================= -->
+<div id="toast" class="toast-notification"></div>
+
+<!-- ================= JS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/thuc-don.js"></script>
+<script>
+// Kiểm tra đăng nhập và hiển thị thông tin
+const token = localStorage.getItem("token");
+const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
+
+if (token && userInfo.hoTen) {
+    document.getElementById("userInfo").style.display = "block";
+    document.getElementById("loginBtn").style.display = "none";
+    document.getElementById("userName").textContent = userInfo.hoTen;
+} else {
+    document.getElementById("userInfo").style.display = "none";
+    document.getElementById("loginBtn").style.display = "block";
 }
 
-/* ===============================
-   TÌM KIẾM
-================================ */
-document.querySelector(".search-box input")?.addEventListener("input", function () {
-    const tuKhoa = this.value.toLowerCase();
-
-    const ketQua = danhSachSanPham.filter(sp =>
-        sp.tenSanPham.toLowerCase().includes(tuKhoa)
-    );
-
-    hienThiSanPham(ketQua);
-});
-
-/* ===============================
-   LỌC THEO ĐỘ TUỔI
-================================ */
-document.querySelectorAll("input[name='age']").forEach(radio => {
-    radio.addEventListener("change", function () {
-        taiSanPham(`?doTuoi=${this.value}`);
-    });
-});
-
-/* ===============================
-   LỌC THEO GIÁ
-================================ */
-document.querySelectorAll("input[name='gia']").forEach((radio, index) => {
-    radio.addEventListener("change", function () {
-        let ketQua = [];
-
-        if (index === 0) {
-            ketQua = danhSachSanPham.filter(sp => sp.gia < 30000);
-        } else if (index === 1) {
-            ketQua = danhSachSanPham.filter(sp => sp.gia >= 30000 && sp.gia <= 50000);
-        } else {
-            ketQua = danhSachSanPham.filter(sp => sp.gia > 50000);
-        }
-
-        hienThiSanPham(ketQua);
-    });
-});
-
-/* ===============================
-   SẮP XẾP
-================================ */
-document.querySelector("select")?.addEventListener("change", function () {
-    let ds = [...danhSachSanPham];
-
-    if (this.value.includes("thấp")) {
-        ds.sort((a, b) => a.gia - b.gia);
-    } else if (this.value.includes("cao")) {
-        ds.sort((a, b) => b.gia - a.gia);
-    }
-
-    hienThiSanPham(ds);
-});
-
-/* ===============================
-   GIỎ HÀNG (LOCAL STORAGE)
-================================ */
-function themVaoGio(id) {
-    let gioHang = JSON.parse(localStorage.getItem("gioHang")) || [];
-
-    const sanPham = danhSachSanPham.find(sp => sp.id === id);
-    if (!sanPham) return;
-
-    const tonTai = gioHang.find(sp => sp.id === id);
-
-    if (tonTai) {
-        tonTai.soLuong += 1;
-    } else {
-        gioHang.push({
-            id: sanPham.id,
-            tenSanPham: sanPham.tenSanPham,
-            gia: sanPham.gia,
-            hinhAnh: sanPham.hinhAnh,
-            soLuong: 1
-        });
-    }
-
-    localStorage.setItem("gioHang", JSON.stringify(gioHang));
-    alert("✅ Đã thêm vào giỏ hàng");
+function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_info");
+    showToast("Đã đăng xuất thành công", "info");
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
 }
 
-/* ===============================
-   XỬ LÝ SEARCH PARAMETER TỪ URL
-================================ */
+// Xử lý search từ URL khi load trang
 function handleSearchFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const searchKeyword = urlParams.get('search');
     
     if (searchKeyword) {
         // Đặt giá trị vào input search
-        const searchInput = document.querySelector('.search input');
+        const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.value = searchKeyword;
         }
         
-        // Load sản phẩm và filter
-        taiSanPham();
-        
-        // Sau khi load xong, filter theo keyword
+        // Đợi sản phẩm load xong rồi filter
         setTimeout(() => {
             const keyword = searchKeyword.toLowerCase();
-            const ketQua = danhSachSanPham.filter(sp => 
+            const allProducts = window.allProducts || danhSachSanPham || [];
+            const ketQua = allProducts.filter(sp => 
                 sp.tenSanPham.toLowerCase().includes(keyword) ||
                 (sp.moTa && sp.moTa.toLowerCase().includes(keyword))
             );
-            hienThiSanPham(ketQua);
             
-            // Hiển thị thông báo nếu không có kết quả
-            if (ketQua.length === 0) {
+            if (ketQua.length > 0) {
+                hienThiSanPham(ketQua);
+            } else {
                 const khuVuc = document.querySelector(".col-md-9 .row");
-                khuVuc.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <i class="fa fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 20px;"></i>
-                        <h4>Không tìm thấy sản phẩm</h4>
-                        <p class="text-muted">Không có sản phẩm nào phù hợp với từ khóa "<strong>${searchKeyword}</strong>"</p>
-                        <button class="btn btn-primary mt-3" onclick="window.location='thuc-don.html'">
-                            Xem tất cả sản phẩm
-                        </button>
-                    </div>
-                `;
+                if (khuVuc) {
+                    khuVuc.innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <i class="fa fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 20px;"></i>
+                            <h4>Không tìm thấy sản phẩm</h4>
+                            <p class="text-muted">Không có sản phẩm nào phù hợp với từ khóa "<strong>${searchKeyword}</strong>"</p>
+                            <button class="btn btn-primary mt-3" onclick="window.location='thuc-don.html'">
+                                Xem tất cả sản phẩm
+                            </button>
+                        </div>
+                    `;
+                }
             }
-        }, 100);
-    } else {
-        taiSanPham();
+        }, 500);
     }
 }
 
-/* ===============================
-   LOAD BAN ĐẦU
-================================ */
-handleSearchFromURL();
-</script>
-<script>
-function themVaoGio(id) {
-    let gioHang = JSON.parse(localStorage.getItem("gioHang")) || [];
-
-    const sanPham = danhSachSanPham.find(sp => sp.id === id);
-    if (!sanPham) return;
-
-    const tonTai = gioHang.find(item => item.id === id);
-
-    if (tonTai) {
-        tonTai.soLuong += 1;
-    } else {
-        gioHang.push({
-            id: sanPham.id,
-            tenSanPham: sanPham.tenSanPham,
-            gia: sanPham.gia,
-            hinhAnh: sanPham.hinhAnh,
-            soLuong: 1
-        });
-    }
-
-    localStorage.setItem("gioHang", JSON.stringify(gioHang));
-    capNhatSoLuongGio();
-
-    alert("✅ Đã thêm vào giỏ hàng");
-}
-
-function capNhatSoLuongGio() {
-    let gioHang = JSON.parse(localStorage.getItem("gioHang")) || [];
-    let tong = gioHang.reduce((sum, sp) => sum + sp.soLuong, 0);
-    document.getElementById("cartCount").innerText = tong;
-}
-fetch("http://127.0.0.1:5000/api/gio-hang", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-    },
-    body: JSON.stringify({ sanPham_id: id, soLuong: 1 })
+// Chờ DOM ready và sản phẩm load xong
+document.addEventListener('DOMContentLoaded', () => {
+    // Xử lý search từ URL sau khi sản phẩm đã load
+    setTimeout(() => {
+        handleSearchFromURL();
+    }, 1000);
 });
-
-// khi load lại trang
-capNhatSoLuongGio();
 </script>
 
 </body>

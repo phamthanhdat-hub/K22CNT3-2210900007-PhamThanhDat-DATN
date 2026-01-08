@@ -185,6 +185,8 @@ def update_profile():
         hoTen = data.get("hoTen", "").strip()
         dienThoai = data.get("dienThoai", "").strip()
         diaChi = data.get("diaChi", "").strip()
+        diaChiVanPhong = data.get("diaChiVanPhong", "").strip() or None
+        addressType = data.get("addressType", "home")  # "home" hoặc "office"
 
         # Validation
         if not hoTen or len(hoTen) < 2:
@@ -208,11 +210,19 @@ def update_profile():
                 "message": "Số điện thoại không hợp lệ (phải có 10-11 chữ số)"
             }), 400
 
-        if not diaChi or len(diaChi) < 10:
-            return jsonify({
-                "success": False,
-                "message": "Địa chỉ phải có ít nhất 10 ký tự"
-            }), 400
+        # Validate địa chỉ tùy theo loại
+        if addressType == "home":
+            if not diaChi or len(diaChi) < 10:
+                return jsonify({
+                    "success": False,
+                    "message": "Địa chỉ nhà riêng phải có ít nhất 10 ký tự"
+                }), 400
+        elif addressType == "office":
+            if not diaChiVanPhong or len(diaChiVanPhong) < 10:
+                return jsonify({
+                    "success": False,
+                    "message": "Địa chỉ văn phòng phải có ít nhất 10 ký tự"
+                }), 400
 
         conn = get_db()
         cursor = conn.cursor()
@@ -225,12 +235,26 @@ def update_profile():
                 "message": "Không tìm thấy người dùng"
             }), 404
 
-        # Cập nhật thông tin vào database
-        cursor.execute("""
-            UPDATE NguoiDung
-            SET hoTen = ?, dienThoai = ?, diaChi = ?
-            WHERE id = ?
-        """, (hoTen, dienThoai, diaChi, nguoiDung_id))
+        # Cập nhật thông tin vào database tùy theo loại địa chỉ
+        if addressType == "home":
+            cursor.execute("""
+                UPDATE NguoiDung
+                SET hoTen = ?, dienThoai = ?, diaChi = ?
+                WHERE id = ?
+            """, (hoTen, dienThoai, diaChi, nguoiDung_id))
+        elif addressType == "office":
+            cursor.execute("""
+                UPDATE NguoiDung
+                SET hoTen = ?, dienThoai = ?, diaChiVanPhong = ?
+                WHERE id = ?
+            """, (hoTen, dienThoai, diaChiVanPhong, nguoiDung_id))
+        else:
+            # Cập nhật cả 2 nếu không chỉ định loại
+            cursor.execute("""
+                UPDATE NguoiDung
+                SET hoTen = ?, dienThoai = ?, diaChi = ?, diaChiVanPhong = ?
+                WHERE id = ?
+            """, (hoTen, dienThoai, diaChi, diaChiVanPhong, nguoiDung_id))
 
         conn.commit()
 

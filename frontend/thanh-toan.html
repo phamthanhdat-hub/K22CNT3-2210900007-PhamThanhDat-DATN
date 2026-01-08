@@ -134,6 +134,26 @@
                                 class="form-control" 
                                 placeholder="Số nhà, tên đường...">
                         </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    id="saveInfo" 
+                                    checked>
+                                <label class="form-check-label" for="saveInfo">
+                                    <i class="fa fa-save"></i> Lưu địa chỉ này làm địa chỉ mặc định
+                                </label>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 justify-content-end mt-3" id="addressActionButtons" style="display: none;">
+                            <button type="button" class="btn btn-secondary" onclick="cancelEditAddress()" id="cancelEditBtn">
+                                <i class="fa fa-times"></i> Hủy
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="saveAddressNow()" id="saveAddressBtn">
+                                <i class="fa fa-save"></i> Lưu lại
+                            </button>
+                        </div>
                     </form>
                 </div>
 
