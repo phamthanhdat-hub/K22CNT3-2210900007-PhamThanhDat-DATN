@@ -26,7 +26,22 @@ from routes.admin_gio_hang import admin_gio_hang_bp
 
 # ========= APP =========
 app = Flask(__name__)
-CORS(app)
+CORS(app, 
+     resources={r"/api/*": {
+         "origins": "*", 
+         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
+         "allow_headers": ["Content-Type", "Authorization"],
+         "supports_credentials": True
+     }},
+     supports_credentials=True)
+
+# Handle preflight requests
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 # =========================
 # SERVE IMAGE (CHO FRONTEND)

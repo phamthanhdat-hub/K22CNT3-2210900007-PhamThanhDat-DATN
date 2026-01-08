@@ -11,6 +11,50 @@ if (!adminToken) {
     window.location.href = "login-admin.html";
 }
 
+// Wrapper function cho fetch với error handling tốt hơn
+async function safeFetch(url, options = {}) {
+    try {
+        const defaultOptions = {
+            headers: {
+                "Content-Type": "application/json",
+                ...options.headers
+            },
+            ...options
+        };
+
+        const response = await fetch(url, defaultOptions);
+        
+        if (!response.ok) {
+            const text = await response.text();
+            let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+            try {
+                const error = JSON.parse(text);
+                errorMessage = error.message || errorMessage;
+            } catch {
+                errorMessage = text || errorMessage;
+            }
+            throw new Error(errorMessage);
+        }
+
+        return await response.json();
+    } catch (error) {
+        // Xử lý các loại lỗi network khác nhau
+        if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+            throw new Error("Request timeout - Server không phản hồi trong thời gian cho phép");
+        } else if (error.message && (
+            error.message.includes("Failed to fetch") || 
+            error.message.includes("NetworkError") ||
+            error.message.includes("Network request failed") ||
+            error.message.includes("ERR_CONNECTION_REFUSED") ||
+            error.message.includes("ERR_INTERNET_DISCONNECTED") ||
+            error.message.includes("fetch failed")
+        )) {
+            throw new Error("Không thể kết nối đến server. Vui lòng:\n1. Đảm bảo backend đang chạy: python backend/app.py\n2. Kiểm tra URL: http://127.0.0.1:5000\n3. Kiểm tra Firewall và Port 5000");
+        }
+        throw error;
+    }
+}
+
 // Initialize modal
 document.addEventListener('DOMContentLoaded', function() {
     modal = new bootstrap.Modal(document.getElementById("productModal"));
@@ -48,38 +92,69 @@ function showToast(message, type = "success") {
 
 // Load danh mục - chỉ hiển thị: Cháo thịt, Cháo cá, Cháo dinh dưỡng
 function loadDanhMuc() {
-    fetch(`${API_URL}/danh-muc`)
-        .then(res => res.json())
-        .then(data => {
+    safeFetch(`${API_URL}/danh-muc`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${adminToken}`
+        }
+    })
+    .then(data => {
             danhMucList = data;
             const select = document.getElementById("danhMucSelect");
             select.innerHTML = '<option value="">Chọn danh mục</option>';
             
             // Lọc chỉ hiển thị 3 danh mục: Cháo thịt, Cháo cá, Cháo dinh dưỡng
-            const allowedCategories = ["Cháo thịt", "Cháo cá", "Cháo dinh dưỡng"];
+            const allowedCategories = [
+                "Cháo thịt", 
+                "Cháo cá", 
+                "Cháo dinh dưỡng"
+            ];
             
+            // Tìm các danh mục phù hợp
+            const matchedCategories = [];
             data.forEach(dm => {
-                // Kiểm tra nếu tên danh mục chứa một trong các từ khóa
-                const tenDanhMuc = dm.tenDanhMuc || "";
-                const isAllowed = allowedCategories.some(cat => 
-                    tenDanhMuc.toLowerCase().includes(cat.toLowerCase())
-                );
+                const tenDanhMuc = (dm.tenDanhMuc || "").trim();
                 
-                if (isAllowed) {
-                    select.innerHTML += `<option value="${dm.id}">${dm.tenDanhMuc}</option>`;
-                }
+                // Kiểm tra chính xác hoặc chứa từ khóa
+                allowedCategories.forEach(cat => {
+                    if (tenDanhMuc.toLowerCase() === cat.toLowerCase() || 
+                        tenDanhMuc.toLowerCase().includes(cat.toLowerCase())) {
+                        // Tránh trùng lặp
+                        if (!matchedCategories.find(m => m.id === dm.id)) {
+                            matchedCategories.push(dm);
+                        }
+                    }
+                });
             });
             
-            // Nếu không tìm thấy danh mục nào, hiển thị tất cả (fallback)
-            if (select.options.length === 1) {
+            // Hiển thị các danh mục đã tìm thấy
+            if (matchedCategories.length > 0) {
+                matchedCategories.forEach(dm => {
+                    select.innerHTML += `<option value="${dm.id}">${dm.tenDanhMuc}</option>`;
+                });
+            } else {
+                // Nếu không tìm thấy, hiển thị tất cả (fallback)
                 data.forEach(dm => {
                     select.innerHTML += `<option value="${dm.id}">${dm.tenDanhMuc}</option>`;
                 });
+                console.warn("Không tìm thấy danh mục phù hợp, hiển thị tất cả danh mục");
             }
         })
         .catch(err => {
             console.error("Lỗi load danh mục:", err);
-            showToast("Lỗi khi tải danh mục", "error");
+            const errorMsg = err.message || "Lỗi không xác định";
+            showToast(`Lỗi khi tải danh mục: ${errorMsg}`, "error");
+            
+            // Fallback: hiển thị danh mục mặc định nếu có
+            const select = document.getElementById("danhMucSelect");
+            if (select && select.options.length === 1) {
+                select.innerHTML = `
+                    <option value="">Chọn danh mục</option>
+                    <option value="1">Cháo dinh dưỡng</option>
+                    <option value="2">Cháo 6–12 tháng</option>
+                    <option value="3">Cháo 1–3 tuổi</option>
+                `;
+            }
         });
 }
 
@@ -87,14 +162,11 @@ function loadDanhMuc() {
 function loadProducts() {
     const productList = document.getElementById("productList");
     
-    fetch(API_URL, {
+    safeFetch(API_URL, {
+        method: "GET",
         headers: {
             "Authorization": `Bearer ${adminToken}`
         }
-    })
-    .then(res => {
-        if (!res.ok) throw new Error("Lỗi kết nối");
-        return res.json();
     })
     .then(data => {
         productList.innerHTML = "";
@@ -163,12 +235,20 @@ function loadProducts() {
         });
     })
     .catch(error => {
-        showToast("Lỗi khi tải danh sách sản phẩm: " + error.message, "error");
+        const errorMsg = error.message || "Lỗi không xác định";
+        console.error("Error loading products:", error);
+        showToast(`Lỗi khi tải danh sách sản phẩm: ${errorMsg}`, "error");
         productList.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-exclamation-triangle"></i>
                 <h4>Lỗi khi tải dữ liệu</h4>
-                <p>${error.message}</p>
+                <p>${errorMsg}</p>
+                <p style="font-size: 12px; color: #999; margin-top: 10px;">
+                    Vui lòng kiểm tra:<br>
+                    - Backend server đã chạy chưa?<br>
+                    - URL API có đúng không?<br>
+                    - Kết nối mạng có ổn định không?
+                </p>
             </div>
         `;
     });
@@ -212,12 +292,12 @@ function openForm() {
 
 // Edit product
 function editProduct(id) {
-    fetch(`${API_THUC_DON}/${id}`, {
+    safeFetch(`${API_THUC_DON}/${id}`, {
+        method: "GET",
         headers: {
             "Authorization": `Bearer ${adminToken}`
         }
     })
-    .then(res => res.json())
     .then(data => {
         if (!data || !data.id) {
             showToast("Không tìm thấy sản phẩm", "error");
@@ -248,8 +328,14 @@ function editProduct(id) {
         modal.show();
     })
     .catch(error => {
-        showToast("Lỗi khi tải thông tin sản phẩm: " + error.message, "error");
+        const errorMsg = error.message || "Lỗi không xác định";
+        showToast(`Lỗi khi tải thông tin sản phẩm: ${errorMsg}`, "error");
         console.error("Error loading product:", error);
+        console.error("Error details:", {
+            id: id,
+            url: `${API_THUC_DON}/${id}`,
+            token: adminToken ? "Có token" : "Không có token"
+        });
     });
 }
 
@@ -315,21 +401,12 @@ function saveProduct() {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
 
-    fetch(url, {
+    safeFetch(url, {
         method: method,
         headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${adminToken}`
         },
         body: JSON.stringify(data)
-    })
-    .then(res => {
-        if (!res.ok) {
-            return res.json().then(err => {
-                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
-            });
-        }
-        return res.json();
     })
     .then(result => {
         if (result.success !== false) {
@@ -343,10 +420,17 @@ function saveProduct() {
         }
     })
     .catch(error => {
-        errorMsg.textContent = "Lỗi kết nối: " + error.message;
+        const errorMsgText = error.message || "Lỗi không xác định";
+        errorMsg.textContent = `Lỗi kết nối: ${errorMsgText}`;
         errorMsg.style.display = "block";
-        showToast("Lỗi kết nối: " + error.message, "error");
+        showToast(`Lỗi kết nối: ${errorMsgText}`, "error");
         console.error("Save product error:", error);
+        console.error("Error details:", {
+            url: url,
+            method: method,
+            data: data,
+            token: adminToken ? "Có token" : "Không có token"
+        });
     })
     .finally(() => {
         saveBtn.disabled = false;
@@ -360,19 +444,11 @@ function deleteProduct(id) {
         return;
     }
     
-    fetch(`${API_THUC_DON}/${id}`, {
+    safeFetch(`${API_THUC_DON}/${id}`, {
         method: "DELETE",
         headers: {
             "Authorization": `Bearer ${adminToken}`
         }
-    })
-    .then(res => {
-        if (!res.ok) {
-            return res.json().then(err => {
-                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
-            });
-        }
-        return res.json();
     })
     .then(result => {
         if (result.success) {
@@ -383,7 +459,13 @@ function deleteProduct(id) {
         }
     })
     .catch(error => {
-        showToast("Lỗi khi xóa sản phẩm: " + error.message, "error");
+        const errorMsg = error.message || "Lỗi không xác định";
+        showToast(`Lỗi khi xóa sản phẩm: ${errorMsg}`, "error");
         console.error("Delete product error:", error);
+        console.error("Error details:", {
+            id: id,
+            url: `${API_THUC_DON}/${id}`,
+            token: adminToken ? "Có token" : "Không có token"
+        });
     });
 }

@@ -8,27 +8,856 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ========== CSS VARIABLES - MODERN & YOUTHFUL ========== */
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --danger: #ef4444;
+            --accent: #ec4899;
+            
+            /* Sidebar Colors - Modern & Clean */
+            --sidebar-bg: #ffffff;
+            --sidebar-active: #eef2ff;
+            --sidebar-hover: #f8fafc;
+            --sidebar-text: #475569;
+            --sidebar-text-active: #6366f1;
+            --sidebar-border: #e2e8f0;
+            
+            /* Modern Gradients */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-modern-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-modern-2: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            --gradient-modern-3: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-modern-4: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            --gradient-modern-5: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+            --gradient-modern-6: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+            
+            /* Shadows - Soft & Modern */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ========== BODY & BACKGROUND ========== */
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+        }
+
+        /* ========== ADMIN LAYOUT ========== */
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .admin-sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            box-shadow: var(--shadow-lg);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 1px solid var(--sidebar-border);
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--sidebar-border);
+            background: var(--gradient-modern-1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .sidebar-header .logo span {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            display: block;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin: 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 0 25px 25px 0;
+            margin-right: 12px;
+        }
+
+        .nav-link i {
+            width: 22px;
+            margin-right: 14px;
+            font-size: 20px;
+            text-align: center;
+            color: #64748b;
+            transition: var(--transition);
+        }
+
+        .nav-link span:not(.badge) {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--sidebar-hover);
+            color: var(--sidebar-text-active);
+            transform: translateX(4px);
+        }
+
+        .nav-link:hover i {
+            color: var(--sidebar-text-active);
+            transform: scale(1.1);
+        }
+
+        .nav-item.active .nav-link {
+            background: var(--sidebar-active);
+            color: var(--sidebar-text-active);
+            font-weight: 600;
+        }
+
+        .nav-item.active .nav-link i {
+            color: var(--sidebar-text-active);
+        }
+
+        .nav-item.active .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 70%;
+            background: var(--gradient-modern-1);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px rgba(99,102,241,0.4);
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #ef4444 0%, #f43f5e 100%);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 12px;
+            min-width: 24px;
+            text-align: center;
+            margin-left: auto;
+            box-shadow: 0 2px 8px rgba(239,68,68,0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .nav-separator {
+            padding: 20px 20px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .nav-separator::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--sidebar-border), transparent);
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .admin-main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #e2e8f0;
+        }
+
+        .main-header h2 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 800;
+            background: var(--gradient-modern-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .btn-logout {
+            background: var(--gradient-modern-1);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-md);
+            font-size: 14px;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+
+        .btn-logout i {
+            font-size: 16px;
+        }
+
+
+        /* ========== STATISTIC CARDS ========== */
+        .admin-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #e2e8f0;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+            cursor: default;
+        }
+
+        .admin-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: var(--transition);
+        }
+
+        .admin-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .admin-card:nth-child(1) .admin-card::before,
+        #thongKeRow > div:nth-child(1) .admin-card::before {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        #thongKeRow > div:nth-child(1) .admin-card {
+            background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.08) 100%);
+            border: 1px solid rgba(99,102,241,0.15);
+        }
+
+        #thongKeRow > div:nth-child(1) .admin-card::before {
+            background: var(--gradient-modern-1);
+        }
+
+        #thongKeRow > div:nth-child(2) .admin-card {
+            background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(244,63,94,0.08) 100%);
+            border: 1px solid rgba(236,72,153,0.15);
+        }
+
+        #thongKeRow > div:nth-child(2) .admin-card::before {
+            background: var(--gradient-modern-5);
+        }
+
+        #thongKeRow > div:nth-child(3) .admin-card {
+            background: linear-gradient(135deg, rgba(6,182,212,0.08) 0%, rgba(59,130,246,0.08) 100%);
+            border: 1px solid rgba(6,182,212,0.15);
+        }
+
+        #thongKeRow > div:nth-child(3) .admin-card::before {
+            background: var(--gradient-modern-2);
+        }
+
+        #thongKeRow > div:nth-child(4) .admin-card {
+            background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.08) 100%);
+            border: 1px solid rgba(16,185,129,0.15);
+        }
+
+        #thongKeRow > div:nth-child(4) .admin-card::before {
+            background: var(--gradient-modern-3);
+        }
+
+        .admin-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .admin-card h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-card p {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: countUp 0.8s ease-out;
+        }
+
+        #thongKeRow > div:nth-child(1) .admin-card p {
+            background: var(--gradient-modern-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #thongKeRow > div:nth-child(2) .admin-card p {
+            background: var(--gradient-modern-5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #thongKeRow > div:nth-child(3) .admin-card p {
+            background: var(--gradient-modern-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #thongKeRow > div:nth-child(4) .admin-card p {
+            background: var(--gradient-modern-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ========== MENU CARDS ========== */
+        .admin-menu {
+            background: white;
+            border-radius: 20px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #e2e8f0;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .admin-menu::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102,126,234,0.05) 0%, rgba(118,75,162,0.05) 100%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .admin-menu:hover::before {
+            opacity: 1;
+        }
+
+        .admin-menu::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: var(--transition);
+        }
+
+        .admin-menu:hover::after {
+            transform: scaleX(1);
+        }
+
+        .admin-menu:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+            border-color: transparent;
+        }
+
+        /* Menu items với màu sắc hiện đại */
+        .row.mt-4 > div:nth-child(1) .admin-menu::after {
+            background: var(--gradient-modern-1);
+        }
+        .row.mt-4 > div:nth-child(1) .admin-menu::before {
+            background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.08) 100%);
+        }
+        .row.mt-4 > div:nth-child(1) .admin-menu i {
+            background: var(--gradient-modern-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(2) .admin-menu::after {
+            background: var(--gradient-modern-5);
+        }
+        .row.mt-4 > div:nth-child(2) .admin-menu::before {
+            background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(244,63,94,0.08) 100%);
+        }
+        .row.mt-4 > div:nth-child(2) .admin-menu i {
+            background: var(--gradient-modern-5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(3) .admin-menu::after {
+            background: var(--gradient-modern-2);
+        }
+        .row.mt-4 > div:nth-child(3) .admin-menu::before {
+            background: linear-gradient(135deg, rgba(6,182,212,0.08) 0%, rgba(59,130,246,0.08) 100%);
+        }
+        .row.mt-4 > div:nth-child(3) .admin-menu i {
+            background: var(--gradient-modern-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(4) .admin-menu::after {
+            background: var(--gradient-modern-3);
+        }
+        .row.mt-4 > div:nth-child(4) .admin-menu::before {
+            background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.08) 100%);
+        }
+        .row.mt-4 > div:nth-child(4) .admin-menu i {
+            background: var(--gradient-modern-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(5) .admin-menu::after {
+            background: var(--gradient-modern-4);
+        }
+        .row.mt-4 > div:nth-child(5) .admin-menu::before {
+            background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(249,115,22,0.08) 100%);
+        }
+        .row.mt-4 > div:nth-child(5) .admin-menu i {
+            background: var(--gradient-modern-4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(6) .admin-menu::after {
+            background: var(--gradient-modern-6);
+        }
+        .row.mt-4 > div:nth-child(6) .admin-menu::before {
+            background: linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(168,85,247,0.08) 100%);
+        }
+        .row.mt-4 > div:nth-child(6) .admin-menu i {
+            background: var(--gradient-modern-6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(7) .admin-menu::after {
+            background: var(--gradient-modern-5);
+        }
+        .row.mt-4 > div:nth-child(7) .admin-menu::before {
+            background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(244,63,94,0.08) 100%);
+        }
+        .row.mt-4 > div:nth-child(7) .admin-menu i {
+            background: var(--gradient-modern-5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(8) .admin-menu::after {
+            background: var(--gradient-modern-1);
+        }
+        .row.mt-4 > div:nth-child(8) .admin-menu::before {
+            background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.08) 100%);
+        }
+        .row.mt-4 > div:nth-child(8) .admin-menu i {
+            background: var(--gradient-modern-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-menu i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .admin-menu:hover i {
+            transform: scale(1.2) rotate(5deg);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .admin-menu h5 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+
+        .admin-menu:hover h5 {
+            transform: translateY(-2px);
+        }
+
+        .admin-menu p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+            transition: var(--transition);
+        }
+
+        .admin-menu:hover p {
+            color: #333;
+        }
+
+        /* ========== STAGGERED ANIMATIONS ========== */
+        #thongKeRow > div:nth-child(1) { animation-delay: 0.1s; }
+        #thongKeRow > div:nth-child(2) { animation-delay: 0.2s; }
+        #thongKeRow > div:nth-child(3) { animation-delay: 0.3s; }
+        #thongKeRow > div:nth-child(4) { animation-delay: 0.4s; }
+
+        .row.mt-5 > div:nth-child(1) { animation-delay: 0.1s; }
+        .row.mt-5 > div:nth-child(2) { animation-delay: 0.2s; }
+        .row.mt-5 > div:nth-child(3) { animation-delay: 0.3s; }
+        .row.mt-5 > div:nth-child(4) { animation-delay: 0.4s; }
+        .row.mt-5 > div:nth-child(5) { animation-delay: 0.5s; }
+        .row.mt-5 > div:nth-child(6) { animation-delay: 0.6s; }
+        .row.mt-5 > div:nth-child(7) { animation-delay: 0.7s; }
+        .row.mt-5 > div:nth-child(8) { animation-delay: 0.8s; }
+
+        /* ========== KEYFRAMES ========== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1.2);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                width: 70px;
+            }
+
+            .sidebar-header .logo span,
+            .nav-link span:not(.badge),
+            .nav-separator {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+                padding: 15px;
+                margin-right: 0;
+                border-radius: 0;
+            }
+
+            .nav-link i {
+                margin-right: 0;
+            }
+
+            .admin-main {
+                margin-left: 70px;
+                padding: 20px;
+            }
+
+            .main-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .admin-card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .admin-card h4 {
+                font-size: 16px;
+            }
+
+            .admin-card p {
+                font-size: 24px;
+            }
+
+            .admin-menu {
+                padding: 25px 20px;
+            }
+
+            .admin-menu i {
+                font-size: 36px;
+            }
+
+            .admin-menu h5 {
+                font-size: 18px;
+            }
+        }
+
+        /* ========== LOADING STATE ========== */
+        .admin-card p:empty::before {
+            content: '...';
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        /* ========== SMOOTH SCROLL ========== */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
 <body>
 
-<!-- ================= ADMIN HEADER ================= -->
-<header class="header">
-    <div class="container header-wrap">
-        <div class="logo">
-            <span>🛠 BabyCutie Admin</span>
+<!-- ================= SIDEBAR NAVIGATION ================= -->
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span>🛠 BabyCutie Admin</span>
+            </div>
         </div>
 
-        <button class="btn-login" onclick="logoutAdmin()">Đăng xuất</button>
-    </div>
-</header>
+        <nav class="sidebar-nav">
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="admin-dashboard.html" class="nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-don-hang.html" class="nav-link">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>Đơn hàng</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-san-pham.html" class="nav-link">
+                        <i class="fas fa-box"></i>
+                        <span>Sản phẩm</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Danh mục</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Khách hàng</span>
+                    </a>
+                </li>
+            </ul>
 
-<!-- ================= DASHBOARD ================= -->
-<section class="container mt-5">
+            <div class="nav-separator">
+                <span>HỆ THỐNG</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="admin-khuyen-mai.html" class="nav-link">
+                        <i class="fas fa-tags"></i>
+                        <span>Khuyến mãi</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-tin-tuc.html" class="nav-link">
+                        <i class="fas fa-newspaper"></i>
+                        <span>Tin tức</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-gio-hang.html" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Giỏ hàng</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-lien-he.html" class="nav-link">
+                        <i class="fas fa-envelope"></i>
+                        <span>Liên hệ</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-danh-gia.html" class="nav-link">
+                        <i class="fas fa-star"></i>
+                        <span>Đánh giá</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="admin-thanh-toan.html" class="nav-link">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Thanh toán</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-separator">
+                <span>HỆ THỐNG</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="logoutAdmin(); return false;">
+                        <i class="fas fa-cog"></i>
+                        <span>Cài đặt</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="admin-main">
+        <div class="main-header">
+            <h2>📊 Bảng điều khiển</h2>
+            <button class="btn-logout" onclick="logoutAdmin()">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </button>
+        </div>
 
     <h2 class="mb-4">📊 Bảng điều khiển</h2>
 
     <!-- STATISTIC -->
-    <div class="row" id="thongKeRow">
+    <div class="row g-4" id="thongKeRow">
         <div class="col-md-3">
             <div class="admin-card">
                 <h4>👶 Người dùng</h4>
@@ -59,7 +888,7 @@
     </div>
 
     <!-- MENU -->
-    <div class="row mt-5">
+    <div class="row g-4 mt-4">
 
         <!-- QUẢN LÝ SẢN PHẨM -->
         <div class="col-md-4">
@@ -135,7 +964,8 @@
 
     </div>
 
-</section>
+    </main>
+</div>
 
 <script>
 // Kiểm tra đăng nhập
@@ -144,18 +974,47 @@ if (!adminToken) {
     window.location.href = "login-admin.html";
 }
 
-// Load thống kê
+// Load thống kê với animation
+function animateValue(element, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const current = Math.floor(progress * (end - start) + start);
+        
+        if (element.id === 'tongDoanhThu') {
+            element.textContent = new Intl.NumberFormat('vi-VN').format(current) + "đ";
+        } else {
+            element.textContent = current;
+        }
+        
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
 fetch("http://127.0.0.1:5000/api/admin/dashboard/thong-ke")
     .then(res => res.json())
     .then(data => {
-        document.getElementById("soNguoiDung").textContent = data.soNguoiDung || 0;
-        document.getElementById("soSanPham").textContent = data.soSanPham || 0;
-        document.getElementById("soDonHang").textContent = data.soDonHang || 0;
-        document.getElementById("tongDoanhThu").textContent = 
-            new Intl.NumberFormat('vi-VN').format(data.tongDoanhThu || 0) + "đ";
+        const soNguoiDung = data.soNguoiDung || 0;
+        const soSanPham = data.soSanPham || 0;
+        const soDonHang = data.soDonHang || 0;
+        const tongDoanhThu = data.tongDoanhThu || 0;
+
+        // Animate với delay để tạo hiệu ứng tuần tự
+        setTimeout(() => animateValue(document.getElementById("soNguoiDung"), 0, soNguoiDung, 1000), 100);
+        setTimeout(() => animateValue(document.getElementById("soSanPham"), 0, soSanPham, 1000), 200);
+        setTimeout(() => animateValue(document.getElementById("soDonHang"), 0, soDonHang, 1000), 300);
+        setTimeout(() => animateValue(document.getElementById("tongDoanhThu"), 0, tongDoanhThu, 1500), 400);
     })
     .catch(err => {
         console.error("Lỗi load thống kê:", err);
+        document.getElementById("soNguoiDung").textContent = "0";
+        document.getElementById("soSanPham").textContent = "0";
+        document.getElementById("soDonHang").textContent = "0";
+        document.getElementById("tongDoanhThu").textContent = "0đ";
     });
 
 function logoutAdmin() {
