@@ -23,6 +23,8 @@ from routes.admin_lien_he import admin_lien_he_bp
 from routes.admin_danh_gia import admin_danh_gia_bp
 from routes.admin_thanh_toan import admin_thanh_toan_bp
 from routes.admin_gio_hang import admin_gio_hang_bp
+from routes.admin_danh_muc import admin_danh_muc_bp
+from routes.admin_khach_hang import admin_khach_hang_bp
 
 # ========= APP =========
 app = Flask(__name__)
@@ -106,6 +108,14 @@ app.register_blueprint(
 app.register_blueprint(
     admin_gio_hang_bp,
     url_prefix="/api/admin/gio-hang"
+)
+app.register_blueprint(
+    admin_danh_muc_bp,
+    url_prefix="/api/admin/danh-muc"
+)
+app.register_blueprint(
+    admin_khach_hang_bp,
+    url_prefix="/api/admin/khach-hang"
 )
 
 # =========================

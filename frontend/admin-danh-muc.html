@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý danh mục | Admin BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --gradient-modern-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: var(--gradient-modern-1);
+        }
+
+        .sidebar-header .logo span {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            display: block;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin: 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 0 25px 25px 0;
+            margin-right: 12px;
+        }
+
+        .nav-link i {
+            width: 22px;
+            margin-right: 14px;
+            font-size: 20px;
+            color: #64748b;
+        }
+
+        .nav-link:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        .nav-item.active .nav-link {
+            background: #eef2ff;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item.active .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 70%;
+            background: var(--gradient-modern-1);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .admin-main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .main-header h2 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 800;
+            background: var(--gradient-modern-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        .btn-add {
+            background: var(--gradient-modern-1);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+        }
+
+        .modal-header {
+            background: var(--gradient-modern-1);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px 30px;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span>🛠 BabyCutie Admin</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="admin-dashboard.html" class="nav-link"><i class="fas fa-th-large"></i><span>Dashboard</span></a></li>
+                <li class="nav-item"><a href="admin-don-hang.html" class="nav-link"><i class="fas fa-shopping-bag"></i><span>Đơn hàng</span></a></li>
+                <li class="nav-item"><a href="admin-san-pham.html" class="nav-link"><i class="fas fa-box"></i><span>Sản phẩm</span></a></li>
+                <li class="nav-item active"><a href="admin-danh-muc.html" class="nav-link"><i class="fas fa-layer-group"></i><span>Danh mục</span></a></li>
+                <li class="nav-item"><a href="admin-khach-hang.html" class="nav-link"><i class="fas fa-users"></i><span>Khách hàng</span></a></li>
+            </ul>
+            <div class="nav-separator" style="padding: 20px 20px 10px; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;"><span>HỆ THỐNG</span></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="admin-khuyen-mai.html" class="nav-link"><i class="fas fa-tags"></i><span>Khuyến mãi</span></a></li>
+                <li class="nav-item"><a href="admin-tin-tuc.html" class="nav-link"><i class="fas fa-newspaper"></i><span>Tin tức</span></a></li>
+                <li class="nav-item"><a href="admin-gio-hang.html" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Giỏ hàng</span></a></li>
+                <li class="nav-item"><a href="admin-lien-he.html" class="nav-link"><i class="fas fa-envelope"></i><span>Liên hệ</span></a></li>
+                <li class="nav-item"><a href="admin-danh-gia.html" class="nav-link"><i class="fas fa-star"></i><span>Đánh giá</span></a></li>
+                <li class="nav-item"><a href="admin-thanh-toan.html" class="nav-link"><i class="fas fa-credit-card"></i><span>Thanh toán</span></a></li>
+            </ul>
+            <div class="nav-separator" style="padding: 20px 20px 10px; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;"><span>HỆ THỐNG</span></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="admin-cai-dat.html" class="nav-link"><i class="fas fa-cog"></i><span>Cài đặt</span></a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <div class="main-header">
+            <h2>📁 Quản lý danh mục</h2>
+            <button class="btn btn-add" onclick="openForm()">
+                <i class="fas fa-plus"></i> Thêm danh mục
+            </button>
+        </div>
+
+        <div id="categoryList">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Đang tải...</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="toastContainer"></div>
+
+<!-- Modal -->
+<div class="modal fade" id="categoryModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-layer-group"></i> <span id="modalTitle">Thêm danh mục</span></h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="categoryId">
+                <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Tên danh mục *</label>
+                    <input class="form-control" id="tenDanhMuc" placeholder="Ví dụ: Cháo thịt" required>
+                    <small class="text-muted">Tối thiểu 2 ký tự</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-control" id="moTa" rows="3" placeholder="Mô tả về danh mục..."></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Danh mục cha</label>
+                    <select class="form-select" id="danhMucCha_id">
+                        <option value="">Không có (danh mục gốc)</option>
+                    </select>
+                    <small class="text-muted">Chọn danh mục cha nếu đây là danh mục con</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary" onclick="saveCategory()" id="saveBtn">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/admin-danh-muc.js"></script>
+</body>
+</html>
+

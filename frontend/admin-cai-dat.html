@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Cài đặt | Admin BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --gradient-modern-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: var(--gradient-modern-1);
+        }
+
+        .sidebar-header .logo span {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            display: block;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin: 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 0 25px 25px 0;
+            margin-right: 12px;
+        }
+
+        .nav-link i {
+            width: 22px;
+            margin-right: 14px;
+            font-size: 20px;
+            color: #64748b;
+        }
+
+        .nav-link:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        .nav-item.active .nav-link {
+            background: #eef2ff;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item.active .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 70%;
+            background: var(--gradient-modern-1);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .admin-main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .main-header {
+            margin-bottom: 30px;
+            background: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .main-header h2 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 800;
+            background: var(--gradient-modern-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .settings-card h5 {
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .btn-save {
+            background: var(--gradient-modern-1);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span>🛠 BabyCutie Admin</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="admin-dashboard.html" class="nav-link"><i class="fas fa-th-large"></i><span>Dashboard</span></a></li>
+                <li class="nav-item"><a href="admin-don-hang.html" class="nav-link"><i class="fas fa-shopping-bag"></i><span>Đơn hàng</span></a></li>
+                <li class="nav-item"><a href="admin-san-pham.html" class="nav-link"><i class="fas fa-box"></i><span>Sản phẩm</span></a></li>
+                <li class="nav-item"><a href="admin-danh-muc.html" class="nav-link"><i class="fas fa-layer-group"></i><span>Danh mục</span></a></li>
+                <li class="nav-item"><a href="admin-khach-hang.html" class="nav-link"><i class="fas fa-users"></i><span>Khách hàng</span></a></li>
+            </ul>
+            <div class="nav-separator" style="padding: 20px 20px 10px; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;"><span>HỆ THỐNG</span></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="admin-khuyen-mai.html" class="nav-link"><i class="fas fa-tags"></i><span>Khuyến mãi</span></a></li>
+                <li class="nav-item"><a href="admin-tin-tuc.html" class="nav-link"><i class="fas fa-newspaper"></i><span>Tin tức</span></a></li>
+                <li class="nav-item"><a href="admin-gio-hang.html" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Giỏ hàng</span></a></li>
+                <li class="nav-item"><a href="admin-lien-he.html" class="nav-link"><i class="fas fa-envelope"></i><span>Liên hệ</span></a></li>
+                <li class="nav-item"><a href="admin-danh-gia.html" class="nav-link"><i class="fas fa-star"></i><span>Đánh giá</span></a></li>
+                <li class="nav-item"><a href="admin-thanh-toan.html" class="nav-link"><i class="fas fa-credit-card"></i><span>Thanh toán</span></a></li>
+            </ul>
+            <div class="nav-separator" style="padding: 20px 20px 10px; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;"><span>HỆ THỐNG</span></div>
+            <ul class="nav-menu">
+                <li class="nav-item active"><a href="admin-cai-dat.html" class="nav-link"><i class="fas fa-cog"></i><span>Cài đặt</span></a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <div class="main-header">
+            <h2>⚙️ Cài đặt hệ thống</h2>
+        </div>
+
+        <div class="settings-card">
+            <h5><i class="fas fa-store"></i> Thông tin cửa hàng</h5>
+            <form id="shopSettingsForm">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tên cửa hàng *</label>
+                        <input type="text" class="form-control" id="tenCuaHang" placeholder="BabyCutie" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email liên hệ *</label>
+                        <input type="email" class="form-control" id="email" placeholder="info@babycutie.com" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Số điện thoại *</label>
+                        <input type="tel" class="form-control" id="dienThoai" placeholder="0378630848" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Địa chỉ *</label>
+                        <input type="text" class="form-control" id="diaChi" placeholder="123 Đường ABC, Quận XYZ, TP.HCM" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mô tả cửa hàng</label>
+                    <textarea class="form-control" id="moTa" rows="3" placeholder="Mô tả về cửa hàng..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Giờ làm việc</label>
+                    <input type="text" class="form-control" id="gioLamViec" placeholder="8:00 - 20:00 hàng ngày">
+                </div>
+                <button type="submit" class="btn btn-save">
+                    <i class="fas fa-save"></i> Lưu cài đặt
+                </button>
+            </form>
+        </div>
+
+        <div class="settings-card">
+            <h5><i class="fas fa-shield-alt"></i> Bảo mật</h5>
+            <p class="text-muted">Các cài đặt bảo mật sẽ được cập nhật sau.</p>
+        </div>
+    </main>
+</div>
+
+<div id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/admin-cai-dat.js"></script>
+</body>
+</html>
+
