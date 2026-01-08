@@ -117,13 +117,19 @@ def tinh_toan_khuyen_mai():
                 "message": f"Đơn hàng tối thiểu {int(donHangToiThieu):,}đ để áp dụng mã này"
             }), 400
 
+        # Chuyển đổi tất cả giá trị decimal sang float để tránh lỗi
+        giaTri = float(giaTri) if giaTri else 0
+        giaTriToiDa = float(giaTriToiDa) if giaTriToiDa else None
+        donHangToiThieu = float(donHangToiThieu) if donHangToiThieu else None
+        tongTien = float(tongTien) if tongTien else 0
+        
         # Tính số tiền giảm
         if loai and loai.strip() == "phan_tram":
-            soTienGiam = tongTien * float(giaTri) / 100
+            soTienGiam = tongTien * giaTri / 100
             if giaTriToiDa:
-                soTienGiam = min(soTienGiam, float(giaTriToiDa))
+                soTienGiam = min(soTienGiam, giaTriToiDa)
         else:  # tien_mat
-            soTienGiam = float(giaTri)
+            soTienGiam = giaTri
 
         soTienGiam = int(soTienGiam)
         tongTienSauGiam = tongTien - soTienGiam

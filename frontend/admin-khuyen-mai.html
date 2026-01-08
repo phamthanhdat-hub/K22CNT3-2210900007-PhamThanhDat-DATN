@@ -8,6 +8,176 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .promo-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,246,248,0.95));
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(255,107,129,0.15);
+            border: 2px solid rgba(255,107,129,0.1);
+            transition: all 0.4s ease;
+        }
+        
+        .promo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255,107,129,0.25);
+            border-color: rgba(255,107,129,0.3);
+        }
+        
+        .promo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255,107,129,0.1);
+        }
+        
+        .promo-code {
+            background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255,107,129,0.3);
+        }
+        
+        .promo-status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .status-active {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .status-inactive {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .promo-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .promo-detail-item {
+            background: rgba(255,255,255,0.7);
+            padding: 12px;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b81;
+        }
+        
+        .promo-detail-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .promo-detail-value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 700;
+        }
+        
+        .btn-action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-action-group .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-action-group .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-add-promo {
+            background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 15px;
+            font-weight: 700;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255,107,129,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-add-promo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,129,0.4);
+        }
+        
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px 30px;
+        }
+        
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #ff6b81;
+            box-shadow: 0 0 0 0.2rem rgba(255,107,129,0.25);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
 </head>
 <body>
 
@@ -21,90 +191,117 @@
 </header>
 
 <section class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>🏷️ Danh sách khuyến mãi</h3>
-        <button class="btn btn-danger" onclick="openForm()">➕ Thêm khuyến mãi</button>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: #ff6b81; font-weight: 700;">🏷️ Danh sách khuyến mãi</h2>
+        <button class="btn btn-add-promo" onclick="openForm()">
+            <i class="fas fa-plus"></i> Thêm khuyến mãi
+        </button>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover bg-white">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Mã KM</th>
-                    <th>Tên khuyến mãi</th>
-                    <th>Loại</th>
-                    <th>Giá trị</th>
-                    <th>Đơn tối thiểu</th>
-                    <th>Ngày bắt đầu</th>
-                    <th>Ngày kết thúc</th>
-                    <th>Trạng thái</th>
-                    <th>Hành động</th>
-                </tr>
-            </thead>
-            <tbody id="khuyenMaiTable">
-                <tr><td colspan="10" class="text-center">Đang tải...</td></tr>
-            </tbody>
-        </table>
+    <div id="promoList">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+        </div>
     </div>
 </section>
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
 
 <!-- MODAL -->
 <div class="modal fade" id="khuyenMaiModal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Khuyến mãi</h5>
+                <h5 class="modal-title">
+                    <i class="fas fa-tag"></i> 
+                    <span id="modalTitle">Thêm khuyến mãi mới</span>
+                </h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="khuyenMaiId">
-                <div class="mb-2">
-                    <label>Tên khuyến mãi *</label>
-                    <input class="form-control" id="tenKhuyenMai" required>
-                </div>
-                <div class="mb-2">
-                    <label>Mã khuyến mãi *</label>
-                    <input class="form-control" id="maKhuyenMai" required>
-                </div>
-                <div class="mb-2">
-                    <label>Loại giảm giá *</label>
-                    <select class="form-control" id="loaiGiamGia" required>
-                        <option value="phan_tram">Phần trăm (%)</option>
-                        <option value="tien_mat">Tiền mặt (đ)</option>
-                    </select>
-                </div>
-                <div class="mb-2">
-                    <label>Giá trị giảm *</label>
-                    <input type="number" class="form-control" id="giaTriGiam" required>
-                </div>
-                <div class="mb-2">
-                    <label>Giá trị tối đa (nếu giảm %)</label>
-                    <input type="number" class="form-control" id="giaTriToiDa">
-                </div>
-                <div class="mb-2">
-                    <label>Đơn hàng tối thiểu</label>
-                    <input type="number" class="form-control" id="donHangToiThieu">
-                </div>
+                <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+                
                 <div class="row">
-                    <div class="col-md-6">
-                        <label>Ngày bắt đầu</label>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Tên khuyến mãi *</label>
+                        <input class="form-control" id="tenKhuyenMai" placeholder="Ví dụ: Giảm 10% cho khách mới" required>
+                        <small class="text-muted">Tối thiểu 3 ký tự</small>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Mã khuyến mãi *</label>
+                        <input class="form-control" id="maKhuyenMai" placeholder="Ví dụ: WELCOME10" style="text-transform: uppercase;" required>
+                        <small class="text-muted">Tối thiểu 3 ký tự, viết hoa</small>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Loại giảm giá *</label>
+                        <select class="form-select" id="loaiGiamGia" required onchange="updateGiamGiaType()">
+                            <option value="phan_tram">Phần trăm (%)</option>
+                            <option value="tien_mat">Tiền mặt (đ)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Giá trị giảm *</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="giaTriGiam" placeholder="0" min="0" step="0.01" required>
+                            <span class="input-group-text" id="giaTriUnit">%</span>
+                        </div>
+                        <small class="text-muted" id="giaTriHint">Nhập phần trăm (1-100%)</small>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3" id="giaTriToiDaContainer">
+                        <label class="form-label">Giá trị tối đa (nếu giảm %)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="giaTriToiDa" placeholder="0" min="0" step="1000">
+                            <span class="input-group-text">đ</span>
+                        </div>
+                        <small class="text-muted">Giới hạn số tiền giảm tối đa</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Đơn hàng tối thiểu</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="donHangToiThieu" placeholder="0" min="0" step="1000">
+                            <span class="input-group-text">đ</span>
+                        </div>
+                        <small class="text-muted">Số tiền tối thiểu để áp dụng</small>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Ngày bắt đầu</label>
                         <input type="datetime-local" class="form-control" id="ngayBatDau">
                     </div>
-                    <div class="col-md-6">
-                        <label>Ngày kết thúc</label>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Ngày kết thúc</label>
                         <input type="datetime-local" class="form-control" id="ngayKetThuc">
                     </div>
                 </div>
-                <div class="mb-2 mt-2">
-                    <label>
-                        <input type="checkbox" id="trangThai" checked> Hoạt động
-                    </label>
+                
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="trangThai" checked style="width: 50px; height: 25px;">
+                        <label class="form-check-label" for="trangThai" style="font-weight: 600; margin-left: 10px;">
+                            Hoạt động
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button class="btn btn-danger" onclick="saveKhuyenMai()">💾 Lưu</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button class="btn btn-primary" onclick="saveKhuyenMai()" id="saveBtn">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
             </div>
         </div>
     </div>
@@ -113,46 +310,173 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const API_URL = "http://127.0.0.1:5000/api/admin/khuyen-mai";
-const modal = new bootstrap.Modal(document.getElementById("khuyenMaiModal"));
+let modal = null;
 
+// Check authentication
 if (!localStorage.getItem("admin_token")) {
     window.location.href = "login-admin.html";
 }
 
-function loadKhuyenMai() {
-    fetch(API_URL)
-        .then(res => res.json())
-        .then(data => {
-            const tbody = document.getElementById("khuyenMaiTable");
-            tbody.innerHTML = "";
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center">Chưa có khuyến mãi</td></tr>`;
-                return;
-            }
-            data.forEach((km, i) => {
-                const loai = km.loaiGiamGia === 'phan_tram' ? `${km.giaTriGiam}%` : `${new Intl.NumberFormat('vi-VN').format(km.giaTriGiam)}đ`;
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${i + 1}</td>
-                        <td><strong>${km.maKhuyenMai}</strong></td>
-                        <td>${km.tenKhuyenMai}</td>
-                        <td>${km.loaiGiamGia === 'phan_tram' ? 'Phần trăm' : 'Tiền mặt'}</td>
-                        <td>${loai}</td>
-                        <td>${km.donHangToiThieu ? new Intl.NumberFormat('vi-VN').format(km.donHangToiThieu) + 'đ' : '-'}</td>
-                        <td>${km.ngayBatDau ? new Date(km.ngayBatDau).toLocaleDateString('vi-VN') : '-'}</td>
-                        <td>${km.ngayKetThuc ? new Date(km.ngayKetThuc).toLocaleDateString('vi-VN') : '-'}</td>
-                        <td>${km.trangThai ? '<span class="badge bg-success">Hoạt động</span>' : '<span class="badge bg-secondary">Tạm dừng</span>'}</td>
-                        <td>
-                            <button class="btn btn-sm btn-warning" onclick="editKhuyenMai(${km.id})">Sửa</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteKhuyenMai(${km.id})">Xóa</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        });
+// Initialize modal
+document.addEventListener('DOMContentLoaded', function() {
+    modal = new bootstrap.Modal(document.getElementById("khuyenMaiModal"));
+    loadKhuyenMai();
+    updateGiamGiaType();
+});
+
+// Toast notification function
+function showToast(message, type = "success") {
+    const toastContainer = document.getElementById("toastContainer");
+    const toastId = "toast-" + Date.now();
+    const bgColor = type === "success" ? "#28a745" : type === "error" ? "#dc3545" : "#ffc107";
+    const icon = type === "success" ? "check-circle" : type === "error" ? "exclamation-circle" : "info-circle";
+    
+    const toastHTML = `
+        <div id="${toastId}" class="toast align-items-center text-white bg-${type === "success" ? "success" : type === "error" ? "danger" : "warning"} border-0" role="alert" style="min-width: 300px;">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-${icon} me-2"></i>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML("beforeend", toastHTML);
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    toastElement.addEventListener('hidden.bs.toast', function() {
+        toastElement.remove();
+    });
 }
 
+// Update discount type UI
+function updateGiamGiaType() {
+    const loaiGiamGia = document.getElementById("loaiGiamGia").value;
+    const giaTriUnit = document.getElementById("giaTriUnit");
+    const giaTriHint = document.getElementById("giaTriHint");
+    const giaTriToiDaContainer = document.getElementById("giaTriToiDaContainer");
+    const giaTriGiam = document.getElementById("giaTriGiam");
+    
+    if (loaiGiamGia === "phan_tram") {
+        giaTriUnit.textContent = "%";
+        giaTriHint.textContent = "Nhập phần trăm (1-100%)";
+        giaTriGiam.setAttribute("max", "100");
+        giaTriGiam.setAttribute("min", "1");
+        giaTriToiDaContainer.style.display = "block";
+    } else {
+        giaTriUnit.textContent = "đ";
+        giaTriHint.textContent = "Nhập số tiền giảm (VNĐ)";
+        giaTriGiam.removeAttribute("max");
+        giaTriGiam.setAttribute("min", "0");
+        giaTriToiDaContainer.style.display = "none";
+    }
+}
+
+// Load all promotions
+function loadKhuyenMai() {
+    const promoList = document.getElementById("promoList");
+    
+    fetch(API_URL, {
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("admin_token")}`
+        }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Lỗi kết nối");
+        return res.json();
+    })
+    .then(data => {
+        promoList.innerHTML = "";
+        
+        if (!data || data.length === 0) {
+            promoList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-tag"></i>
+                    <h4>Chưa có khuyến mãi nào</h4>
+                    <p>Hãy thêm khuyến mãi mới để bắt đầu!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        data.forEach((km) => {
+            const loai = km.loaiGiamGia === 'phan_tram' 
+                ? `${km.giaTriGiam}%` 
+                : `${new Intl.NumberFormat('vi-VN').format(km.giaTriGiam)}đ`;
+            
+            const ngayBatDau = km.ngayBatDau 
+                ? new Date(km.ngayBatDau).toLocaleString('vi-VN') 
+                : 'Không giới hạn';
+            const ngayKetThuc = km.ngayKetThuc 
+                ? new Date(km.ngayKetThuc).toLocaleString('vi-VN') 
+                : 'Không giới hạn';
+            
+            const promoCard = document.createElement("div");
+            promoCard.className = "promo-card";
+            promoCard.innerHTML = `
+                <div class="promo-header">
+                    <div class="promo-code">${km.maKhuyenMai}</div>
+                    <span class="promo-status ${km.trangThai ? 'status-active' : 'status-inactive'}">
+                        ${km.trangThai ? '✓ Hoạt động' : '✗ Tạm dừng'}
+                    </span>
+                </div>
+                <h5 style="color: #333; margin-bottom: 15px; font-weight: 700;">${km.tenKhuyenMai}</h5>
+                <div class="promo-details">
+                    <div class="promo-detail-item">
+                        <div class="promo-detail-label">Loại giảm giá</div>
+                        <div class="promo-detail-value">${km.loaiGiamGia === 'phan_tram' ? 'Phần trăm' : 'Tiền mặt'}</div>
+                    </div>
+                    <div class="promo-detail-item">
+                        <div class="promo-detail-label">Giá trị giảm</div>
+                        <div class="promo-detail-value" style="color: #ff6b81;">${loai}</div>
+                    </div>
+                    <div class="promo-detail-item">
+                        <div class="promo-detail-label">Đơn tối thiểu</div>
+                        <div class="promo-detail-value">${km.donHangToiThieu ? new Intl.NumberFormat('vi-VN').format(km.donHangToiThieu) + 'đ' : 'Không'}</div>
+                    </div>
+                    <div class="promo-detail-item">
+                        <div class="promo-detail-label">Giá trị tối đa</div>
+                        <div class="promo-detail-value">${km.giaTriToiDa ? new Intl.NumberFormat('vi-VN').format(km.giaTriToiDa) + 'đ' : 'Không'}</div>
+                    </div>
+                    <div class="promo-detail-item">
+                        <div class="promo-detail-label">Ngày bắt đầu</div>
+                        <div class="promo-detail-value">${ngayBatDau}</div>
+                    </div>
+                    <div class="promo-detail-item">
+                        <div class="promo-detail-label">Ngày kết thúc</div>
+                        <div class="promo-detail-value">${ngayKetThuc}</div>
+                    </div>
+                </div>
+                <div class="btn-action-group">
+                    <button class="btn btn-warning" onclick="editKhuyenMai(${km.id})">
+                        <i class="fas fa-edit"></i> Sửa
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteKhuyenMai(${km.id})">
+                        <i class="fas fa-trash"></i> Xóa
+                    </button>
+                </div>
+            `;
+            promoList.appendChild(promoCard);
+        });
+    })
+    .catch(error => {
+        showToast("Lỗi khi tải danh sách khuyến mãi: " + error.message, "error");
+        promoList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h4>Lỗi khi tải dữ liệu</h4>
+                <p>${error.message}</p>
+            </div>
+        `;
+    });
+}
+
+// Open form for adding new promotion
 function openForm() {
+    document.getElementById("modalTitle").textContent = "Thêm khuyến mãi mới";
     document.getElementById("khuyenMaiId").value = "";
     document.getElementById("tenKhuyenMai").value = "";
     document.getElementById("maKhuyenMai").value = "";
@@ -163,80 +487,183 @@ function openForm() {
     document.getElementById("ngayBatDau").value = "";
     document.getElementById("ngayKetThuc").value = "";
     document.getElementById("trangThai").checked = true;
+    document.getElementById("errorMessage").style.display = "none";
+    updateGiamGiaType();
     modal.show();
 }
 
+// Edit promotion
 function editKhuyenMai(id) {
-    fetch(`${API_URL}`)
-        .then(res => res.json())
-        .then(data => {
-            const km = data.find(x => x.id === id);
-            if (!km) return;
-            document.getElementById("khuyenMaiId").value = km.id;
-            document.getElementById("tenKhuyenMai").value = km.tenKhuyenMai;
-            document.getElementById("maKhuyenMai").value = km.maKhuyenMai;
-            document.getElementById("loaiGiamGia").value = km.loaiGiamGia;
-            document.getElementById("giaTriGiam").value = km.giaTriGiam;
-            document.getElementById("giaTriToiDa").value = km.giaTriToiDa || "";
-            document.getElementById("donHangToiThieu").value = km.donHangToiThieu || "";
-            if (km.ngayBatDau) {
-                document.getElementById("ngayBatDau").value = new Date(km.ngayBatDau).toISOString().slice(0, 16);
-            }
-            if (km.ngayKetThuc) {
-                document.getElementById("ngayKetThuc").value = new Date(km.ngayKetThuc).toISOString().slice(0, 16);
-            }
-            document.getElementById("trangThai").checked = km.trangThai;
-            modal.show();
-        });
+    fetch(`${API_URL}/${id}`, {
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("admin_token")}`
+        }
+    })
+    .then(res => res.json())
+    .then(result => {
+        if (!result.success) {
+            showToast(result.message || "Không tìm thấy khuyến mãi", "error");
+            return;
+        }
+        
+        const km = result.data;
+        document.getElementById("modalTitle").textContent = "Sửa khuyến mãi";
+        document.getElementById("khuyenMaiId").value = km.id;
+        document.getElementById("tenKhuyenMai").value = km.tenKhuyenMai;
+        document.getElementById("maKhuyenMai").value = km.maKhuyenMai;
+        document.getElementById("loaiGiamGia").value = km.loaiGiamGia;
+        document.getElementById("giaTriGiam").value = km.giaTriGiam;
+        document.getElementById("giaTriToiDa").value = km.giaTriToiDa || "";
+        document.getElementById("donHangToiThieu").value = km.donHangToiThieu || "";
+        
+        if (km.ngayBatDau) {
+            const date = new Date(km.ngayBatDau);
+            document.getElementById("ngayBatDau").value = date.toISOString().slice(0, 16);
+        } else {
+            document.getElementById("ngayBatDau").value = "";
+        }
+        
+        if (km.ngayKetThuc) {
+            const date = new Date(km.ngayKetThuc);
+            document.getElementById("ngayKetThuc").value = date.toISOString().slice(0, 16);
+        } else {
+            document.getElementById("ngayKetThuc").value = "";
+        }
+        
+        document.getElementById("trangThai").checked = km.trangThai;
+        document.getElementById("errorMessage").style.display = "none";
+        updateGiamGiaType();
+        modal.show();
+    })
+    .catch(error => {
+        showToast("Lỗi khi tải thông tin khuyến mãi: " + error.message, "error");
+    });
 }
 
+// Save promotion (create or update)
 function saveKhuyenMai() {
+    const errorMsg = document.getElementById("errorMessage");
+    errorMsg.style.display = "none";
+    
+    // Validation
+    const tenKhuyenMai = document.getElementById("tenKhuyenMai").value.trim();
+    const maKhuyenMai = document.getElementById("maKhuyenMai").value.trim().toUpperCase();
+    const loaiGiamGia = document.getElementById("loaiGiamGia").value;
+    const giaTriGiam = parseFloat(document.getElementById("giaTriGiam").value);
+    const giaTriToiDa = document.getElementById("giaTriToiDa").value ? parseFloat(document.getElementById("giaTriToiDa").value) : null;
+    const donHangToiThieu = document.getElementById("donHangToiThieu").value ? parseFloat(document.getElementById("donHangToiThieu").value) : null;
+    const ngayBatDau = document.getElementById("ngayBatDau").value || null;
+    const ngayKetThuc = document.getElementById("ngayKetThuc").value || null;
+    const trangThai = document.getElementById("trangThai").checked;
+    
+    if (!tenKhuyenMai || tenKhuyenMai.length < 3) {
+        errorMsg.textContent = "Tên khuyến mãi phải có ít nhất 3 ký tự";
+        errorMsg.style.display = "block";
+        return;
+    }
+    
+    if (!maKhuyenMai || maKhuyenMai.length < 3) {
+        errorMsg.textContent = "Mã khuyến mãi phải có ít nhất 3 ký tự";
+        errorMsg.style.display = "block";
+        return;
+    }
+    
+    if (!giaTriGiam || giaTriGiam <= 0) {
+        errorMsg.textContent = "Giá trị giảm phải lớn hơn 0";
+        errorMsg.style.display = "block";
+        return;
+    }
+    
+    if (loaiGiamGia === "phan_tram" && (giaTriGiam < 1 || giaTriGiam > 100)) {
+        errorMsg.textContent = "Phần trăm giảm giá phải từ 1% đến 100%";
+        errorMsg.style.display = "block";
+        return;
+    }
+    
+    if (ngayBatDau && ngayKetThuc && new Date(ngayKetThuc) < new Date(ngayBatDau)) {
+        errorMsg.textContent = "Ngày kết thúc phải sau ngày bắt đầu";
+        errorMsg.style.display = "block";
+        return;
+    }
+    
     const id = document.getElementById("khuyenMaiId").value;
     const data = {
-        tenKhuyenMai: document.getElementById("tenKhuyenMai").value,
-        maKhuyenMai: document.getElementById("maKhuyenMai").value,
-        loaiGiamGia: document.getElementById("loaiGiamGia").value,
-        giaTriGiam: parseFloat(document.getElementById("giaTriGiam").value),
-        giaTriToiDa: document.getElementById("giaTriToiDa").value ? parseFloat(document.getElementById("giaTriToiDa").value) : null,
-        donHangToiThieu: document.getElementById("donHangToiThieu").value ? parseFloat(document.getElementById("donHangToiThieu").value) : null,
-        ngayBatDau: document.getElementById("ngayBatDau").value || null,
-        ngayKetThuc: document.getElementById("ngayKetThuc").value || null,
-        trangThai: document.getElementById("trangThai").checked ? 1 : 0
+        tenKhuyenMai: tenKhuyenMai,
+        maKhuyenMai: maKhuyenMai,
+        loaiGiamGia: loaiGiamGia,
+        giaTriGiam: giaTriGiam,
+        giaTriToiDa: giaTriToiDa,
+        donHangToiThieu: donHangToiThieu,
+        ngayBatDau: ngayBatDau,
+        ngayKetThuc: ngayKetThuc,
+        trangThai: trangThai
     };
 
     const url = id ? `${API_URL}/${id}` : API_URL;
     const method = id ? "PUT" : "POST";
+    const saveBtn = document.getElementById("saveBtn");
+    const originalText = saveBtn.innerHTML;
+    
+    // Show loading state
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
 
     fetch(url, {
         method: method,
-        headers: {"Content-Type": "application/json"},
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("admin_token")}`
+        },
         body: JSON.stringify(data)
     })
     .then(res => res.json())
     .then(result => {
         if (result.success) {
-            alert(id ? "Cập nhật thành công" : "Thêm thành công");
+            showToast(id ? "Cập nhật khuyến mãi thành công!" : "Thêm khuyến mãi thành công!", "success");
             modal.hide();
             loadKhuyenMai();
         } else {
-            alert(result.message || "Có lỗi xảy ra");
+            errorMsg.textContent = result.message || "Có lỗi xảy ra";
+            errorMsg.style.display = "block";
+            showToast(result.message || "Có lỗi xảy ra", "error");
         }
+    })
+    .catch(error => {
+        errorMsg.textContent = "Lỗi kết nối: " + error.message;
+        errorMsg.style.display = "block";
+        showToast("Lỗi kết nối: " + error.message, "error");
+    })
+    .finally(() => {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
     });
 }
 
+// Delete promotion
 function deleteKhuyenMai(id) {
-    if (!confirm("Xóa khuyến mãi này?")) return;
-    fetch(`${API_URL}/${id}`, {method: "DELETE"})
-        .then(res => res.json())
-        .then(result => {
-            if (result.success) {
-                alert("Đã xóa");
-                loadKhuyenMai();
-            }
-        });
+    if (!confirm("Bạn có chắc chắn muốn xóa khuyến mãi này?\n\nLưu ý: Không thể xóa khuyến mãi đã được sử dụng trong đơn hàng.")) {
+        return;
+    }
+    
+    fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("admin_token")}`
+        }
+    })
+    .then(res => res.json())
+    .then(result => {
+        if (result.success) {
+            showToast("Xóa khuyến mãi thành công!", "success");
+            loadKhuyenMai();
+        } else {
+            showToast(result.message || "Không thể xóa khuyến mãi này", "error");
+        }
+    })
+    .catch(error => {
+        showToast("Lỗi khi xóa khuyến mãi: " + error.message, "error");
+    });
 }
-
-loadKhuyenMai();
 </script>
 
 </body>

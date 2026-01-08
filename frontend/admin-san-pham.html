@@ -8,6 +8,121 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .product-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,246,248,0.95));
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(255,107,129,0.15);
+            border: 2px solid rgba(255,107,129,0.1);
+            transition: all 0.4s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255,107,129,0.25);
+            border-color: rgba(255,107,129,0.3);
+        }
+        
+        .product-image-preview {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid rgba(255,107,129,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .btn-action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-action-group .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-action-group .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn-add-product {
+            background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 15px;
+            font-weight: 700;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255,107,129,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-add-product:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,129,0.4);
+        }
+        
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px 30px;
+        }
+        
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #ff6b81;
+            box-shadow: 0 0 0 0.2rem rgba(255,107,129,0.25);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
 </head>
 <body>
 
@@ -26,26 +141,24 @@
 <!-- CONTENT -->
 <section class="container mt-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>🍲 Danh sách sản phẩm</h3>
-        <button class="btn btn-danger" onclick="openForm()">➕ Thêm sản phẩm</button>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: #ff6b81; font-weight: 700;">🍲 Danh sách sản phẩm</h2>
+        <button class="btn btn-add-product" onclick="openForm()">
+            <i class="fas fa-plus"></i> Thêm sản phẩm
+        </button>
     </div>
 
-    <!-- TABLE -->
-    <table class="table table-bordered table-hover bg-white">
-        <thead class="table-light">
-            <tr>
-                <th>#</th>
-                <th>Hình ảnh</th>
-                <th>Tên sản phẩm</th>
-                <th>Giá (đ)</th>
-                <th>Danh mục</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody id="productTable"></tbody>
-    </table>
+    <div id="productList">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Toast Container -->
+<div id="toastContainer"></div>
 
 </section>
 
@@ -55,64 +168,101 @@
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title">Sản phẩm</h5>
+                <h5 class="modal-title">
+                    <i class="fas fa-utensils"></i> 
+                    <span id="modalTitle">Thêm sản phẩm mới</span>
+                </h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
                 <input type="hidden" id="productId">
-
-                <div class="mb-2">
-                    <label>Tên sản phẩm *</label>
-                    <input class="form-control" id="tenSanPham" required>
-                </div>
-
-                <div class="mb-2">
-                    <label>Mô tả</label>
-                    <textarea class="form-control" id="moTa" rows="2"></textarea>
-                </div>
-
-                <div class="mb-2">
-                    <label>Giá (đ) *</label>
-                    <input type="number" class="form-control" id="giaSanPham" required>
-                </div>
-
-                <div class="mb-2">
-                    <label>Hình ảnh (tên file)</label>
-                    <input class="form-control" id="hinhAnh" placeholder="vd: cahoibido.jpg">
-                </div>
-
-                <div class="mb-2">
-                    <label>Độ tuổi</label>
-                    <input class="form-control" id="doTuoi" placeholder="vd: 6-12 tháng">
-                </div>
-
+                <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+                
                 <div class="row">
-                    <div class="col-md-4">
-                        <label>Protein (g)</label>
-                        <input type="number" step="0.1" class="form-control" id="protein">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Tên sản phẩm *</label>
+                        <input class="form-control" id="tenSanPham" placeholder="Ví dụ: Cháo Cá Hồi Bí Đỏ" required>
+                        <small class="text-muted">Tối thiểu 3 ký tự</small>
                     </div>
-                    <div class="col-md-4">
-                        <label>Carb (g)</label>
-                        <input type="number" step="0.1" class="form-control" id="carb">
-                    </div>
-                    <div class="col-md-4">
-                        <label>Chất béo (g)</label>
-                        <input type="number" step="0.1" class="form-control" id="chatBeo">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="moTa" rows="3" placeholder="Mô tả về sản phẩm..."></textarea>
                     </div>
                 </div>
-
-                <div class="mb-2">
-                    <label>Danh mục *</label>
-                    <select class="form-control" id="danhMucSelect" required>
-                        <option value="">Chọn danh mục</option>
-                    </select>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Giá (VNĐ) *</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="giaSanPham" placeholder="0" min="0" step="1000" required>
+                            <span class="input-group-text">đ</span>
+                        </div>
+                        <small class="text-muted">Giá phải lớn hơn 0</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Danh mục *</label>
+                        <select class="form-select" id="danhMucSelect" required>
+                            <option value="">Chọn danh mục</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Hình ảnh (tên file)</label>
+                        <input class="form-control" id="hinhAnh" placeholder="vd: cahoibido.jpg" onchange="updateImagePreview()">
+                        <small class="text-muted">Tên file hình ảnh trong thư mục images/</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Độ tuổi *</label>
+                        <select class="form-select" id="doTuoi" required>
+                            <option value="">Chọn độ tuổi</option>
+                            <option value="6-12 tháng">6-12 tháng</option>
+                            <option value="1-3 tuổi">1-3 tuổi</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Protein (g)</label>
+                        <input type="number" step="0.1" class="form-control" id="protein" placeholder="0.0">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Carb (g)</label>
+                        <input type="number" step="0.1" class="form-control" id="carb" placeholder="0.0">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Chất béo (g)</label>
+                        <input type="number" step="0.1" class="form-control" id="chatBeo" placeholder="0.0">
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="trangThai" checked style="width: 50px; height: 25px;">
+                        <label class="form-check-label" for="trangThai" style="font-weight: 600; margin-left: 10px;">
+                            Hoạt động
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-3" id="imagePreviewContainer" style="display: none;">
+                    <label class="form-label">Xem trước hình ảnh</label>
+                    <div>
+                        <img id="imagePreview" src="" alt="Preview" class="product-image-preview">
+                    </div>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button class="btn btn-danger" onclick="saveProduct()">💾 Lưu</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+                <button class="btn btn-primary" onclick="saveProduct()" id="saveBtn">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
             </div>
 
         </div>

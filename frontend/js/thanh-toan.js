@@ -471,19 +471,29 @@ function loadCheckoutSummary() {
 function updateSummaryFromCart(tongPhu) {
     const phiVanChuyen = PHI_VAN_CHUYEN;
     const giamGia = selectedKhuyenMai ? selectedKhuyenMai.soTienGiam : 0;
-    const tongCong = tongPhu + phiVanChuyen - giamGia;
+    
+    // Tính tổng cộng: tổng phụ + phí vận chuyển - giảm giá
+    // Đảm bảo tổng cộng không âm
+    let tongCong = tongPhu + phiVanChuyen - giamGia;
+    if (tongCong < 0) {
+        tongCong = 0;
+    }
 
     document.getElementById("summaryTongPhu").textContent = tongPhu.toLocaleString() + "₫";
     document.getElementById("summaryPhiVanChuyen").textContent = phiVanChuyen.toLocaleString() + "₫";
     
     if (giamGia > 0) {
-        document.getElementById("summaryGiamGiaRow").style.display = "flex";
-        document.getElementById("summaryGiamGia").textContent = "-" + giamGia.toLocaleString() + "₫";
+        const summaryGiamGiaRow = document.getElementById("summaryGiamGiaRow");
+        const summaryGiamGia = document.getElementById("summaryGiamGia");
+        if (summaryGiamGiaRow) summaryGiamGiaRow.style.display = "flex";
+        if (summaryGiamGia) summaryGiamGia.textContent = "-" + giamGia.toLocaleString() + "₫";
     } else {
-        document.getElementById("summaryGiamGiaRow").style.display = "none";
+        const summaryGiamGiaRow = document.getElementById("summaryGiamGiaRow");
+        if (summaryGiamGiaRow) summaryGiamGiaRow.style.display = "none";
     }
     
-    document.getElementById("summaryTongCong").textContent = tongCong.toLocaleString() + "₫";
+    const summaryTongCong = document.getElementById("summaryTongCong");
+    if (summaryTongCong) summaryTongCong.textContent = tongCong.toLocaleString() + "₫";
 }
 
 /* ===============================
@@ -527,19 +537,28 @@ function apDungKhuyenMai() {
             soTienGiam: data.soTienGiam
         };
 
+        // Lưu vào localStorage để đảm bảo không mất khi reload
+        const checkoutData = JSON.parse(localStorage.getItem("checkout_data") || '{}');
+        checkoutData.khuyenMai = selectedKhuyenMai;
+        localStorage.setItem("checkout_data", JSON.stringify(checkoutData));
+
         // Cập nhật tóm tắt
         const tongPhu = parseInt(document.getElementById("summaryTongPhu").textContent.replace(/[^\d]/g, '')) || 0;
         updateSummaryFromCart(tongPhu);
 
         // Hiển thị thông tin
         const promoInfo = document.getElementById("promoInfo");
-        promoInfo.style.display = "block";
-        promoInfo.innerHTML = `<i class="fa fa-check-circle"></i> Đã áp dụng mã "${maKM}" - Giảm ${data.soTienGiam.toLocaleString()}₫`;
+        if (promoInfo) {
+            promoInfo.style.display = "block";
+            promoInfo.innerHTML = `<i class="fa fa-check-circle"></i> Đã áp dụng mã "${maKM}" - Giảm ${data.soTienGiam.toLocaleString()}₫`;
+        }
 
         showToast(`✅ Áp dụng mã "${maKM}" thành công! Giảm ${data.soTienGiam.toLocaleString()}₫`, "success");
 
-        document.getElementById("maKhuyenMai").disabled = true;
-        document.querySelector('button[onclick="apDungKhuyenMai()"]').disabled = true;
+        const maKhuyenMaiInput = document.getElementById("maKhuyenMai");
+        const apDungBtn = document.querySelector('button[onclick="apDungKhuyenMai()"]');
+        if (maKhuyenMaiInput) maKhuyenMaiInput.disabled = true;
+        if (apDungBtn) apDungBtn.disabled = true;
     })
     .catch(err => {
         showToast("❌ Lỗi kết nối. Vui lòng thử lại", "error");
@@ -856,7 +875,17 @@ function processCODOrder(nguoiDung_id, hoTen, dienThoai, diaChi, thoiGianNhanHan
     btn.classList.add('loading');
     btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang xử lý đơn hàng...';
 
-    const checkoutData = JSON.parse(localStorage.getItem("checkout_data") || '{}');
+    // Lấy khuyến mãi từ selectedKhuyenMai hoặc từ localStorage
+    let khuyenMai_id = null;
+    if (selectedKhuyenMai && selectedKhuyenMai.id) {
+        khuyenMai_id = selectedKhuyenMai.id;
+    } else {
+        const checkoutData = JSON.parse(localStorage.getItem("checkout_data") || '{}');
+        if (checkoutData.khuyenMai && checkoutData.khuyenMai.id) {
+            khuyenMai_id = checkoutData.khuyenMai.id;
+            selectedKhuyenMai = checkoutData.khuyenMai;
+        }
+    }
 
     fetch(API_DON_HANG, {
         method: "POST",
@@ -870,14 +899,24 @@ function processCODOrder(nguoiDung_id, hoTen, dienThoai, diaChi, thoiGianNhanHan
             dienThoai: dienThoai,
             diaChiGiaoHang: diaChi,
             thoiGianNhanHang: thoiGianNhanHang,
-            khuyenMai_id: checkoutData.khuyenMai ? checkoutData.khuyenMai.id : null
+            khuyenMai_id: khuyenMai_id
         })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
+        return res.json();
+    })
     .then(data => {
         if (!data.success) {
             throw new Error(data.message || "Không thể tạo đơn hàng");
         }
+        
+        // Log để debug
+        console.log("Đơn hàng đã tạo:", data);
 
         return fetch(API_THANH_TOAN, {
             method: "POST",
@@ -913,8 +952,14 @@ function processCODOrder(nguoiDung_id, hoTen, dienThoai, diaChi, thoiGianNhanHan
         btn.disabled = false;
         btn.classList.remove('loading');
         btn.innerHTML = originalText;
-        showToast("❌ Lỗi: " + err.message, "error");
-        console.error("Order error:", err);
+        const errorMsg = err.message || "Lỗi không xác định";
+        showToast("❌ Lỗi: " + errorMsg, "error");
+        console.error("COD Order error:", err);
+        console.error("Error details:", {
+            nguoiDung_id: nguoiDung_id,
+            khuyenMai_id: selectedKhuyenMai ? selectedKhuyenMai.id : null,
+            selectedKhuyenMai: selectedKhuyenMai
+        });
     });
 }
 
@@ -928,8 +973,23 @@ function processBankTransferOrder(nguoiDung_id, hoTen, dienThoai, diaChi, thoiGi
     btn.classList.add('loading');
     btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang tạo đơn hàng...';
 
-    const checkoutData = JSON.parse(localStorage.getItem("checkout_data") || '{}');
-    const tongTien = checkoutData.tongCong || 0;
+    // Tính tổng tiền từ giỏ hàng và khuyến mãi
+    const tongPhu = parseInt(document.getElementById("summaryTongPhu").textContent.replace(/[^\d]/g, '')) || 0;
+    const phiVanChuyen = PHI_VAN_CHUYEN;
+    const giamGia = selectedKhuyenMai ? selectedKhuyenMai.soTienGiam : 0;
+    const tongTien = tongPhu + phiVanChuyen - giamGia;
+
+    // Lấy khuyến mãi từ selectedKhuyenMai hoặc từ localStorage
+    let khuyenMai_id = null;
+    if (selectedKhuyenMai && selectedKhuyenMai.id) {
+        khuyenMai_id = selectedKhuyenMai.id;
+    } else {
+        const checkoutData = JSON.parse(localStorage.getItem("checkout_data") || '{}');
+        if (checkoutData.khuyenMai && checkoutData.khuyenMai.id) {
+            khuyenMai_id = checkoutData.khuyenMai.id;
+            selectedKhuyenMai = checkoutData.khuyenMai;
+        }
+    }
 
     fetch(API_DON_HANG, {
         method: "POST",
@@ -943,10 +1003,17 @@ function processBankTransferOrder(nguoiDung_id, hoTen, dienThoai, diaChi, thoiGi
             dienThoai: dienThoai,
             diaChiGiaoHang: diaChi,
             thoiGianNhanHang: thoiGianNhanHang,
-            khuyenMai_id: checkoutData.khuyenMai ? checkoutData.khuyenMai.id : null
+            khuyenMai_id: khuyenMai_id
         })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
+        return res.json();
+    })
     .then(data => {
         btn.disabled = false;
         btn.classList.remove('loading');
@@ -956,17 +1023,29 @@ function processBankTransferOrder(nguoiDung_id, hoTen, dienThoai, diaChi, thoiGi
             throw new Error(data.message || "Không thể tạo đơn hàng");
         }
 
-        tempDonHangId = data.donHang_id;
-        tempTongTien = tongTien;
+        // Log để debug
+        console.log("Đơn hàng đã tạo:", data);
+        console.log("Tổng tiền:", data.tongTien, "Tổng tiền gốc:", data.tongTienGoc, "Số tiền giảm:", data.soTienGiam);
 
-        showQRCodeModal(tongTien, data.donHang_id, hoTen, dienThoai, diaChi);
+        tempDonHangId = data.donHang_id;
+        // Sử dụng tổng tiền từ backend response
+        tempTongTien = data.tongTien || tongTien;
+
+        showQRCodeModal(tempTongTien, data.donHang_id, hoTen, dienThoai, diaChi);
     })
     .catch(err => {
         btn.disabled = false;
         btn.classList.remove('loading');
         btn.innerHTML = originalText;
-        showToast("❌ Lỗi: " + err.message, "error");
-        console.error("Order error:", err);
+        const errorMsg = err.message || "Lỗi không xác định";
+        showToast("❌ Lỗi: " + errorMsg, "error");
+        console.error("Bank Transfer Order error:", err);
+        console.error("Error details:", {
+            nguoiDung_id: nguoiDung_id,
+            khuyenMai_id: khuyenMai_id,
+            selectedKhuyenMai: selectedKhuyenMai,
+            tongTien: tongTien
+        });
     });
 }
 

@@ -4,289 +4,332 @@
     <meta charset="UTF-8">
     <title>Quản lý giỏ hàng | Admin BabyCutie</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .cart-item-row:hover {
-            background: rgba(255,107,129,0.05);
+        .cart-item-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,246,248,0.95));
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(255,107,129,0.15);
+            border: 2px solid rgba(255,107,129,0.1);
+            transition: all 0.4s ease;
         }
-        .btn-action {
-            padding: 5px 12px;
-            font-size: 14px;
+        
+        .cart-item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255,107,129,0.25);
+            border-color: rgba(255,107,129,0.3);
+        }
+        
+        .cart-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255,107,129,0.1);
+        }
+        
+        .customer-info {
+            flex: 1;
+        }
+        
+        .customer-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .customer-email {
+            color: #ff6b81;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .product-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid rgba(255,107,129,0.2);
+        }
+        
+        .product-details {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .product-price {
+            color: #ff6b81;
+            font-weight: 800;
+            font-size: 16px;
+        }
+        
+        .quantity-badge {
+            background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .total-price {
+            font-size: 20px;
+            font-weight: 900;
+            color: #ff6b81;
+        }
+        
+        .btn-action-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-action-group .btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-action-group .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+        
+        .form-label {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid rgba(255,107,129,0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #ff6b81;
+            box-shadow: 0 0 0 4px rgba(255,107,129,0.1);
+            outline: none;
+        }
+        
+        .product-preview {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+        
+        .product-preview img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fa fa-shopping-cart"></i> Quản lý giỏ hàng</h2>
-            <div>
-                <a href="admin-dashboard.html" class="btn btn-secondary">
-                    <i class="fa fa-arrow-left"></i> Về Dashboard
-                </a>
-            </div>
-        </div>
 
-        <!-- Filter -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Tìm kiếm theo tên khách hàng</label>
-                        <input type="text" id="searchInput" class="form-control" placeholder="Nhập tên khách hàng...">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Tìm kiếm theo sản phẩm</label>
-                        <input type="text" id="searchProductInput" class="form-control" placeholder="Nhập tên sản phẩm...">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">&nbsp;</label>
-                        <button class="btn btn-primary w-100" onclick="loadGioHang()">
-                            <i class="fa fa-search"></i> Tìm kiếm
-                        </button>
-                    </div>
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="location='admin-dashboard.html'">
+            <span>🛒 Quản lý giỏ hàng</span>
+        </div>
+        <button class="btn-login" onclick="location='admin-dashboard.html'">
+            <i class="fa fa-arrow-left"></i> Dashboard
+        </button>
+    </div>
+</header>
+
+<section class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0" style="background: linear-gradient(135deg, #ff6b81, #ff8fa3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">
+            🛒 Quản lý giỏ hàng
+        </h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-danger" onclick="openForm()" title="Thêm sản phẩm vào giỏ hàng">
+                <i class="fa fa-plus"></i> Thêm vào giỏ hàng
+            </button>
+            <button class="btn btn-secondary" onclick="loadGioHang()" title="Làm mới">
+                <i class="fa fa-sync-alt"></i> Làm mới
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card mb-4" style="border-radius: 20px; border: 2px solid rgba(255,107,129,0.1);">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">
+                        <i class="fa fa-user"></i> Tìm kiếm theo tên khách hàng
+                    </label>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Nhập tên khách hàng...">
                 </div>
-            </div>
-        </div>
-
-        <!-- Table -->
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-primary">
-                            <tr>
-                                <th>ID</th>
-                                <th>Khách hàng</th>
-                                <th>Sản phẩm</th>
-                                <th>Hình ảnh</th>
-                                <th>Giá</th>
-                                <th>Số lượng</th>
-                                <th>Thành tiền</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gioHangTableBody">
-                            <tr>
-                                <td colspan="8" class="text-center">
-                                    <i class="fa fa-spinner fa-spin"></i> Đang tải...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="col-md-4">
+                    <label class="form-label">
+                        <i class="fa fa-box"></i> Tìm kiếm theo sản phẩm
+                    </label>
+                    <input type="text" id="searchProductInput" class="form-control" placeholder="Nhập tên sản phẩm...">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <button class="btn btn-primary w-100" onclick="loadGioHang()" style="border-radius: 12px;">
+                        <i class="fa fa-search"></i> Tìm kiếm
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Edit Quantity -->
-    <div class="modal fade" id="editQuantityModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cập nhật số lượng</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
+    <!-- Loading -->
+    <div id="loadingGioHang" class="text-center py-5">
+        <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+        <p class="mt-3 text-muted">Đang tải danh sách giỏ hàng...</p>
+    </div>
+
+    <!-- Cart List -->
+    <div id="gioHangList" class="row g-4"></div>
+
+    <!-- Empty State -->
+    <div id="emptyGioHang" class="empty-state" style="display: none;">
+        <i class="fa fa-shopping-cart"></i>
+        <h4>Chưa có sản phẩm nào trong giỏ hàng</h4>
+        <p>Danh sách giỏ hàng của khách hàng sẽ hiển thị ở đây</p>
+    </div>
+</section>
+
+<!-- MODAL FORM THÊM/SỬA -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff6b81, #ff8fa3); color: #fff;">
+                <h5 class="modal-title">
+                    <i class="fa fa-shopping-cart"></i> 
+                    <span id="modalTitle">Thêm sản phẩm vào giỏ hàng</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cartForm">
+                    <input type="hidden" id="cartId">
+                    
                     <div class="mb-3">
-                        <label class="form-label">Số lượng</label>
-                        <input type="number" id="editQuantityInput" class="form-control" min="1" value="1">
+                        <label for="nguoiDungSelect" class="form-label">
+                            <i class="fa fa-user"></i> Khách hàng *
+                        </label>
+                        <select class="form-select" id="nguoiDungSelect" required>
+                            <option value="">Chọn khách hàng...</option>
+                        </select>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="saveQuantity()">Lưu</button>
-                </div>
+
+                    <div class="mb-3">
+                        <label for="sanPhamSelect" class="form-label">
+                            <i class="fa fa-box"></i> Sản phẩm *
+                        </label>
+                        <select class="form-select" id="sanPhamSelect" required>
+                            <option value="">Chọn sản phẩm...</option>
+                        </select>
+                        <div id="productPreview" class="product-preview" style="display: none;">
+                            <img id="previewImage" src="" alt="Preview">
+                            <div>
+                                <div id="previewName" class="product-name"></div>
+                                <div id="previewPrice" class="product-price"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="soLuong" class="form-label">
+                            <i class="fa fa-hashtag"></i> Số lượng *
+                        </label>
+                        <input 
+                            type="number" 
+                            class="form-control" 
+                            id="soLuong" 
+                            min="1"
+                            value="1"
+                            required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times"></i> Hủy
+                </button>
+                <button type="button" class="btn btn-danger" onclick="saveCart()" id="saveCartBtn">
+                    <i class="fa fa-save"></i> Lưu
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const API_URL = "http://127.0.0.1:5000/api/admin/gio-hang";
-        const token = localStorage.getItem("admin_token");
-        let currentEditId = null;
-        let allGioHang = [];
+<!-- MODAL SỬA SỐ LƯỢNG -->
+<div class="modal fade" id="editQuantityModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff6b81, #ff8fa3); color: #fff;">
+                <h5 class="modal-title">
+                    <i class="fa fa-edit"></i> Cập nhật số lượng
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Số lượng</label>
+                    <input type="number" id="editQuantityInput" class="form-control" min="1" value="1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" onclick="saveQuantity()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        if (!token) {
-            alert("Vui lòng đăng nhập");
-            window.location.href = "login-admin.html";
-        }
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/admin-gio-hang.js"></script>
 
-        // Load giỏ hàng
-        function loadGioHang() {
-            fetch(API_URL, {
-                headers: {
-                    "Authorization": "Bearer " + token
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success === false) {
-                    alert(data.message);
-                    return;
-                }
-
-                allGioHang = data;
-                
-                // Filter
-                const searchName = document.getElementById("searchInput").value.toLowerCase();
-                const searchProduct = document.getElementById("searchProductInput").value.toLowerCase();
-                
-                let filtered = data;
-                if (searchName) {
-                    filtered = filtered.filter(item => 
-                        item.hoTen.toLowerCase().includes(searchName)
-                    );
-                }
-                if (searchProduct) {
-                    filtered = filtered.filter(item => 
-                        item.tenSanPham.toLowerCase().includes(searchProduct)
-                    );
-                }
-
-                renderTable(filtered);
-            })
-            .catch(err => {
-                console.error("Error:", err);
-                document.getElementById("gioHangTableBody").innerHTML = `
-                    <tr>
-                        <td colspan="8" class="text-center text-danger">
-                            <i class="fa fa-exclamation-triangle"></i> Lỗi kết nối
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        // Render table
-        function renderTable(data) {
-            const tbody = document.getElementById("gioHangTableBody");
-            
-            if (data.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="text-center text-muted">
-                            <i class="fa fa-shopping-cart"></i> Không có dữ liệu
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = data.map(item => {
-                const thanhTien = item.gia * item.soLuong;
-                return `
-                    <tr class="cart-item-row">
-                        <td>${item.id}</td>
-                        <td>
-                            <strong>${item.hoTen}</strong><br>
-                            <small class="text-muted">${item.email}</small><br>
-                            <small class="text-muted">${item.dienThoai}</small>
-                        </td>
-                        <td>${item.tenSanPham}</td>
-                        <td>
-                            <img src="http://127.0.0.1:5000/images/${item.hinhAnh}" 
-                                 alt="${item.tenSanPham}" 
-                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
-                        </td>
-                        <td>${item.gia.toLocaleString()}₫</td>
-                        <td>
-                            <strong>${item.soLuong}</strong>
-                        </td>
-                        <td><strong class="text-primary">${thanhTien.toLocaleString()}₫</strong></td>
-                        <td>
-                            <button class="btn btn-sm btn-warning btn-action" onclick="openEditModal(${item.id}, ${item.soLuong})">
-                                <i class="fa fa-edit"></i> Sửa
-                            </button>
-                            <button class="btn btn-sm btn-danger btn-action" onclick="deleteItem(${item.id})">
-                                <i class="fa fa-trash"></i> Xóa
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Open edit modal
-        function openEditModal(id, soLuong) {
-            currentEditId = id;
-            document.getElementById("editQuantityInput").value = soLuong;
-            const modal = new bootstrap.Modal(document.getElementById("editQuantityModal"));
-            modal.show();
-        }
-
-        // Save quantity
-        function saveQuantity() {
-            const soLuong = parseInt(document.getElementById("editQuantityInput").value);
-            
-            if (soLuong <= 0) {
-                alert("Số lượng phải lớn hơn 0");
-                return;
-            }
-
-            fetch(`${API_URL}/${currentEditId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + token
-                },
-                body: JSON.stringify({ soLuong: soLuong })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("✅ Cập nhật thành công");
-                    const modal = bootstrap.Modal.getInstance(document.getElementById("editQuantityModal"));
-                    modal.hide();
-                    loadGioHang();
-                } else {
-                    alert("Lỗi: " + (data.message || "Không thể cập nhật"));
-                }
-            })
-            .catch(err => {
-                alert("Lỗi kết nối: " + err.message);
-            });
-        }
-
-        // Delete item
-        function deleteItem(id) {
-            if (!confirm("Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?")) {
-                return;
-            }
-
-            fetch(`${API_URL}/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": "Bearer " + token
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert("✅ Đã xóa thành công");
-                    loadGioHang();
-                } else {
-                    alert("Lỗi: " + (data.message || "Không thể xóa"));
-                }
-            })
-            .catch(err => {
-                alert("Lỗi kết nối: " + err.message);
-            });
-        }
-
-        // Search on Enter
-        document.getElementById("searchInput").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") loadGioHang();
-        });
-        document.getElementById("searchProductInput").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") loadGioHang();
-        });
-
-        // Load on page load
-        loadGioHang();
-    </script>
 </body>
 </html>
-

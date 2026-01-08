@@ -118,7 +118,7 @@ def get_gio_hang_by_user(nguoiDung_id):
 
 
 # =====================================================
-# ADMIN - CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG
+# ADMIN - CẬP NHẬT GIỎ HÀNG (SỐ LƯỢNG HOẶC SẢN PHẨM)
 # =====================================================
 @admin_gio_hang_bp.route("/<int:id>", methods=["PUT"])
 def update_gio_hang(id):
@@ -133,19 +133,10 @@ def update_gio_hang(id):
 
         data = request.json
         
-        if not data or "soLuong" not in data:
+        if not data:
             return jsonify({
                 "success": False,
-                "message": "Thiếu thông tin số lượng"
-            }), 400
-
-        soLuong = int(data["soLuong"])
-
-        # Validation số lượng
-        if soLuong <= 0:
-            return jsonify({
-                "success": False,
-                "message": "Số lượng phải lớn hơn 0"
+                "message": "Thiếu dữ liệu"
             }), 400
 
         conn = get_db()
@@ -153,7 +144,7 @@ def update_gio_hang(id):
 
         # Kiểm tra giỏ hàng có tồn tại không
         cursor.execute("""
-            SELECT id
+            SELECT id, sanPham_id, nguoiDung_id
             FROM GioHang
             WHERE id = ?
         """, (id,))
@@ -166,19 +157,86 @@ def update_gio_hang(id):
                 "message": "Không tìm thấy sản phẩm trong giỏ hàng"
             }), 404
 
-        # Cập nhật số lượng
-        cursor.execute("""
-            UPDATE GioHang
-            SET soLuong = ?
-            WHERE id = ?
-        """, (soLuong, id))
+        # Cập nhật số lượng nếu có
+        if "soLuong" in data:
+            soLuong = int(data["soLuong"])
+            
+            if soLuong <= 0:
+                return jsonify({
+                    "success": False,
+                    "message": "Số lượng phải lớn hơn 0"
+                }), 400
+
+            cursor.execute("""
+                UPDATE GioHang
+                SET soLuong = ?
+                WHERE id = ?
+            """, (soLuong, id))
+        
+        # Cập nhật sản phẩm nếu có
+        if "sanPham_id" in data:
+            sanPham_id = int(data["sanPham_id"])
+            
+            # Kiểm tra sản phẩm có tồn tại và đang hoạt động không
+            cursor.execute("""
+                SELECT id, trangThai
+                FROM SanPham
+                WHERE id = ?
+            """, (sanPham_id,))
+            
+            sanPham = cursor.fetchone()
+            if not sanPham:
+                return jsonify({
+                    "success": False,
+                    "message": "Sản phẩm không tồn tại"
+                }), 404
+
+            if not sanPham[1]:  # trangThai = 0
+                return jsonify({
+                    "success": False,
+                    "message": "Sản phẩm hiện không khả dụng"
+                }), 400
+
+            # Kiểm tra sản phẩm đã có trong giỏ hàng của user này chưa (trừ item hiện tại)
+            cursor.execute("""
+                SELECT id
+                FROM GioHang
+                WHERE nguoiDung_id = ? AND sanPham_id = ? AND id != ?
+            """, (gio_hang_item[2], sanPham_id, id))
+            
+            if cursor.fetchone():
+                return jsonify({
+                    "success": False,
+                    "message": "Sản phẩm đã có trong giỏ hàng của khách hàng này"
+                }), 400
+
+            cursor.execute("""
+                UPDATE GioHang
+                SET sanPham_id = ?
+                WHERE id = ?
+            """, (sanPham_id, id))
 
         # Commit vào database
         conn.commit()
 
+        # Kiểm tra có cập nhật gì không
+        if "soLuong" not in data and "sanPham_id" not in data:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng cung cấp thông tin cần cập nhật (số lượng hoặc sản phẩm)"
+            }), 400
+
+        # Tạo message phù hợp
+        messages = []
+        if "soLuong" in data:
+            messages.append("số lượng")
+        if "sanPham_id" in data:
+            messages.append("sản phẩm")
+        message = f"Cập nhật {', '.join(messages)} thành công"
+
         return jsonify({
             "success": True,
-            "message": "Cập nhật số lượng thành công"
+            "message": message
         })
 
     except ValueError:

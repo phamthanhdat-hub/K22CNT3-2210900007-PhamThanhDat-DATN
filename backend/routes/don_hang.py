@@ -159,8 +159,8 @@ def tao_don_hang():
                 "message": f"Sản phẩm không còn khả dụng: {', '.join(unavailable_products)}"
             }), 400
 
-        # Tính tổng tiền ban đầu
-        tongTienGoc = sum(row[1] * row[2] for row in gio_hang)
+        # Tính tổng tiền ban đầu (chuyển đổi sang float để tránh lỗi decimal)
+        tongTienGoc = float(sum(float(row[1]) * float(row[2]) for row in gio_hang))
         tongTien = tongTienGoc
         khuyenMai_id = data.get("khuyenMai_id")
         soTienGiam = 0
@@ -182,19 +182,37 @@ def tao_don_hang():
                 from datetime import datetime
                 now = datetime.now()
                 
+                # Chuyển đổi tất cả giá trị decimal sang float
+                giaTri = float(giaTri) if giaTri else 0
+                giaTriToiDa = float(giaTriToiDa) if giaTriToiDa else None
+                donHangToiThieu = float(donHangToiThieu) if donHangToiThieu else None
+                
                 # Kiểm tra khuyến mãi hợp lệ
                 if trangThai and (not ngayBatDau or now >= ngayBatDau) and (not ngayKetThuc or now <= ngayKetThuc):
                     if not donHangToiThieu or tongTienGoc >= donHangToiThieu:
                         # Tính số tiền giảm
                         if loai and loai.strip() == "phan_tram":
-                            soTienGiam = tongTienGoc * float(giaTri) / 100
+                            soTienGiam = tongTienGoc * giaTri / 100
                             if giaTriToiDa:
-                                soTienGiam = min(soTienGiam, float(giaTriToiDa))
+                                soTienGiam = min(soTienGiam, giaTriToiDa)
                         else:  # tien_mat
-                            soTienGiam = float(giaTri)
+                            soTienGiam = giaTri
                         
                         soTienGiam = int(soTienGiam)
+                        # Giới hạn số tiền giảm không vượt quá tổng tiền gốc
+                        if soTienGiam > tongTienGoc:
+                            soTienGiam = int(tongTienGoc)
+                        
                         tongTien = tongTienGoc - soTienGiam
+                        
+                        # Đảm bảo tổng tiền không âm (cho phép = 0 - đơn hàng miễn phí)
+                        if tongTien < 0:
+                            tongTien = 0
+                            soTienGiam = int(tongTienGoc)
+
+        # Đảm bảo tổng tiền cuối cùng >= 0 (cho phép = 0 - đơn hàng miễn phí)
+        if tongTien < 0:
+            tongTien = 0
 
         # Lấy thời gian nhận hàng (nếu có)
         thoiGianNhanHang = data.get("thoiGianNhanHang", "").strip() or None
