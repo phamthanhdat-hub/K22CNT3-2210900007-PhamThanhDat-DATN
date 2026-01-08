@@ -3,58 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <title>Đăng ký khách hàng | BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
 
 <header class="header">
     <div class="container header-wrap">
-        <div class="logo" onclick="location='index.html'">
-            <img src="images/logo2.jpg">
+        <div class="logo" onclick="window.location='index.html'">
+            <img src="images/logo2.jpg" alt="BabyCutie">
             <span>BabyCutie</span>
         </div>
-        <nav>
+        <nav class="main-menu">
             <a href="index.html">Trang chủ</a>
-            <a href="login-khach.html">Đăng nhập</a>
+            <a href="thuc-don.html">Thực đơn</a>
+            <a href="tin-tuc.html">Tin tức</a>
+            <a href="lien-he.html">Liên hệ</a>
         </nav>
     </div>
 </header>
 
 <section class="login-page">
-    <div class="login-box">
+    <div class="login-box register-box">
 
         <h2>📝 Đăng ký tài khoản</h2>
         <p>Tạo tài khoản để đặt cháo cho bé</p>
 
-        <div class="input-group">
-            <input id="hoTen" placeholder="Họ tên">
-        </div>
+        <form id="registerForm">
+            <div class="input-group">
+                <i class="fa fa-user"></i>
+                <input 
+                    type="text" 
+                    id="hoTen" 
+                    placeholder="Họ tên *" 
+                    required>
+            </div>
 
-        <div class="input-group">
-            <input id="email" type="email" placeholder="Email">
-        </div>
+            <div class="input-group">
+                <i class="fa fa-envelope"></i>
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="Email *" 
+                    required>
+            </div>
 
-        <div class="input-group">
-            <input id="matKhau" type="password" placeholder="Mật khẩu">
-        </div>
+            <div class="input-group">
+                <i class="fa fa-lock"></i>
+                <input 
+                    type="password" 
+                    id="matKhau" 
+                    placeholder="Mật khẩu *" 
+                    required
+                    minlength="6"
+                    oninput="checkPasswordStrength(this.value)">
+                <div class="password-strength" id="passwordStrength">
+                    <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                </div>
+            </div>
 
-        <div class="input-group">
-            <input id="dienThoai" placeholder="Số điện thoại">
-        </div>
+            <div class="input-group">
+                <i class="fa fa-phone"></i>
+                <input 
+                    type="tel" 
+                    id="dienThoai" 
+                    placeholder="Số điện thoại">
+            </div>
 
-        <div class="input-group">
-            <input id="diaChi" placeholder="Địa chỉ">
-        </div>
+            <div class="input-group">
+                <i class="fa fa-map-marker-alt"></i>
+                <input 
+                    type="text" 
+                    id="diaChi" 
+                    placeholder="Địa chỉ">
+            </div>
 
-        <button class="btn-primary w-100" onclick="dangKy()">
-            Đăng ký
-        </button>
+            <button type="submit" class="btn-primary w-100" id="submitBtn">
+                <i class="fa fa-user-plus"></i> Đăng ký ngay
+            </button>
+        </form>
+
+        <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
 
         <hr>
 
-        <p>
+        <p class="text-center">
             Đã có tài khoản?
-            <a href="login-khach.html"><b>Đăng nhập</b></a>
+            <a href="login-khach.html"><b>Đăng nhập ngay</b></a>
         </p>
 
     </div>
@@ -68,40 +111,142 @@
 </footer>
 
 <script>
-function dangKy() {
-    const hoTen = document.getElementById("hoTen").value;
-    const email = document.getElementById("email").value;
-    const matKhau = document.getElementById("matKhau").value;
-    const dienThoai = document.getElementById("dienThoai").value;
-    const diaChi = document.getElementById("diaChi").value;
+document.getElementById("registerForm").onsubmit = async function(e) {
+    e.preventDefault();
 
+    const hoTen = document.getElementById("hoTen").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const matKhau = document.getElementById("matKhau").value;
+    const dienThoai = document.getElementById("dienThoai").value.trim();
+    const diaChi = document.getElementById("diaChi").value.trim();
+
+    const errorDiv = document.getElementById("errorMessage");
+    errorDiv.style.display = "none";
+    errorDiv.textContent = "";
+
+    // Validation
     if (!hoTen || !email || !matKhau) {
-        alert("Vui lòng nhập đầy đủ thông tin bắt buộc");
+        showError("Vui lòng nhập đầy đủ thông tin bắt buộc (*)");
         return;
     }
 
-    fetch("http://127.0.0.1:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            hoTen,
-            email,
-            matKhau,
-            dienThoai,
-            diaChi
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
+    if (matKhau.length < 6) {
+        showError("Mật khẩu phải có ít nhất 6 ký tự");
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        showError("Email không hợp lệ");
+        return;
+    }
+
+    // Disable button và hiển thị loading
+    const submitBtn = document.getElementById("submitBtn");
+    submitBtn.disabled = true;
+    submitBtn.classList.add("loading");
+    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang đăng ký...';
+
+    try {
+        const res = await fetch("http://127.0.0.1:5000/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                hoTen,
+                email,
+                matKhau,
+                dienThoai: dienThoai || null,
+                diaChi: diaChi || null
+            })
+        });
+
+        const data = await res.json();
+
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("loading");
+        submitBtn.innerHTML = '<i class="fa fa-user-plus"></i> Đăng ký ngay';
+
         if (data.success) {
-            alert("🎉 Đăng ký thành công! Vui lòng đăng nhập");
-            location.href = "login-khach.html";
+            // Success animation
+            document.querySelector(".login-box").classList.add("success");
+            
+            // Show success message
+            const successDiv = document.createElement("div");
+            successDiv.className = "alert alert-success mt-3";
+            successDiv.style.display = "block";
+            successDiv.innerHTML = `
+                <i class="fa fa-check-circle"></i> 
+                <strong>Đăng ký thành công!</strong><br>
+                Tài khoản của bạn đã được tạo và lưu vào hệ thống.<br>
+                Đang chuyển đến trang đăng nhập...
+            `;
+            document.getElementById("errorMessage").style.display = "none";
+            document.getElementById("registerForm").parentNode.insertBefore(successDiv, document.getElementById("registerForm").nextSibling);
+            
+            // Scroll to success message
+            successDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            setTimeout(() => {
+                window.location.href = "login-khach.html";
+            }, 2500);
         } else {
-            alert(data.message);
+            showError(data.message || "Đăng ký thất bại. Vui lòng thử lại.");
         }
-    })
-    .catch(() => alert("❌ Lỗi đăng ký"));
+    } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("loading");
+        submitBtn.innerHTML = '<i class="fa fa-user-plus"></i> Đăng ký ngay';
+        showError("❌ Không thể kết nối server. Vui lòng kiểm tra kết nối và thử lại sau.");
+        console.error("Register error:", err);
+    }
+};
+
+function showError(message) {
+    const errorDiv = document.getElementById("errorMessage");
+    errorDiv.textContent = message;
+    errorDiv.style.display = "block";
 }
+
+function isValidEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+// Password strength checker
+function checkPasswordStrength(password) {
+    const strengthDiv = document.getElementById("passwordStrength");
+    const strengthBar = document.getElementById("passwordStrengthBar");
+    
+    if (!password) {
+        strengthDiv.classList.remove("active");
+        return;
+    }
+    
+    strengthDiv.classList.add("active");
+    
+    let strength = 0;
+    if (password.length >= 6) strength++;
+    if (password.length >= 8) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z\d]/.test(password)) strength++;
+    
+    strengthBar.className = "password-strength-bar";
+    if (strength <= 2) {
+        strengthBar.classList.add("weak");
+    } else if (strength <= 3) {
+        strengthBar.classList.add("medium");
+    } else {
+        strengthBar.classList.add("strong");
+    }
+}
+
+// Loading state on submit
+document.getElementById("registerForm").addEventListener("submit", function() {
+    const btn = document.getElementById("submitBtn");
+    btn.classList.add("loading");
+    btn.disabled = true;
+});
 </script>
 
 </body>

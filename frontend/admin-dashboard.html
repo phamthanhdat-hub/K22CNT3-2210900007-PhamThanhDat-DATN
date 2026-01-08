@@ -28,32 +28,32 @@
     <h2 class="mb-4">📊 Bảng điều khiển</h2>
 
     <!-- STATISTIC -->
-    <div class="row">
+    <div class="row" id="thongKeRow">
         <div class="col-md-3">
             <div class="admin-card">
                 <h4>👶 Người dùng</h4>
-                <p>120</p>
+                <p id="soNguoiDung">-</p>
             </div>
         </div>
 
         <div class="col-md-3">
             <div class="admin-card">
                 <h4>🍲 Sản phẩm</h4>
-                <p>18</p>
+                <p id="soSanPham">-</p>
             </div>
         </div>
 
         <div class="col-md-3">
             <div class="admin-card">
                 <h4>🧾 Đơn hàng</h4>
-                <p>56</p>
+                <p id="soDonHang">-</p>
             </div>
         </div>
 
         <div class="col-md-3">
             <div class="admin-card">
                 <h4>💰 Doanh thu</h4>
-                <p>12.500.000đ</p>
+                <p id="tongDoanhThu">-</p>
             </div>
         </div>
     </div>
@@ -79,12 +79,39 @@
             </div>
         </div>
 
-        <!-- QUẢN LÝ NGƯỜI DÙNG -->
+        <!-- QUẢN LÝ KHUYẾN MÃI -->
         <div class="col-md-4">
-            <div class="admin-menu">
-                <i class="fa fa-users"></i>
-                <h5>Quản lý người dùng</h5>
-                <p>Khách hàng & phân quyền</p>
+            <div class="admin-menu" onclick="location='admin-khuyen-mai.html'">
+                <i class="fa fa-tags"></i>
+                <h5>Quản lý khuyến mãi</h5>
+                <p>Mã giảm giá & ưu đãi</p>
+            </div>
+        </div>
+
+        <!-- QUẢN LÝ TIN TỨC -->
+        <div class="col-md-4">
+            <div class="admin-menu" onclick="location='admin-tin-tuc.html'">
+                <i class="fa fa-newspaper"></i>
+                <h5>Quản lý tin tức</h5>
+                <p>Bài viết & thông báo</p>
+            </div>
+        </div>
+
+        <!-- QUẢN LÝ LIÊN HỆ -->
+        <div class="col-md-4">
+            <div class="admin-menu" onclick="location='admin-lien-he.html'">
+                <i class="fa fa-envelope"></i>
+                <h5>Quản lý liên hệ</h5>
+                <p>Tin nhắn từ khách hàng</p>
+            </div>
+        </div>
+
+        <!-- QUẢN LÝ ĐÁNH GIÁ -->
+        <div class="col-md-4">
+            <div class="admin-menu" onclick="location='admin-danh-gia.html'">
+                <i class="fa fa-star"></i>
+                <h5>Quản lý đánh giá</h5>
+                <p>Đánh giá sản phẩm</p>
             </div>
         </div>
 
@@ -93,7 +120,29 @@
 </section>
 
 <script>
+// Kiểm tra đăng nhập
+const adminToken = localStorage.getItem("admin_token");
+if (!adminToken) {
+    window.location.href = "login-admin.html";
+}
+
+// Load thống kê
+fetch("http://127.0.0.1:5000/api/admin/dashboard/thong-ke")
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("soNguoiDung").textContent = data.soNguoiDung || 0;
+        document.getElementById("soSanPham").textContent = data.soSanPham || 0;
+        document.getElementById("soDonHang").textContent = data.soDonHang || 0;
+        document.getElementById("tongDoanhThu").textContent = 
+            new Intl.NumberFormat('vi-VN').format(data.tongDoanhThu || 0) + "đ";
+    })
+    .catch(err => {
+        console.error("Lỗi load thống kê:", err);
+    });
+
 function logoutAdmin() {
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_info");
     window.location.href = "login-admin.html";
 }
 </script>

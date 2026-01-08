@@ -66,6 +66,8 @@
             </button>
         </form>
 
+        <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+
         <div class="login-extra">
             <a href="#">Quên mật khẩu?</a>
         </div>
@@ -95,11 +97,35 @@
 
 <!-- ================= JS LOGIN (GỌI API FLASK) ================= -->
 <script>
+// Toast notification function
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type} show`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
+}
+
 document.getElementById("loginForm").onsubmit = async function (e) {
     e.preventDefault();
 
-    const email = document.getElementById("email").value;
+    const email = document.getElementById("email").value.trim();
     const matKhau = document.getElementById("matKhau").value;
+    const submitBtn = this.querySelector('button[type="submit"]');
+
+    // Validation
+    if (!email || !matKhau) {
+        showToast("Vui lòng nhập đầy đủ thông tin", "error");
+        return;
+    }
+
+    // Disable button và hiển thị loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang đăng nhập...';
 
     try {
         const res = await fetch("http://127.0.0.1:5000/api/auth/login", {
@@ -113,21 +139,38 @@ document.getElementById("loginForm").onsubmit = async function (e) {
             })
         });
 
-        if (!res.ok) {
-            throw new Error("Sai tài khoản hoặc mật khẩu");
-        }
-
         const data = await res.json();
 
-        // phân quyền theo vaiTro trong bảng NguoiDung
-        if (data.vaiTro === "admin") {
-            window.location.href = "admin-dashboard.html";
-        } else {
-            window.location.href = "index.html";
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "Đăng nhập";
+
+        if (!data.success) {
+            showToast(data.message || "Đăng nhập thất bại", "error");
+            return;
         }
 
+        // Lưu token và thông tin người dùng vào localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user_info", JSON.stringify(data.nguoiDung));
+
+        // Hiển thị thông báo thành công
+        showToast("✅ Đăng nhập thành công!", "success");
+
+        // Phân quyền theo vaiTro và chuyển trang
+        setTimeout(() => {
+            if (data.nguoiDung && data.nguoiDung.vaiTro === "admin") {
+                window.location.href = "admin-dashboard.html";
+            } else {
+                window.location.href = "index.html";
+            }
+        }, 1000);
+
     } catch (err) {
-        alert(err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "Đăng nhập";
+        showToast("❌ Không thể kết nối server. Vui lòng thử lại sau.", "error");
+        console.error("Login error:", err);
     }
 };
 </script>

@@ -1,278 +1,436 @@
 /* =========================================
-   BABYCUTIE – MENU PAGE (ELEGANT & SMOOTH)
+   THỰC ĐƠN PAGE (ENHANCED)
 ========================================= */
 
 .menu-page {
-    background: linear-gradient(180deg, #fff3f6, #ffffff);
-    padding: 50px 0 90px;
+    background: linear-gradient(180deg, #fff3f6 0%, #ffffff 50%, #fff6f8 100%);
+    padding: 60px 0 100px;
+    min-height: 80vh;
 }
 
-/* ================= FILTER ================= */
+/* ================= FILTER (ENHANCED) ================= */
 .filter-box {
-    background: #ffffff;
-    border-radius: 22px;
-    padding: 24px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.06);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 28px;
+    padding: 28px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
     position: sticky;
-    top: 110px;
+    top: 120px;
+    border: 2px solid rgba(255,107,129,0.1);
+    transition: all 0.3s ease;
+}
+
+.filter-box:hover {
+    box-shadow: 0 15px 50px rgba(255,107,129,0.15);
+    border-color: rgba(255,107,129,0.2);
 }
 
 .filter-box h5 {
-    font-weight: 800;
-    color: #ff5f7e;
-    margin-bottom: 18px;
+    font-weight: 900;
+    color: #ff6b81;
+    margin-bottom: 22px;
+    font-size: 22px;
+    text-align: center;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255,107,129,0.1);
 }
 
-/* ===== FILTER GROUP (DANH MỤC / ĐỘ TUỔI / GIÁ) ===== */
+/* FILTER GROUP (ENHANCED) */
 .filter-group {
-    margin-top: 22px;
-    background: #fff;
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.05);
+    margin-top: 25px;
+    background: linear-gradient(135deg, #fff6f8, #ffffff);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,107,129,0.1);
 }
 
 .filter-group h6 {
-    font-weight: 700;
-    color: #ff5f7e;
-    margin-bottom: 14px;
-    font-size: 15px;
+    font-weight: 800;
+    color: #ff6b81;
+    margin-bottom: 16px;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* ===== FILTER ITEM ===== */
+/* FILTER ITEM (ENHANCED) */
 .filter-group label {
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: #fff5f7;
-    padding: 10px 14px;
-    border-radius: 14px;
+    gap: 12px;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-radius: 16px;
     font-size: 14px;
     cursor: pointer;
     color: #444;
-    transition: all 0.25s ease;
-    margin-bottom: 10px;
-    border: 1px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 12px;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .filter-group label:hover {
-    background: #ffe3ea;
-    transform: translateX(2px);
+    background: linear-gradient(135deg, #ffe3ea, #fff1f4);
+    transform: translateX(5px);
+    border-color: rgba(255,107,129,0.2);
+    box-shadow: 0 4px 12px rgba(255,107,129,0.15);
 }
 
-/* ===== CUSTOM CHECKBOX / RADIO ===== */
+/* CUSTOM CHECKBOX / RADIO (ENHANCED) */
 .filter-group input[type="checkbox"],
 .filter-group input[type="radio"] {
     appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 6px;
     border: 2px solid #ffb6c1;
     position: relative;
     cursor: pointer;
     flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
 .filter-group input[type="radio"] {
     border-radius: 50%;
 }
 
-/* CHECKED */
 .filter-group input:checked {
-    background: #ff5f7e;
-    border-color: #ff5f7e;
+    background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+    border-color: #ff6b81;
+    box-shadow: 0 0 0 4px rgba(255,107,129,0.2);
 }
 
 .filter-group input:checked::after {
     content: "✓";
     position: absolute;
     top: -2px;
-    left: 3px;
+    left: 4px;
     color: #fff;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 900;
 }
 
-/* ACTIVE TEXT */
 .filter-group input:checked + span {
-    color: #ff5f7e;
+    color: #ff6b81;
     font-weight: 700;
 }
 
-/* ================= COMBO ================= */
+/* COMBO BOX (ENHANCED) */
 .combo-box {
-    margin-top: 28px;
+    margin-top: 30px;
     background: linear-gradient(135deg, #ff8fa3, #ffc2d1);
     color: #fff;
-    padding: 22px;
-    border-radius: 22px;
+    padding: 28px;
+    border-radius: 24px;
     text-align: center;
+    box-shadow: 0 8px 25px rgba(255,143,163,0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.combo-box::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .combo-box p {
     margin: 0;
+    font-weight: 700;
+    font-size: 16px;
+    position: relative;
+    z-index: 1;
 }
 
 .combo-box button {
     background: #fff;
-    color: #ff5f7e;
+    color: #ff6b81;
     border: none;
-    padding: 8px 18px;
+    padding: 10px 24px;
     border-radius: 30px;
-    font-weight: 700;
-    margin-top: 12px;
+    font-weight: 800;
+    margin-top: 15px;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+    position: relative;
+    z-index: 1;
 }
 
 .combo-box button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255,255,255,0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255,255,255,0.5);
 }
 
-/* ================= HEADER ================= */
+/* ================= HEADER (ENHANCED) ================= */
 .menu-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .menu-head h3 {
-    font-weight: 800;
-    color: #ff5f7e;
+    font-weight: 900;
+    color: #ff6b81;
+    font-size: 32px;
+    margin: 0;
 }
 
 .menu-head p {
     margin: 0;
     color: #777;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .menu-head select {
-    border-radius: 20px;
-    padding: 6px 14px;
-    border: 1px solid #ddd;
-    font-size: 14px;
+    border-radius: 24px;
+    padding: 10px 18px;
+    border: 2px solid #e8e8e8;
+    font-size: 15px;
+    font-weight: 600;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-/* ================= FOOD CARD ================= */
+.menu-head select:focus {
+    outline: none;
+    border-color: #ff6b81;
+    box-shadow: 0 0 0 4px rgba(255,107,129,0.1);
+}
+
+/* ================= FOOD CARD (ENHANCED) ================= */
 .food-card {
     background: #ffffff;
-    border-radius: 26px;
-    padding: 18px 18px 22px;
+    border-radius: 28px;
+    padding: 22px;
     text-align: center;
     position: relative;
-    box-shadow: 0 14px 35px rgba(0,0,0,0.08);
-    transition: all 0.35s ease;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
+    border: 2px solid rgba(255,107,129,0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.food-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.6s ease;
+}
+
+.food-card:hover::before {
+    left: 100%;
 }
 
 .food-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 24px 50px rgba(255,107,129,0.35);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 25px 55px rgba(255,107,129,0.35);
+    border-color: rgba(255,107,129,0.3);
 }
 
 .food-card img {
     width: 100%;
-    border-radius: 18px;
-    margin-bottom: 14px;
-    transition: transform 0.4s ease;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 
 .food-card:hover img {
-    transform: scale(1.08);
+    transform: scale(1.12) rotate(2deg);
 }
 
-/* BADGE */
+/* BADGE (ENHANCED) */
 .badge-hot,
 .badge-new {
     position: absolute;
-    top: 14px;
-    left: 14px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
+    top: 18px;
+    left: 18px;
+    padding: 6px 14px;
+    border-radius: 24px;
+    font-size: 11px;
     color: #fff;
-    font-weight: 600;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .badge-hot {
-    background: #ff5f7e;
+    background: linear-gradient(135deg, #ff6b81, #ff8fa3);
 }
 
 .badge-new {
-    background: #52b788;
+    background: linear-gradient(135deg, #52b788, #74c69d);
 }
 
-/* TITLE */
+/* TITLE (ENHANCED) */
 .food-card h5 {
-    font-weight: 700;
-    margin-bottom: 4px;
+    font-weight: 800;
+    margin-bottom: 6px;
     color: #333;
+    font-size: 18px;
+    transition: color 0.3s ease;
+    cursor: pointer;
 }
 
-/* RATING */
+.food-card h5:hover {
+    color: #ff6b81;
+}
+
+/* RATING (ENHANCED) */
 .rating {
-    font-size: 14px;
+    font-size: 15px;
     color: #ffb703;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 
 .rating span {
     color: #999;
     font-size: 13px;
+    font-weight: 600;
 }
 
-/* PRICE */
+/* PRICE (ENHANCED) */
 .price {
-    font-weight: 800;
-    color: #ff5f7e;
-    font-size: 18px;
-    margin: 8px 0;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 22px;
+    margin: 10px 0;
 }
 
-/* ADD BUTTON */
+/* ADD BUTTON (ENHANCED) */
 .btn-add {
     background: linear-gradient(135deg, #ff6b81, #ff8fa3);
     color: #fff;
     border: none;
-    padding: 10px 22px;
+    padding: 12px 24px;
     border-radius: 30px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     width: 100%;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: auto;
+    box-shadow: 0 4px 15px rgba(255,107,129,0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-add::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-add:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 .btn-add:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(255,107,129,0.45);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(255,107,129,0.5);
 }
 
-/* ================= PAGINATION ================= */
+.btn-add:active {
+    transform: translateY(-1px);
+}
+
+/* DESCRIPTION */
+.desc {
+    color: #666;
+    font-size: 14px;
+    margin: 10px 0;
+    line-height: 1.6;
+    min-height: 40px;
+}
+
+/* AGE BADGE */
+.age {
+    display: block;
+    color: #999;
+    font-size: 13px;
+    margin-top: 8px;
+    font-weight: 600;
+}
+
+/* ================= PAGINATION (ENHANCED) ================= */
 .pagination-box {
-    margin-top: 45px;
+    margin-top: 50px;
     text-align: center;
 }
 
 .pagination-box button {
-    border: 1px solid #ddd;
+    border: 2px solid #e8e8e8;
     background: #fff;
-    margin: 0 4px;
-    padding: 6px 12px;
+    margin: 0 6px;
+    padding: 10px 16px;
     border-radius: 50%;
-    font-size: 14px;
-    transition: 0.3s;
+    font-size: 15px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-width: 45px;
+    height: 45px;
 }
 
-.pagination-box button:hover,
-.pagination-box .active {
-    background: #ff5f7e;
+.pagination-box button:hover {
+    background: linear-gradient(135deg, #ff6b81, #ff8fa3);
     color: #fff;
-    border-color: #ff5f7e;
+    border-color: #ff6b81;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255,107,129,0.3);
 }
 
-/* ================= RESPONSIVE ================= */
+.pagination-box .active {
+    background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+    color: #fff;
+    border-color: #ff6b81;
+    box-shadow: 0 4px 15px rgba(255,107,129,0.4);
+}
+
+/* ================= RESPONSIVE (ENHANCED) ================= */
 @media (max-width: 992px) {
     .filter-box {
         position: static;
@@ -282,6 +440,28 @@
     .menu-head {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 15px;
+    }
+
+    .menu-head h3 {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-page {
+        padding: 40px 0 60px;
+    }
+
+    .filter-box {
+        padding: 20px;
+    }
+
+    .food-card {
+        padding: 18px;
+    }
+
+    .food-card img {
+        height: 180px;
     }
 }

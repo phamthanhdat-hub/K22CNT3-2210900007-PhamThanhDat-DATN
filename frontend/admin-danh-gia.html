@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý đánh giá | Admin BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="location='admin-dashboard.html'"><span>🛠 Quản lý đánh giá</span></div>
+        <button class="btn-login" onclick="location='admin-dashboard.html'">← Dashboard</button>
+    </div>
+</header>
+<section class="container mt-4">
+    <h3>⭐ Danh sách đánh giá</h3>
+    <div class="table-responsive mt-3">
+        <table class="table table-bordered bg-white">
+            <thead class="table-light">
+                <tr><th>#</th><th>Khách hàng</th><th>Sản phẩm</th><th>Số sao</th><th>Nội dung</th><th>Ngày đánh giá</th><th>Hành động</th></tr>
+            </thead>
+            <tbody id="danhGiaTable"><tr><td colspan="7" class="text-center">Đang tải...</td></tr></tbody>
+        </table>
+    </div>
+</section>
+<script>
+if (!localStorage.getItem("admin_token")) window.location.href = "login-admin.html";
+fetch("http://127.0.0.1:5000/api/admin/danh-gia")
+    .then(r => r.json())
+    .then(d => {
+        const t = document.getElementById("danhGiaTable");
+        t.innerHTML = d.length === 0 ? '<tr><td colspan="7" class="text-center">Chưa có đánh giá</td></tr>' :
+            d.map((dg, i) => `<tr>
+                <td>${i+1}</td>
+                <td>${dg.hoTen}</td>
+                <td>${dg.tenSanPham}</td>
+                <td>${'⭐'.repeat(dg.soSao)}</td>
+                <td>${dg.noiDung || '-'}</td>
+                <td>${dg.ngayDanhGia ? new Date(dg.ngayDanhGia).toLocaleDateString('vi-VN') : '-'}</td>
+                <td><button class="btn btn-sm btn-danger" onclick="if(confirm('Xóa?')) fetch('http://127.0.0.1:5000/api/admin/danh-gia/${dg.id}', {method:'DELETE'}).then(() => location.reload())">Xóa</button></td>
+            </tr>`).join('');
+    });
+</script>
+</body>
+</html>
+

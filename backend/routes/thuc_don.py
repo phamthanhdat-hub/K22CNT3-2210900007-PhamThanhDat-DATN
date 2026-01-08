@@ -4,6 +4,33 @@ from db import get_db
 thuc_don_bp = Blueprint("thuc_don_bp", __name__)
 
 # =====================================================
+# GET ALL DANH MỤC
+# =====================================================
+@thuc_don_bp.route("/danh-muc", methods=["GET"])
+def get_all_danh_muc():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id, tenDanhMuc, moTa, danhMucCha_id
+        FROM DanhMuc
+        ORDER BY tenDanhMuc
+    """)
+
+    rows = cursor.fetchall()
+    data = []
+
+    for r in rows:
+        data.append({
+            "id": r[0],
+            "tenDanhMuc": r[1],
+            "moTa": r[2],
+            "danhMucCha_id": r[3]
+        })
+
+    return jsonify(data)
+
+# =====================================================
 # GET ALL SẢN PHẨM
 # =====================================================
 @thuc_don_bp.route("/", methods=["GET"])

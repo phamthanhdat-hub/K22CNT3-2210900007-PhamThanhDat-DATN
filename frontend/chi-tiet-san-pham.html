@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết sản phẩm | BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="location='index.html'"><img src="images/logo2.jpg"><span>BabyCutie</span></div>
+        <button class="btn-login" onclick="location='thuc-don.html'">← Thực đơn</button>
+    </div>
+</header>
+<section class="container mt-4">
+    <div id="productDetail" class="row">
+        <div class="col-md-6">
+            <img id="productImage" src="" class="img-fluid" style="max-height: 400px; object-fit: cover;">
+        </div>
+        <div class="col-md-6">
+            <h2 id="productName"></h2>
+            <p class="text-muted" id="productMoTa"></p>
+            <h3 class="text-danger" id="productPrice"></h3>
+            <p><strong>Độ tuổi:</strong> <span id="productDoTuoi"></span></p>
+            <div class="mb-3">
+                <strong>Dinh dưỡng:</strong>
+                <span>💪 Protein: <span id="productProtein"></span>g</span> |
+                <span>🍚 Carb: <span id="productCarb"></span>g</span> |
+                <span>🥑 Fat: <span id="productChatBeo"></span>g</span>
+            </div>
+            <button class="btn btn-danger btn-lg" onclick="addToCart()">🛒 Thêm vào giỏ</button>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- ĐÁNH GIÁ -->
+    <div class="row">
+        <div class="col-md-6">
+            <h4>⭐ Đánh giá sản phẩm</h4>
+            <div id="ratingStats" class="mb-3"></div>
+            <div id="ratingForm" style="display: none;">
+                <h5>Viết đánh giá</h5>
+                <div class="mb-2">
+                    <label>Số sao *</label>
+                    <select class="form-control" id="soSao">
+                        <option value="5">⭐⭐⭐⭐⭐ (5 sao)</option>
+                        <option value="4">⭐⭐⭐⭐ (4 sao)</option>
+                        <option value="3">⭐⭐⭐ (3 sao)</option>
+                        <option value="2">⭐⭐ (2 sao)</option>
+                        <option value="1">⭐ (1 sao)</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label>Nội dung</label>
+                    <textarea class="form-control" id="noiDungDanhGia" rows="3"></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="submitDanhGia()">Gửi đánh giá</button>
+            </div>
+            <div id="loginPrompt" class="alert alert-info">
+                <a href="login-khach.html">Đăng nhập</a> để đánh giá sản phẩm
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h5>Đánh giá từ khách hàng</h5>
+            <div id="danhGiaList"></div>
+        </div>
+    </div>
+</section>
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const productId = urlParams.get('id');
+const token = localStorage.getItem("token");
+const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
+
+if (!productId) {
+    alert("Không tìm thấy sản phẩm");
+    window.location.href = "thuc-don.html";
+}
+
+// Load chi tiết sản phẩm
+fetch(`http://127.0.0.1:5000/api/thuc-don/${productId}`)
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById("productName").textContent = data.tenSanPham;
+        document.getElementById("productMoTa").textContent = data.moTa || '';
+        document.getElementById("productPrice").textContent = new Intl.NumberFormat('vi-VN').format(data.gia) + 'đ';
+        document.getElementById("productDoTuoi").textContent = data.doTuoi || '-';
+        document.getElementById("productProtein").textContent = data.protein || 0;
+        document.getElementById("productCarb").textContent = data.carb || 0;
+        document.getElementById("productChatBeo").textContent = data.chatBeo || 0;
+        document.getElementById("productImage").src = `http://127.0.0.1:5000/images/${data.hinhAnh || 'default.jpg'}`;
+    });
+
+// Load đánh giá
+function loadDanhGia() {
+    fetch(`http://127.0.0.1:5000/api/danh-gia/san-pham/${productId}`)
+        .then(r => r.json())
+        .then(data => {
+            // Thống kê
+            document.getElementById("ratingStats").innerHTML = `
+                <p><strong>Trung bình:</strong> ${data.thongKe.trungBinhSao} ⭐ (${data.thongKe.tongSoDanhGia} đánh giá)</p>
+            `;
+
+            // Danh sách đánh giá
+            const list = document.getElementById("danhGiaList");
+            if (data.danhGia.length === 0) {
+                list.innerHTML = '<p class="text-muted">Chưa có đánh giá nào</p>';
+            } else {
+                list.innerHTML = data.danhGia.map(dg => `
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <strong>${dg.hoTen}</strong> ${'⭐'.repeat(dg.soSao)}
+                            <p class="mb-0">${dg.noiDung || ''}</p>
+                            <small class="text-muted">${new Date(dg.ngayDanhGia).toLocaleDateString('vi-VN')}</small>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Hiển thị form đánh giá
+            if (token) {
+                document.getElementById("ratingForm").style.display = "block";
+                document.getElementById("loginPrompt").style.display = "none";
+            } else {
+                document.getElementById("ratingForm").style.display = "none";
+                document.getElementById("loginPrompt").style.display = "block";
+            }
+        });
+}
+
+function submitDanhGia() {
+    if (!token) {
+        alert("Vui lòng đăng nhập");
+        window.location.href = "login-khach.html";
+        return;
+    }
+
+    const data = {
+        sanPham_id: parseInt(productId),
+        soSao: parseInt(document.getElementById("soSao").value),
+        noiDung: document.getElementById("noiDungDanhGia").value
+    };
+
+    fetch("http://127.0.0.1:5000/api/danh-gia", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            alert("Cảm ơn bạn đã đánh giá!");
+            document.getElementById("noiDungDanhGia").value = "";
+            loadDanhGia();
+        } else {
+            alert(result.message || "Có lỗi xảy ra");
+        }
+    });
+}
+
+function addToCart() {
+    if (!token) {
+        alert("Vui lòng đăng nhập");
+        window.location.href = "login-khach.html";
+        return;
+    }
+    fetch("http://127.0.0.1:5000/api/gio-hang", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ sanPham_id: parseInt(productId), soLuong: 1 })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert("✅ Đã thêm vào giỏ hàng!");
+        }
+    });
+}
+
+loadDanhGia();
+</script>
+</body>
+</html>
+

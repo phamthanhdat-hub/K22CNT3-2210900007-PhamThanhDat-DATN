@@ -37,9 +37,11 @@ function hienThiSanPham(ds) {
         <div class="col-md-4 mb-4">
             <div class="product-card">
 
-                <img src="images/${sp.hinhAnh}" alt="${sp.tenSanPham}">
+                <img src="http://127.0.0.1:5000/images/${sp.hinhAnh}" alt="${sp.tenSanPham}" 
+                     onclick="window.location='chi-tiet-san-pham.html?id=${sp.id}'" 
+                     style="cursor: pointer;">
 
-                <h5>${sp.tenSanPham}</h5>
+                <h5 onclick="window.location='chi-tiet-san-pham.html?id=${sp.id}'" style="cursor: pointer;">${sp.tenSanPham}</h5>
                 <p class="price">${Number(sp.gia).toLocaleString()}đ</p>
 
                 <!-- MÔ TẢ -->
@@ -123,30 +125,39 @@ document.querySelector("select")?.addEventListener("change", function () {
 });
 
 /* ===============================
-   GIỎ HÀNG (LOCAL STORAGE)
+   THÊM VÀO GIỎ HÀNG (API)
 ================================ */
 function themVaoGio(id) {
-    let gioHang = JSON.parse(localStorage.getItem("gioHang")) || [];
-
-    const sanPham = danhSachSanPham.find(sp => sp.id === id);
-    if (!sanPham) return;
-
-    const tonTai = gioHang.find(sp => sp.id === id);
-
-    if (tonTai) {
-        tonTai.soLuong += 1;
-    } else {
-        gioHang.push({
-            id: sanPham.id,
-            tenSanPham: sanPham.tenSanPham,
-            gia: sanPham.gia,
-            hinhAnh: sanPham.hinhAnh,
-            soLuong: 1
-        });
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+        alert("Vui lòng đăng nhập để thêm vào giỏ hàng");
+        window.location.href = "login-khach.html";
+        return;
     }
 
-    localStorage.setItem("gioHang", JSON.stringify(gioHang));
-    alert("✅ Đã thêm vào giỏ hàng");
+    fetch("http://127.0.0.1:5000/api/gio-hang", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+            sanPham_id: id,
+            soLuong: 1
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("✅ Đã thêm vào giỏ hàng");
+        } else {
+            alert("Lỗi: " + (data.message || "Không thể thêm vào giỏ"));
+        }
+    })
+    .catch(err => {
+        alert("Lỗi: " + err.message);
+    });
 }
 
 /* ===============================

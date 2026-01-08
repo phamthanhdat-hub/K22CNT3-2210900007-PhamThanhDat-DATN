@@ -269,9 +269,55 @@ function themVaoGio(id) {
 }
 
 /* ===============================
+   XỬ LÝ SEARCH PARAMETER TỪ URL
+================================ */
+function handleSearchFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchKeyword = urlParams.get('search');
+    
+    if (searchKeyword) {
+        // Đặt giá trị vào input search
+        const searchInput = document.querySelector('.search input');
+        if (searchInput) {
+            searchInput.value = searchKeyword;
+        }
+        
+        // Load sản phẩm và filter
+        taiSanPham();
+        
+        // Sau khi load xong, filter theo keyword
+        setTimeout(() => {
+            const keyword = searchKeyword.toLowerCase();
+            const ketQua = danhSachSanPham.filter(sp => 
+                sp.tenSanPham.toLowerCase().includes(keyword) ||
+                (sp.moTa && sp.moTa.toLowerCase().includes(keyword))
+            );
+            hienThiSanPham(ketQua);
+            
+            // Hiển thị thông báo nếu không có kết quả
+            if (ketQua.length === 0) {
+                const khuVuc = document.querySelector(".col-md-9 .row");
+                khuVuc.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fa fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 20px;"></i>
+                        <h4>Không tìm thấy sản phẩm</h4>
+                        <p class="text-muted">Không có sản phẩm nào phù hợp với từ khóa "<strong>${searchKeyword}</strong>"</p>
+                        <button class="btn btn-primary mt-3" onclick="window.location='thuc-don.html'">
+                            Xem tất cả sản phẩm
+                        </button>
+                    </div>
+                `;
+            }
+        }, 100);
+    } else {
+        taiSanPham();
+    }
+}
+
+/* ===============================
    LOAD BAN ĐẦU
 ================================ */
-taiSanPham();
+handleSearchFromURL();
 </script>
 <script>
 function themVaoGio(id) {

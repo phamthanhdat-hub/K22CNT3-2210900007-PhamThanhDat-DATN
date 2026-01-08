@@ -36,9 +36,11 @@
         <thead class="table-light">
             <tr>
                 <th>#</th>
+                <th>Hình ảnh</th>
                 <th>Tên sản phẩm</th>
                 <th>Giá (đ)</th>
-                <th>Hình ảnh</th>
+                <th>Danh mục</th>
+                <th>Trạng thái</th>
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -61,24 +63,56 @@
                 <input type="hidden" id="productId">
 
                 <div class="mb-2">
-                    <label>Tên sản phẩm</label>
-                    <input class="form-control" id="tenSanPham">
+                    <label>Tên sản phẩm *</label>
+                    <input class="form-control" id="tenSanPham" required>
                 </div>
 
                 <div class="mb-2">
-                    <label>Giá</label>
-                    <input class="form-control" id="giaSanPham">
+                    <label>Mô tả</label>
+                    <textarea class="form-control" id="moTa" rows="2"></textarea>
+                </div>
+
+                <div class="mb-2">
+                    <label>Giá (đ) *</label>
+                    <input type="number" class="form-control" id="giaSanPham" required>
                 </div>
 
                 <div class="mb-2">
                     <label>Hình ảnh (tên file)</label>
-                    <input class="form-control" id="hinhAnh">
+                    <input class="form-control" id="hinhAnh" placeholder="vd: cahoibido.jpg">
+                </div>
+
+                <div class="mb-2">
+                    <label>Độ tuổi</label>
+                    <input class="form-control" id="doTuoi" placeholder="vd: 6-12 tháng">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Protein (g)</label>
+                        <input type="number" step="0.1" class="form-control" id="protein">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Carb (g)</label>
+                        <input type="number" step="0.1" class="form-control" id="carb">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Chất béo (g)</label>
+                        <input type="number" step="0.1" class="form-control" id="chatBeo">
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label>Danh mục *</label>
+                    <select class="form-control" id="danhMucSelect" required>
+                        <option value="">Chọn danh mục</option>
+                    </select>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button class="btn btn-danger" onclick="saveProduct()">Lưu</button>
+                <button class="btn btn-danger" onclick="saveProduct()">💾 Lưu</button>
             </div>
 
         </div>

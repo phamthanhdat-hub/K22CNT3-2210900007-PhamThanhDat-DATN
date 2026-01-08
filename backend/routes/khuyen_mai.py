@@ -5,9 +5,49 @@ from datetime import datetime
 khuyen_mai_bp = Blueprint("khuyen_mai", __name__)
 
 # =========================
+# LẤY DANH SÁCH KHUYẾN MÃI ĐANG HOẠT ĐỘNG
+# =========================
+@khuyen_mai_bp.route("/", methods=["GET"])
+def get_all_khuyen_mai():
+    conn = get_db()
+    cursor = conn.cursor()
+    now = datetime.now()
+
+    cursor.execute("""
+        SELECT 
+            id, tenKhuyenMai, maKhuyenMai, loaiGiamGia,
+            giaTriGiam, giaTriToiDa, donHangToiThieu,
+            ngayBatDau, ngayKetThuc, trangThai
+        FROM KhuyenMai
+        WHERE trangThai = 1
+          AND ngayBatDau <= ?
+          AND ngayKetThuc >= ?
+        ORDER BY ngayKetThuc ASC
+    """, (now, now))
+
+    rows = cursor.fetchall()
+    data = []
+
+    for r in rows:
+        data.append({
+            "id": r[0],
+            "tenKhuyenMai": r[1],
+            "maKhuyenMai": r[2],
+            "loaiGiamGia": r[3],
+            "giaTriGiam": float(r[4]) if r[4] else 0,
+            "giaTriToiDa": float(r[5]) if r[5] else None,
+            "donHangToiThieu": float(r[6]) if r[6] else None,
+            "ngayBatDau": r[7].isoformat() if r[7] else None,
+            "ngayKetThuc": r[8].isoformat() if r[8] else None,
+            "trangThai": r[9]
+        })
+
+    return jsonify(data)
+
+# =========================
 # ÁP DỤNG KHUYẾN MÃI
 # =========================
-@khuyen_mai_bp.route("/khuyen-mai/ap-dung", methods=["POST"])
+@khuyen_mai_bp.route("/ap-dung", methods=["POST"])
 def ap_dung_khuyen_mai():
     data = request.json
     donHang_id = data.get("donHang_id")
@@ -72,12 +112,13 @@ def ap_dung_khuyen_mai():
         }), 400
 
     # 3️⃣ Tính tiền giảm
-    if loai == "phan_tram":
-        soTienGiam = tongTien * giaTri / 100
+    # Loại giảm giá: 'phan_tram' hoặc 'tien_mat'
+    if loai and loai.strip() == "phan_tram":
+        soTienGiam = tongTien * float(giaTri) / 100
         if giaTriToiDa:
-            soTienGiam = min(soTienGiam, giaTriToiDa)
+            soTienGiam = min(soTienGiam, float(giaTriToiDa))
     else:
-        soTienGiam = giaTri
+        soTienGiam = float(giaTri)
 
     soTienGiam = int(soTienGiam)
 

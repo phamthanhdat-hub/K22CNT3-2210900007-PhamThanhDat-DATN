@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý tin tức | Admin BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="location='admin-dashboard.html'"><span>🛠 Quản lý tin tức</span></div>
+        <button class="btn-login" onclick="location='admin-dashboard.html'">← Dashboard</button>
+    </div>
+</header>
+<section class="container mt-4">
+    <h3>📰 Danh sách tin tức</h3>
+    <div class="table-responsive mt-3">
+        <table class="table table-bordered bg-white">
+            <thead class="table-light">
+                <tr><th>#</th><th>Tiêu đề</th><th>Người đăng</th><th>Ngày đăng</th><th>Hành động</th></tr>
+            </thead>
+            <tbody id="tinTucTable"><tr><td colspan="5" class="text-center">Đang tải...</td></tr></tbody>
+        </table>
+    </div>
+</section>
+<script>
+if (!localStorage.getItem("admin_token")) window.location.href = "login-admin.html";
+fetch("http://127.0.0.1:5000/api/admin/tin-tuc")
+    .then(r => r.json())
+    .then(d => {
+        const t = document.getElementById("tinTucTable");
+        t.innerHTML = d.length === 0 ? '<tr><td colspan="5" class="text-center">Chưa có tin tức</td></tr>' : 
+            d.map((tt, i) => `<tr>
+                <td>${i+1}</td>
+                <td>${tt.tieuDe}</td>
+                <td>${tt.nguoiDang || '-'}</td>
+                <td>${tt.ngayDang ? new Date(tt.ngayDang).toLocaleDateString('vi-VN') : '-'}</td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="if(confirm('Xóa?')) fetch('http://127.0.0.1:5000/api/admin/tin-tuc/${tt.id}', {method:'DELETE'}).then(() => location.reload())">Xóa</button>
+                </td>
+            </tr>`).join('');
+    });
+</script>
+</body>
+</html>
+

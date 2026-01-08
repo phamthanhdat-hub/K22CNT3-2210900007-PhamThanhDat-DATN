@@ -2,15 +2,11 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liên hệ | BabyCutie</title>
-
-    <!-- Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/lien-he.css">
 </head>
@@ -19,154 +15,118 @@
 <!-- ===== HEADER ===== -->
 <header class="header">
     <div class="container header-wrap">
-        <!-- LOGO -->
-        <div class="logo" onclick="window.location='index.html'">
+        <div class="logo" onclick="location='index.html'">
             <img src="images/logo2.jpg" alt="BabyCutie">
             <span>BabyCutie</span>
         </div>
-
-        <!-- SEARCH -->
-        <div class="search">
-            <i class="fa fa-search"></i>
-            <input type="text" placeholder="Tìm món ăn cho bé...">
-        </div>
-
-        <!-- MENU -->
+        
         <nav class="main-menu">
             <a href="index.html">Trang chủ</a>
             <a href="thuc-don.html">Thực đơn</a>
             <a href="tin-tuc.html">Tin tức</a>
             <a href="lien-he.html" class="active">Liên hệ</a>
         </nav>
-
-        <!-- CART -->
-        <div class="cart-icon" onclick="window.location='gio-hang.html'">
-            <i class="fa-solid fa-cart-shopping"></i>
-            <span class="cart-count" id="cartCount">0</span>
-        </div>
-
-        <!-- LOGIN -->
-        <div class="login-group">
-            <div class="dropdown">
-                <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="fa fa-user"></i> Đăng nhập
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a class="dropdown-item" href="login-khach.html">
-                            👨‍👩‍👧 Khách hàng
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="login-admin.html">
-                            🛠 Admin
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
     </div>
 </header>
 
 <!-- ===== BANNER ===== -->
 <section class="page-banner">
-    <h1>📞 Liên hệ với chúng tôi</h1>
-    <p style="margin-top: 10px; color: #666; font-size: 16px;">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn</p>
-</section>
-
-<!-- ===== THÔNG TIN LIÊN HỆ ===== -->
-<section class="container mt-4">
-    <div class="contact-info">
-        <div class="info-card">
-            <div class="info-icon">📍</div>
-            <h5>Địa chỉ</h5>
-            <p>123 Đường ABC, Quận XYZ<br>Hà Nội, Việt Nam</p>
-        </div>
-        <div class="info-card">
-            <div class="info-icon">📞</div>
-            <h5>Hotline</h5>
-            <p>1900 1234<br>024 1234 5678</p>
-        </div>
-        <div class="info-card">
-            <div class="info-icon">📧</div>
-            <h5>Email</h5>
-            <p>babycutie@gmail.com<br>support@babycutie.com</p>
-        </div>
-        <div class="info-card">
-            <div class="info-icon">🕒</div>
-            <h5>Giờ làm việc</h5>
-            <p>Thứ 2 - Chủ nhật<br>7:00 - 20:00</p>
-        </div>
+    <div class="container">
+        <h1>📞 Liên hệ với chúng tôi</h1>
+        <p>Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn</p>
     </div>
 </section>
 
-<!-- ===== FORM LIÊN HỆ ===== -->
-<section class="container mt-4">
-    <div class="contact">
-        <h3 style="text-align: center; margin-bottom: 25px; color: #ff5f7e;">
-            <i class="fa fa-envelope"></i> Gửi tin nhắn cho chúng tôi
-        </h3>
+<!-- ===== CONTENT ===== -->
+<section class="container mt-5 mb-5">
+    <div class="row">
+        <!-- FORM LIÊN HỆ -->
+        <div class="col-md-7">
+            <div class="contact-form-wrapper">
+                <h3><i class="fa fa-envelope"></i> Gửi tin nhắn</h3>
+                <p class="subtitle">Điền thông tin bên dưới, chúng tôi sẽ phản hồi sớm nhất</p>
+                
+                <form id="contactForm" class="contact-form">
+                    <div class="input-group">
+                        <i class="fa fa-user"></i>
+                        <input type="text" id="hoTen" placeholder="Họ tên *" required>
+                    </div>
 
-        <form id="contactForm">
-            <div class="form-group">
-                <label for="hoTen">
-                    <i class="fa fa-user"></i> Họ và tên <span class="required">*</span>
-                </label>
-                <input 
-                    type="text" 
-                    id="hoTen" 
-                    name="hoTen"
-                    placeholder="Nhập họ và tên của bạn"
-                    required>
-                <span class="error-message" id="hoTenError"></span>
+                    <div class="input-group">
+                        <i class="fa fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Email *" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fa fa-comment"></i>
+                        <textarea id="noiDung" placeholder="Nội dung tin nhắn *" rows="6" required></textarea>
+                    </div>
+
+                    <div id="contactMessage" class="alert" style="display: none;"></div>
+
+                    <button type="submit" class="btn-primary btn-submit">
+                        <i class="fa fa-paper-plane"></i> Gửi liên hệ
+                    </button>
+                </form>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label for="email">
-                    <i class="fa fa-envelope"></i> Email <span class="required">*</span>
-                </label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email"
-                    placeholder="example@email.com"
-                    required>
-                <span class="error-message" id="emailError"></span>
+        <!-- THÔNG TIN LIÊN HỆ -->
+        <div class="col-md-5">
+            <div class="contact-info-wrapper">
+                <h3><i class="fa fa-info-circle"></i> Thông tin liên hệ</h3>
+                
+                <div class="contact-info-item">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-map-marker-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h5>Địa chỉ</h5>
+                        <p>123 Đường ABC, Quận XYZ<br>Hà Nội, Việt Nam</p>
+                    </div>
+                </div>
+
+                <div class="contact-info-item">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-phone"></i>
+                    </div>
+                    <div class="info-content">
+                        <h5>Điện thoại</h5>
+                        <p>Hotline: <a href="tel:19001234">1900 1234</a><br>Mobile: <a href="tel:0378630848">0378 630 848</a></p>
+                    </div>
+                </div>
+
+                <div class="contact-info-item">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-envelope"></i>
+                    </div>
+                    <div class="info-content">
+                        <h5>Email</h5>
+                        <p><a href="mailto:babycutie@gmail.com">babycutie@gmail.com</a></p>
+                    </div>
+                </div>
+
+                <div class="contact-info-item">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-clock"></i>
+                    </div>
+                    <div class="info-content">
+                        <h5>Giờ làm việc</h5>
+                        <p>Thứ 2 - Chủ nhật: 7:00 - 21:00<br>Phục vụ 24/7 online</p>
+                    </div>
+                </div>
+
+                <div class="social-links">
+                    <h5>Kết nối với chúng tôi</h5>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-zalo"></i></a>
+                    </div>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label for="noiDung">
-                    <i class="fa fa-comment"></i> Nội dung tin nhắn <span class="required">*</span>
-                </label>
-                <textarea 
-                    id="noiDung" 
-                    name="noiDung"
-                    placeholder="Nhập nội dung bạn muốn gửi cho chúng tôi..."
-                    rows="6"
-                    required></textarea>
-                <span class="error-message" id="noiDungError"></span>
-            </div>
-
-            <button type="submit" id="submitBtn" class="btn-submit">
-                <span id="submitText">
-                    <i class="fa fa-paper-plane"></i> Gửi liên hệ
-                </span>
-                <span id="submitLoading" style="display: none;">
-                    <span class="spinner-border spinner-border-sm" role="status"></span>
-                    Đang gửi...
-                </span>
-            </button>
-
-            <div id="successMessage" class="success-message" style="display: none;">
-                <i class="fa fa-check-circle"></i>
-                <span>Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.</span>
-            </div>
-
-            <div id="errorMessage" class="error-message" style="display: none;">
-                <i class="fa fa-exclamation-circle"></i>
-                <span id="errorText">Có lỗi xảy ra. Vui lòng thử lại sau.</span>
-            </div>
-        </form>
+        </div>
     </div>
 </section>
 
@@ -184,11 +144,75 @@
     </div>
 </footer>
 
-<!-- ===== JS RIÊNG ===== -->
-<script src="js/lien-he.js"></script>
+<!-- ===== JS GỬI LIÊN HỆ ===== -->
+<script>
+document.getElementById("contactForm").onsubmit = function(e) {
+    e.preventDefault();
+    
+    const hoTen = document.getElementById("hoTen").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const noiDung = document.getElementById("noiDung").value.trim();
+    const messageDiv = document.getElementById("contactMessage");
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    if (!hoTen || !email || !noiDung) {
+        showMessage("Vui lòng nhập đầy đủ thông tin", "danger");
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        showMessage("Email không hợp lệ", "danger");
+        return;
+    }
+
+    // Disable button
+    const btn = document.querySelector(".btn-submit");
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang gửi...';
+
+    fetch("http://127.0.0.1:5000/api/lien-he", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            hoTen: hoTen,
+            email: email,
+            noiDung: noiDung
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showMessage("✅ Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất.", "success");
+            document.getElementById("contactForm").reset();
+        } else {
+            showMessage("❌ " + (data.message || "Có lỗi xảy ra"), "danger");
+        }
+    })
+    .catch(() => {
+        showMessage("❌ Không thể kết nối server. Vui lòng thử lại sau.", "danger");
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+};
+
+function showMessage(message, type) {
+    const messageDiv = document.getElementById("contactMessage");
+    messageDiv.className = `alert alert-${type}`;
+    messageDiv.textContent = message;
+    messageDiv.style.display = "block";
+    
+    setTimeout(() => {
+        messageDiv.style.display = "none";
+    }, 5000);
+}
+
+function isValidEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+</script>
 
 </body>
 </html>

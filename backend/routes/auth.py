@@ -13,49 +13,61 @@ auth_bp = Blueprint("auth", __name__)
 # =========================
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    data = request.json
-    email = data.get("email")
-    matKhau = data.get("matKhau")
+    try:
+        data = request.json
+        email = data.get("email", "").strip()
+        matKhau = data.get("matKhau", "")
 
-    if not email or not matKhau:
-        return jsonify({
-            "success": False,
-            "message": "Thiếu email hoặc mật khẩu"
-        }), 400
+        if not email or not matKhau:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng nhập đầy đủ email và mật khẩu"
+            }), 400
 
-    conn = get_db()
-    cursor = conn.cursor()
+        conn = get_db()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT id, hoTen, vaiTro
-        FROM NguoiDung
-        WHERE email = ? AND matKhau = ? AND trangThai = 1
-    """, (email, matKhau))
+        # Tìm user trong database
+        cursor.execute("""
+            SELECT id, hoTen, email, vaiTro, dienThoai, diaChi
+            FROM NguoiDung
+            WHERE email = ? AND matKhau = ? AND trangThai = 1
+        """, (email, matKhau))
 
-    user = cursor.fetchone()
+        user = cursor.fetchone()
 
-    if not user:
-        return jsonify({
-            "success": False,
-            "message": "Sai tài khoản hoặc mật khẩu"
-        }), 401
+        if not user:
+            return jsonify({
+                "success": False,
+                "message": "Sai email hoặc mật khẩu. Vui lòng kiểm tra lại"
+            }), 401
 
-    # Tạo JWT token
-    token = tao_token({
-        "id": user[0],
-        "hoTen": user[1],
-        "vaiTro": user[2]
-    })
-
-    return jsonify({
-        "success": True,
-        "token": token,
-        "nguoiDung": {
+        # Tạo JWT token
+        token = tao_token({
             "id": user[0],
             "hoTen": user[1],
-            "vaiTro": user[2]
-        }
-    })
+            "email": user[2],
+            "vaiTro": user[3]
+        })
+
+        return jsonify({
+            "success": True,
+            "token": token,
+            "nguoiDung": {
+                "id": user[0],
+                "hoTen": user[1],
+                "email": user[2],
+                "vaiTro": user[3],
+                "dienThoai": user[4],
+                "diaChi": user[5]
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
 
 
 # =========================
@@ -63,51 +75,94 @@ def login():
 # =========================
 @auth_bp.route("/register", methods=["POST"])
 def register():
-    data = request.json
+    try:
+        data = request.json
 
-    hoTen = data.get("hoTen")
-    email = data.get("email")
-    matKhau = data.get("matKhau")
-    dienThoai = data.get("dienThoai")
-    diaChi = data.get("diaChi")
+        hoTen = data.get("hoTen", "").strip()
+        email = data.get("email", "").strip()
+        matKhau = data.get("matKhau", "")
+        dienThoai = data.get("dienThoai", "").strip() or None
+        diaChi = data.get("diaChi", "").strip() or None
 
-    if not hoTen or not email or not matKhau:
+        # Validation
+        if not hoTen or not email or not matKhau:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng nhập đầy đủ họ tên, email và mật khẩu"
+            }), 400
+
+        if len(matKhau) < 6:
+            return jsonify({
+                "success": False,
+                "message": "Mật khẩu phải có ít nhất 6 ký tự"
+            }), 400
+
+        # Validate email format
+        import re
+        email_pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+        if not re.match(email_pattern, email):
+            return jsonify({
+                "success": False,
+                "message": "Email không hợp lệ"
+            }), 400
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Kiểm tra email đã tồn tại
+        cursor.execute(
+            "SELECT id FROM NguoiDung WHERE email = ?",
+            (email,)
+        )
+        if cursor.fetchone():
+            return jsonify({
+                "success": False,
+                "message": "Email đã tồn tại. Vui lòng sử dụng email khác"
+            }), 400
+
+        # Thêm khách hàng mới vào database
+        cursor.execute("""
+            INSERT INTO NguoiDung
+            (hoTen, email, matKhau, dienThoai, diaChi, vaiTro, trangThai)
+            VALUES (?, ?, ?, ?, ?, N'khach', 1)
+        """, (
+            hoTen,
+            email,
+            matKhau,
+            dienThoai,
+            diaChi
+        ))
+
+        # Commit để lưu vào database
+        conn.commit()
+
+        # Lấy thông tin user vừa tạo
+        cursor.execute("""
+            SELECT id, hoTen, email, vaiTro
+            FROM NguoiDung
+            WHERE email = ?
+        """, (email,))
+        
+        new_user = cursor.fetchone()
+
+        return jsonify({
+            "success": True,
+            "message": "Đăng ký thành công",
+            "user": {
+                "id": new_user[0],
+                "hoTen": new_user[1],
+                "email": new_user[2],
+                "vaiTro": new_user[3]
+            }
+        })
+
+    except Exception as e:
+        # Rollback nếu có lỗi
+        if 'conn' in locals():
+            conn.rollback()
+        
         return jsonify({
             "success": False,
-            "message": "Vui lòng nhập đầy đủ họ tên, email và mật khẩu"
-        }), 400
-
-    conn = get_db()
-    cursor = conn.cursor()
-
-    # Kiểm tra email đã tồn tại
-    cursor.execute(
-        "SELECT id FROM NguoiDung WHERE email = ?",
-        (email,)
-    )
-    if cursor.fetchone():
-        return jsonify({
-            "success": False,
-            "message": "Email đã tồn tại"
-        }), 400
-
-    # Thêm khách hàng mới
-    cursor.execute("""
-        INSERT INTO NguoiDung
-        (hoTen, email, matKhau, dienThoai, diaChi, vaiTro)
-        VALUES (?, ?, ?, ?, ?, N'khach')
-    """, (
-        hoTen,
-        email,
-        matKhau,
-        dienThoai,
-        diaChi
-    ))
-
-    conn.commit()
-
-    return jsonify({
-        "success": True,
-        "message": "Đăng ký thành công"
-    })
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
 

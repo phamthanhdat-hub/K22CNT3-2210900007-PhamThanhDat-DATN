@@ -158,12 +158,134 @@ function removeItem(id) {
 }
 
 /* ===============================
+   ÁP DỤNG KHUYẾN MÃI
+================================ */
+let donHangId = null;
+let soTienGiam = 0;
+
+function apDungKhuyenMai() {
+    const maKM = document.getElementById("maKhuyenMai").value.trim();
+    if (!maKM) {
+        alert("Vui lòng nhập mã khuyến mãi");
+        return;
+    }
+
+    // Tạo đơn hàng tạm nếu chưa có
+    if (!donHangId) {
+        taoDonHangTam().then(id => {
+            if (id) {
+                donHangId = id;
+                apDungKMChoDonHang(id, maKM);
+            }
+        });
+    } else {
+        apDungKMChoDonHang(donHangId, maKM);
+    }
+}
+
+function apDungKMChoDonHang(dhId, maKM) {
+    fetch("http://127.0.0.1:5000/api/khuyen-mai/ap-dung", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            donHang_id: dhId,
+            maKhuyenMai: maKM
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            soTienGiam = data.soTienGiam || 0;
+            alert(`Áp dụng thành công! Giảm ${new Intl.NumberFormat('vi-VN').format(soTienGiam)}đ`);
+            loadCart();
+        } else {
+            alert(data.message || "Không thể áp dụng mã khuyến mãi");
+        }
+    })
+    .catch(err => {
+        alert("Lỗi: " + err.message);
+    });
+}
+
+function taoDonHangTam() {
+    const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
+    return fetch("http://127.0.0.1:5000/api/don-hang", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            nguoiDung_id: userInfo.id,
+            diaChiGiaoHang: ""
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            return data.donHang_id;
+        }
+        return null;
+    });
+}
+
+/* ===============================
+   ĐẶT HÀNG & THANH TOÁN
+================================ */
+function datHang() {
+    const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
+    const phuongThuc = document.querySelector('input[name="pttt"]:checked').value;
+    const diaChi = prompt("Nhập địa chỉ giao hàng:") || "";
+
+    if (!diaChi.trim()) {
+        alert("Vui lòng nhập địa chỉ giao hàng");
+        return;
+    }
+
+    // Tạo đơn hàng
+    fetch("http://127.0.0.1:5000/api/don-hang", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            nguoiDung_id: userInfo.id,
+            diaChiGiaoHang: diaChi
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const dhId = data.donHang_id;
+            
+            // Thanh toán
+            return fetch("http://127.0.0.1:5000/api/thanh-toan/thanh-toan", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    donHang_id: dhId,
+                    phuongThuc: phuongThuc
+                })
+            });
+        } else {
+            throw new Error(data.message || "Không thể tạo đơn hàng");
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("🎉 Đặt hàng thành công!");
+            window.location.href = "don-hang-cua-toi.html";
+        } else {
+            alert(data.message || "Thanh toán thất bại");
+        }
+    })
+    .catch(err => {
+        alert("Lỗi: " + err.message);
+        console.error(err);
+    });
+}
+
+/* ===============================
    LOAD BAN ĐẦU
 ================================ */
 loadCart();
 </script>
-
-loadCart();
 
 
 </body>

@@ -29,7 +29,7 @@
         <!-- SEARCH -->
         <div class="search">
             <i class="fa fa-search"></i>
-            <input type="text" placeholder="Tìm món ăn cho bé...">
+            <input type="text" id="searchInput" placeholder="Tìm món ăn cho bé..." onkeyup="handleSearch(event)">
         </div>
 
         <!-- MENU -->
@@ -46,24 +46,37 @@
             <span class="cart-count" id="cartCount">0</span>
         </div>
 
-        <!-- LOGIN -->
+        <!-- LOGIN / USER INFO -->
         <div class="login-group">
-            <div class="dropdown">
-                <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="fa fa-user"></i> Đăng nhập
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a class="dropdown-item" href="login-khach.html">
-                            👨‍👩‍👧 Khách hàng
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="login-admin.html">
-                            🛠 Admin
-                        </a>
-                    </li>
-                </ul>
+            <div id="userInfo" style="display: none;">
+                <div class="dropdown">
+                    <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-user"></i> <span id="userName"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="don-hang-cua-toi.html">📦 Đơn hàng của tôi</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="loginBtn">
+                <div class="dropdown">
+                    <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-user"></i> Đăng nhập
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="login-khach.html">
+                                👨‍👩‍👧 Khách hàng
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="login-admin.html">
+                                🛠 Admin
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -150,8 +163,139 @@
     </div>
 </section>
 
-    <!-- Sản phẩm sẽ được render từ API -->
-</div>
+<!-- ================= STATISTICS ================= -->
+<section class="statistics">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">👶</div>
+                    <h3 class="stat-number" data-target="5000">0</h3>
+                    <p>Bé yêu đã tin dùng</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">🍲</div>
+                    <h3 class="stat-number" data-target="50">0</h3>
+                    <p>Món cháo dinh dưỡng</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">⭐</div>
+                    <h3 class="stat-number" data-target="98">0</h3>
+                    <p>% Khách hàng hài lòng</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">🚚</div>
+                    <h3 class="stat-number" data-target="24">0</h3>
+                    <p>Giờ giao hàng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= PROCESS ================= -->
+<section class="process">
+    <div class="container">
+        <h2 class="text-center mb-5">Quy trình đặt hàng đơn giản</h2>
+        <div class="row">
+            <div class="col-md-3 col-6">
+                <div class="process-item">
+                    <div class="process-number">1</div>
+                    <div class="process-icon">🛒</div>
+                    <h5>Chọn món</h5>
+                    <p>Xem thực đơn và chọn món yêu thích</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="process-item">
+                    <div class="process-number">2</div>
+                    <div class="process-icon">📝</div>
+                    <h5>Đặt hàng</h5>
+                    <p>Thêm vào giỏ và điền thông tin</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="process-item">
+                    <div class="process-number">3</div>
+                    <div class="process-icon">💳</div>
+                    <h5>Thanh toán</h5>
+                    <p>Thanh toán COD hoặc chuyển khoản</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="process-item">
+                    <div class="process-number">4</div>
+                    <div class="process-icon">🚚</div>
+                    <h5>Nhận hàng</h5>
+                    <p>Giao hàng tận nơi nóng hổi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= TESTIMONIALS ================= -->
+<section class="testimonials">
+    <div class="container">
+        <h2 class="text-center mb-5">Khách hàng nói gì về chúng tôi</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"Bé nhà mình rất thích cháo cá hồi bí đỏ. Món ăn thơm ngon, đầy đủ dinh dưỡng. Cảm ơn BabyCutie!"</p>
+                    <div class="testimonial-author">
+                        <strong>Chị Lan</strong>
+                        <span>Mẹ bé Minh (8 tháng)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"Giao hàng nhanh, cháo còn nóng. Bé ăn ngon miệng, tăng cân đều. Rất hài lòng với dịch vụ!"</p>
+                    <div class="testimonial-author">
+                        <strong>Chị Hương</strong>
+                        <span>Mẹ bé An (1 tuổi)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">"Thực đơn đa dạng, giá cả hợp lý. Đặc biệt là nguyên liệu tươi sạch, an toàn cho bé."</p>
+                    <div class="testimonial-author">
+                        <strong>Anh Tuấn</strong>
+                        <span>Bố bé Mai (10 tháng)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= CTA SECTION ================= -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box">
+            <h2>Đặt hàng ngay hôm nay!</h2>
+            <p>Nhận ưu đãi đặc biệt cho khách hàng mới</p>
+            <div class="cta-buttons">
+                <button class="btn-primary btn-lg" onclick="window.location='thuc-don.html'">
+                    <i class="fa fa-shopping-cart"></i> Xem thực đơn
+                </button>
+                <button class="btn-outline btn-lg" onclick="window.location='register-khach.html'">
+                    <i class="fa fa-user-plus"></i> Đăng ký ngay
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
 
 
 <!-- ================= FOOTER ================= -->
@@ -168,59 +312,342 @@
     </div>
 </footer>
 
+<!-- ================= TOAST NOTIFICATION ================= -->
+<div id="toast" class="toast-notification"></div>
+
 <!-- ================= JS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const API_URL = "http://127.0.0.1:5000/api/thuc-don";
 const sanPhamNoiBat = document.getElementById("sanPhamNoiBat");
 
-// Load sản phẩm nổi bật
-fetch(API_URL)
-    .then(res => res.json())
-    .then(data => {
-        // Lấy tối đa 6 sản phẩm đầu
-        const dsNoiBat = data.slice(0, 6);
-        let html = "";
+// Toast notification function
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast-notification ${type} show`;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
 
-        dsNoiBat.forEach(sp => {
-            html += `
-                <div class="col-md-4 mb-4">
-                    <div class="product-card">
+// Kiểm tra đăng nhập và hiển thị thông tin
+const token = localStorage.getItem("token");
+const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
 
-                        <img 
-                            src="http://127.0.0.1:5000/images/${sp.hinhAnh}" 
-                           
-                        >
+if (token && userInfo.hoTen) {
+    document.getElementById("userInfo").style.display = "block";
+    document.getElementById("loginBtn").style.display = "none";
+    document.getElementById("userName").textContent = userInfo.hoTen;
+} else {
+    document.getElementById("userInfo").style.display = "none";
+    document.getElementById("loginBtn").style.display = "block";
+}
 
-                        <h5>${sp.tenSanPham}</h5>
-                        <p class="price">${Number(sp.gia).toLocaleString()}đ</p>
+function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_info");
+    showToast("Đã đăng xuất thành công", "info");
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
 
-                        <div class="nutrition">
-                            <span>💪 Protein <b>${sp.protein || 0}g</b></span>
-                            <span>🍚 Carb <b>${sp.carb || 0}g</b></span>
-                            <span>🥑 Fat <b>${sp.chatBeo || 0}g</b></span>
-                        </div>
+// Load sản phẩm nổi bật với loading state
+function loadSanPhamNoiBat() {
+    // Hiển thị loading
+    sanPhamNoiBat.innerHTML = `
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Đang tải sản phẩm...</p>
+        </div>
+    `;
 
-                        <button onclick="addToCart(${sp.id})">
-                            Thêm vào giỏ
-                        </button>
+    fetch(API_URL)
+        .then(res => {
+            if (!res.ok) throw new Error('Network response was not ok');
+            return res.json();
+        })
+        .then(data => {
+            // Lấy tối đa 6 sản phẩm đầu
+            const dsNoiBat = data.slice(0, 6);
+            let html = "";
+
+            if (dsNoiBat.length === 0) {
+                html = `
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted">Chưa có sản phẩm nào</p>
                     </div>
+                `;
+            } else {
+                dsNoiBat.forEach(sp => {
+                    html += `
+                        <div class="col-md-4 mb-4">
+                            <div class="product-card" onclick="viewProductDetail(${sp.id})" style="cursor: pointer;">
+                                <div class="product-image-wrapper">
+                                    <img 
+                                        src="http://127.0.0.1:5000/images/${sp.hinhAnh || 'default.jpg'}" 
+                                        alt="${sp.tenSanPham}"
+                                        onerror="this.src='images/default.jpg'"
+                                    >
+                                    <div class="product-overlay">
+                                        <button class="btn-quick-view" onclick="event.stopPropagation(); viewProductDetail(${sp.id})">
+                                            <i class="fa fa-eye"></i> Xem chi tiết
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <h5>${sp.tenSanPham}</h5>
+                                    <p class="price">${Number(sp.gia).toLocaleString('vi-VN')}đ</p>
+                                    
+                                    ${sp.moTa ? `<p class="desc">${sp.moTa.substring(0, 60)}${sp.moTa.length > 60 ? '...' : ''}</p>` : ''}
+                                    
+                                    <div class="nutrition">
+                                        <span>💪 <b>${sp.protein || 0}g</b></span>
+                                        <span>🍚 <b>${sp.carb || 0}g</b></span>
+                                        <span>🥑 <b>${sp.chatBeo || 0}g</b></span>
+                                    </div>
+                                    
+                                    ${sp.doTuoi ? `<small class="age">👶 ${sp.doTuoi}</small>` : ''}
+                                    
+                                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${sp.id})">
+                                        <i class="fa fa-cart-plus"></i> Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            sanPhamNoiBat.innerHTML = html;
+        })
+        .catch(err => {
+            console.error("Lỗi load sản phẩm:", err);
+            sanPhamNoiBat.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="fa fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                    <p class="mt-3 text-muted">Không thể tải sản phẩm. Vui lòng thử lại sau.</p>
+                    <button class="btn btn-primary mt-2" onclick="loadSanPhamNoiBat()">
+                        <i class="fa fa-refresh"></i> Thử lại
+                    </button>
                 </div>
             `;
         });
+}
 
-        sanPhamNoiBat.innerHTML = html;
-    })
-    .catch(err => {
-        console.error("Lỗi load sản phẩm:", err);
-        sanPhamNoiBat.innerHTML = "<p>Không thể tải sản phẩm</p>";
+// Xem chi tiết sản phẩm
+function viewProductDetail(id) {
+    window.location.href = `chi-tiet-san-pham.html?id=${id}`;
+}
+
+// Thêm vào giỏ hàng với loading state
+function addToCart(id) {
+    if (!token) {
+        showToast("Vui lòng đăng nhập để thêm vào giỏ hàng", "warning");
+        setTimeout(() => {
+            window.location.href = "login-khach.html";
+        }, 1500);
+        return;
+    }
+
+    // Disable button và hiển thị loading
+    const buttons = document.querySelectorAll(`button[onclick*="addToCart(${id})"]`);
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang thêm...';
     });
 
-// Giỏ hàng demo
-let count = 0;
-function addToCart(id) {
-    count++;
-    document.getElementById("cartCount").innerText = count;
-    console.log("Thêm sản phẩm ID:", id);
+    fetch("http://127.0.0.1:5000/api/gio-hang", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+            sanPham_id: id,
+            soLuong: 1
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        // Re-enable buttons
+        buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-cart-plus"></i> Thêm vào giỏ';
+        });
+
+        if (data.success) {
+            showToast("✅ Đã thêm vào giỏ hàng!", "success");
+            updateCartCount();
+            // Animation cho cart icon
+            const cartIcon = document.querySelector('.cart-icon');
+            cartIcon.classList.add('bounce');
+            setTimeout(() => cartIcon.classList.remove('bounce'), 500);
+        } else {
+            showToast("Lỗi: " + (data.message || "Không thể thêm vào giỏ"), "error");
+        }
+    })
+    .catch(err => {
+        buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-cart-plus"></i> Thêm vào giỏ';
+        });
+        showToast("Lỗi kết nối. Vui lòng thử lại.", "error");
+        console.error("Error:", err);
+    });
+}
+
+// Cập nhật số lượng giỏ hàng
+function updateCartCount() {
+    if (!token) {
+        document.getElementById("cartCount").textContent = "0";
+        return;
+    }
+    
+    fetch("http://127.0.0.1:5000/api/gio-hang", {
+        headers: {"Authorization": "Bearer " + token}
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch cart');
+        return res.json();
+    })
+    .then(data => {
+        const total = data.reduce((sum, item) => sum + item.soLuong, 0);
+        const cartCountEl = document.getElementById("cartCount");
+        cartCountEl.textContent = total;
+        
+        // Hiển thị/ẩn badge
+        if (total > 0) {
+            cartCountEl.style.display = "flex";
+        } else {
+            cartCountEl.style.display = "none";
+        }
+    })
+    .catch(() => {
+        document.getElementById("cartCount").textContent = "0";
+    });
+}
+
+// Search functionality - Enter key và click icon
+function handleSearch(event) {
+    if (event.key === 'Enter' || event.type === 'click') {
+        const searchInput = document.getElementById('searchInput');
+        const keyword = searchInput.value.trim();
+        if (keyword) {
+            window.location.href = `thuc-don.html?search=${encodeURIComponent(keyword)}`;
+        } else {
+            showToast("Vui lòng nhập từ khóa tìm kiếm", "warning");
+        }
+    }
+}
+
+// Thêm event listener cho search icon
+document.addEventListener('DOMContentLoaded', () => {
+    const searchIcon = document.querySelector('.search i.fa-search');
+    if (searchIcon) {
+        searchIcon.addEventListener('click', handleSearch);
+        searchIcon.style.cursor = 'pointer';
+    }
+    
+    // Load sản phẩm
+    loadSanPhamNoiBat();
+    
+    // Update cart count nếu đã đăng nhập
+    if (token) {
+        updateCartCount();
+    }
+    
+    // Initialize animations
+    animateStats();
+    animateOnScroll();
+});
+
+// Animate statistics với cải thiện
+function animateStats() {
+    const stats = document.querySelectorAll('.stat-number');
+    if (stats.length === 0) return;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                entry.target.classList.add('animated');
+                const target = parseInt(entry.target.getAttribute('data-target'));
+                const isPercent = entry.target.getAttribute('data-target') === '98';
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        entry.target.textContent = target + (isPercent ? '%' : '+');
+                        clearInterval(timer);
+                    } else {
+                        entry.target.textContent = Math.floor(current) + (isPercent ? '%' : '+');
+                    }
+                }, 16);
+                
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    stats.forEach(stat => observer.observe(stat));
+}
+
+// Animate elements on scroll
+function animateOnScroll() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in-up');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    // Observe các sections
+    document.querySelectorAll('.benefit-card, .process-item, .testimonial-card, .product-card').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+// Smooth scroll cho các anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Lazy load images
+if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                }
+                observer.unobserve(img);
+            }
+        });
+    });
+    
+    document.querySelectorAll('img[data-src]').forEach(img => {
+        imageObserver.observe(img);
+    });
 }
 </script>
 

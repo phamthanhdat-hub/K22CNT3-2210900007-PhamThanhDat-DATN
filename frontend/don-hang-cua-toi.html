@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đơn hàng của tôi | BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="location='index.html'"><img src="images/logo2.jpg"><span>BabyCutie</span></div>
+        <button class="btn-login" onclick="location='index.html'">← Trang chủ</button>
+    </div>
+</header>
+<section class="container mt-4">
+    <h2>📦 Đơn hàng của tôi</h2>
+    <div id="donHangList" class="mt-3"></div>
+</section>
+<script>
+const token = localStorage.getItem("token");
+if (!token) {
+    alert("Vui lòng đăng nhập");
+    window.location.href = "login-khach.html";
+}
+
+const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
+const nguoiDungId = userInfo.id;
+
+if (!nguoiDungId) {
+    alert("Không tìm thấy thông tin người dùng");
+    window.location.href = "login-khach.html";
+}
+
+fetch(`http://127.0.0.1:5000/api/don-hang/nguoi-dung/${nguoiDungId}`)
+    .then(r => r.json())
+    .then(data => {
+        const div = document.getElementById("donHangList");
+        if (data.length === 0) {
+            div.innerHTML = '<p class="text-center">Bạn chưa có đơn hàng nào</p>';
+            return;
+        }
+        div.innerHTML = data.map(dh => `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>Đơn hàng #${dh.id}</h5>
+                    <p><strong>Tổng tiền:</strong> ${new Intl.NumberFormat('vi-VN').format(dh.tongTien)}đ</p>
+                    <p><strong>Trạng thái:</strong> <span class="badge bg-info">${dh.trangThai}</span></p>
+                    <p><strong>Ngày đặt:</strong> ${new Date(dh.ngayDat).toLocaleDateString('vi-VN')}</p>
+                    <p><strong>Địa chỉ giao hàng:</strong> ${dh.diaChiGiaoHang || '-'}</p>
+                    <button class="btn btn-sm btn-primary" onclick="xemChiTiet(${dh.id})">Xem chi tiết</button>
+                </div>
+            </div>
+        `).join('');
+    });
+
+function xemChiTiet(id) {
+    fetch(`http://127.0.0.1:5000/api/don-hang/${id}`)
+        .then(r => r.json())
+        .then(data => {
+            let html = `Đơn hàng #${data.donHang.id}\n\n`;
+            html += `Tổng tiền: ${new Intl.NumberFormat('vi-VN').format(data.donHang.tongTien)}đ\n`;
+            html += `Trạng thái: ${data.donHang.trangThai}\n\nSản phẩm:\n`;
+            data.sanPham.forEach(sp => {
+                html += `- ${sp.tenSanPham} x${sp.soLuong} - ${new Intl.NumberFormat('vi-VN').format(sp.gia)}đ\n`;
+            });
+            alert(html);
+        });
+}
+</script>
+</body>
+</html>
+
