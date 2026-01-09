@@ -58,16 +58,28 @@ def gui_lien_he():
         conn = get_db()
         cursor = conn.cursor()
 
-        cursor.execute("""
-            INSERT INTO LienHe (hoTen, email, noiDung)
-            VALUES (?, ?, ?)
-        """, (hoTen, email, noiDung))
+        # Kiểm tra xem bảng LienHe có tồn tại không
+        try:
+            cursor.execute("""
+                INSERT INTO LienHe (hoTen, email, noiDung)
+                VALUES (?, ?, ?)
+            """, (hoTen, email, noiDung))
 
-        conn.commit()
-        return jsonify({
-            "success": True,
-            "message": "Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất."
-        })
+            conn.commit()
+            
+            return jsonify({
+                "success": True,
+                "message": "Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất."
+            })
+        except Exception as db_error:
+            conn.rollback()
+            # Kiểm tra nếu lỗi là do bảng không tồn tại
+            if "Invalid object name" in str(db_error) or "LienHe" in str(db_error):
+                return jsonify({
+                    "success": False,
+                    "message": f"Lỗi database: Bảng LienHe không tồn tại. Vui lòng kiểm tra lại CSDL. Chi tiết: {str(db_error)}"
+                }), 500
+            raise db_error
     
     except Exception as e:
         if 'conn' in locals():

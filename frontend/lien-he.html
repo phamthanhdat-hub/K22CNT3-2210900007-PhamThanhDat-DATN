@@ -295,33 +295,47 @@ document.getElementById("contactForm").onsubmit = function(e) {
 
     fetch("http://127.0.0.1:5000/api/lien-he", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify({
             hoTen: hoTen,
             email: email,
             noiDung: noiDung
         })
     })
-    .then(res => res.json())
+    .then(res => {
+        // Kiểm tra status code
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
+        return res.json();
+    })
     .then(data => {
-        if (data.success) {
+        // Kiểm tra response có success field không
+        if (data.success !== false) {
             showMessage("✅ " + (data.message || "Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất."), "success");
             document.getElementById("contactForm").reset();
             if (typeof showToast === 'function') {
                 showToast("✅ Gửi liên hệ thành công!", "success");
             }
         } else {
-            showMessage("❌ " + (data.message || "Có lỗi xảy ra"), "danger");
+            const errorMsg = data.message || "Có lỗi xảy ra";
+            showMessage("❌ " + errorMsg, "danger");
             if (typeof showToast === 'function') {
-                showToast("❌ " + (data.message || "Có lỗi xảy ra"), "error");
+                showToast("❌ " + errorMsg, "error");
             }
         }
     })
-    .catch(() => {
-        showMessage("❌ Không thể kết nối server. Vui lòng thử lại sau.", "danger");
+    .catch(err => {
+        const errorMsg = err.message || "Không thể kết nối server. Vui lòng thử lại sau.";
+        showMessage("❌ " + errorMsg, "danger");
         if (typeof showToast === 'function') {
-            showToast("❌ Không thể kết nối server", "error");
+            showToast("❌ " + errorMsg, "error");
         }
+        console.error("Lỗi khi gửi liên hệ:", err);
     })
     .finally(() => {
         btn.disabled = false;

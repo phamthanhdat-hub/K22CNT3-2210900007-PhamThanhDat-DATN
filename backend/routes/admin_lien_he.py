@@ -8,28 +8,35 @@ admin_lien_he_bp = Blueprint("admin_lien_he", __name__)
 # =====================================================
 @admin_lien_he_bp.route("", methods=["GET"])
 def get_all_lien_he():
-    conn = get_db()
-    cursor = conn.cursor()
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT id, hoTen, email, noiDung, ngayGui
-        FROM LienHe
-        ORDER BY ngayGui DESC
-    """)
+        cursor.execute("""
+            SELECT id, hoTen, email, noiDung, ngayGui
+            FROM LienHe
+            ORDER BY ngayGui DESC
+        """)
 
-    rows = cursor.fetchall()
-    data = []
+        rows = cursor.fetchall()
+        data = []
 
-    for r in rows:
-        data.append({
-            "id": r[0],
-            "hoTen": r[1],
-            "email": r[2],
-            "noiDung": r[3],
-            "ngayGui": r[4].isoformat() if r[4] else None
-        })
+        for r in rows:
+            data.append({
+                "id": r[0],
+                "hoTen": r[1] if r[1] else "",
+                "email": r[2] if r[2] else "",
+                "noiDung": r[3] if r[3] else "",
+                "ngayGui": r[4].isoformat() if r[4] else None
+            })
 
-    return jsonify(data)
+        return jsonify(data)
+    
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
 
 # =====================================================
 # TẠO LIÊN HỆ MỚI (ADMIN)

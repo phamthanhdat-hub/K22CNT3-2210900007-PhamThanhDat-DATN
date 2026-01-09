@@ -18,22 +18,37 @@ function loadTinTuc() {
     emptyNews.style.display = "none";
 
     fetch("http://127.0.0.1:5000/api/tin-tuc")
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => {
+                    throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+                });
+            }
+            return res.json();
+        })
         .then(data => {
             loadingNews.style.display = "none";
 
-            if (!data || data.length === 0) {
+            // Kiểm tra nếu data có success: false (lỗi từ backend)
+            if (data && data.success === false) {
+                throw new Error(data.message || "Lỗi khi tải tin tức");
+            }
+
+            if (!data || (Array.isArray(data) && data.length === 0)) {
                 emptyNews.style.display = "flex";
                 return;
             }
+
+            // Đảm bảo data là array
+            const newsArray = Array.isArray(data) ? data : [];
 
             emptyNews.style.display = "none";
             newsList.innerHTML = "";
             
             // Lưu data vào sessionStorage để dùng sau
-            sessionStorage.setItem('allNews', JSON.stringify(data));
+            sessionStorage.setItem('allNews', JSON.stringify(newsArray));
 
-            data.forEach((n, index) => {
+            newsArray.forEach((n, index) => {
                 const card = document.createElement("div");
                 card.className = "news-card-wrapper";
                 card.style.animationDelay = `${index * 0.08}s`;
@@ -65,13 +80,22 @@ function loadTinTuc() {
         })
         .catch(err => {
             loadingNews.style.display = "none";
+            const errorMessage = err.message || "Không thể kết nối đến server. Vui lòng kiểm tra backend đã chạy chưa.";
             newsList.innerHTML = `
-                <div class="alert alert-danger text-center" style="grid-column: 1/-1;">
+                <div class="alert alert-danger text-center" style="grid-column: 1/-1; padding: 20px;">
                     <i class="fa fa-exclamation-triangle"></i> 
-                    Không thể tải tin tức. Vui lòng thử lại sau.
+                    <strong>Lỗi khi tải tin tức:</strong><br>
+                    ${errorMessage}
+                    <br><br>
+                    <button class="btn btn-primary btn-sm" onclick="loadTinTuc()">
+                        <i class="fa fa-refresh"></i> Thử lại
+                    </button>
                 </div>
             `;
-            console.error(err);
+            console.error("Lỗi khi tải tin tức:", err);
+            if (typeof showToast === 'function') {
+                showToast(errorMessage, "error");
+            }
         });
 }
 

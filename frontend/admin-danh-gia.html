@@ -5,45 +5,497 @@
     <title>Quản lý đánh giá | Admin BabyCutie</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Import CSS variables từ admin-dashboard */
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --danger: #ef4444;
+            --accent: #ec4899;
+            
+            --sidebar-bg: #ffffff;
+            --sidebar-active: #eef2ff;
+            --sidebar-hover: #f8fafc;
+            --sidebar-text: #475569;
+            --sidebar-text-active: #6366f1;
+            --sidebar-border: #e2e8f0;
+            
+            --gradient-modern-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-modern-2: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            --gradient-modern-3: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-modern-4: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            --gradient-modern-5: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+            --gradient-modern-6: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            box-shadow: var(--shadow-lg);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 1px solid var(--sidebar-border);
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--sidebar-border);
+            background: var(--gradient-modern-1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header .logo span {
+            font-size: 22px;
+            font-weight: 800;
+            color: white;
+            display: block;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin: 4px 0;
+        }
+
+        .nav-item.active .nav-link {
+            background: var(--sidebar-active);
+            color: var(--sidebar-text-active);
+            font-weight: 600;
+        }
+
+        .nav-item.active .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 70%;
+            background: var(--gradient-modern-1);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            border-radius: 0 12px 12px 0;
+            margin-right: 12px;
+        }
+
+        .nav-link:hover {
+            background: var(--sidebar-hover);
+            color: var(--sidebar-text-active);
+            transform: translateX(4px);
+        }
+
+        .nav-link i {
+            width: 20px;
+            font-size: 18px;
+        }
+
+        .nav-separator {
+            padding: 20px 20px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+
+        .admin-main {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .main-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 30px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #e2e8f0;
+            transition: var(--transition);
+        }
+
+        .review-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .review-user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gradient-modern-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .review-user-info h5 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .review-user-info small {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .review-stars {
+            display: flex;
+            gap: 4px;
+            font-size: 20px;
+        }
+
+        .review-stars .star {
+            color: #fbbf24;
+        }
+
+        .review-stars .star.empty {
+            color: #e2e8f0;
+        }
+
+        .review-product {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .review-product img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .review-product-info h6 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .review-product-info small {
+            color: #64748b;
+        }
+
+        .review-content {
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .review-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .review-date {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .btn-action-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-view {
+            background: var(--gradient-modern-2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(6,182,212,0.3);
+        }
+
+        .btn-delete {
+            background: var(--gradient-modern-5);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(236,72,153,0.3);
+        }
+
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h4 {
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .admin-main {
+                margin-left: 0;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-<header class="header">
-    <div class="container header-wrap">
-        <div class="logo" onclick="location='admin-dashboard.html'"><span>🛠 Quản lý đánh giá</span></div>
-        <button class="btn-login" onclick="location='admin-dashboard.html'">← Dashboard</button>
+
+<div class="admin-layout">
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span>🛠 BabyCutie Admin</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="admin-dashboard.html" class="nav-link"><i class="fas fa-th-large"></i><span>Dashboard</span></a></li>
+                <li class="nav-item"><a href="admin-don-hang.html" class="nav-link"><i class="fas fa-shopping-bag"></i><span>Đơn hàng</span></a></li>
+                <li class="nav-item"><a href="admin-san-pham.html" class="nav-link"><i class="fas fa-box"></i><span>Sản phẩm</span></a></li>
+                <li class="nav-item"><a href="admin-danh-muc.html" class="nav-link"><i class="fas fa-layer-group"></i><span>Danh mục</span></a></li>
+                <li class="nav-item"><a href="admin-khach-hang.html" class="nav-link"><i class="fas fa-users"></i><span>Khách hàng</span></a></li>
+            </ul>
+            <div class="nav-separator">HỆ THỐNG</div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="admin-khuyen-mai.html" class="nav-link"><i class="fas fa-tags"></i><span>Khuyến mãi</span></a></li>
+                <li class="nav-item"><a href="admin-tin-tuc.html" class="nav-link"><i class="fas fa-newspaper"></i><span>Tin tức</span></a></li>
+                <li class="nav-item"><a href="admin-gio-hang.html" class="nav-link"><i class="fas fa-shopping-cart"></i><span>Giỏ hàng</span></a></li>
+                <li class="nav-item"><a href="admin-lien-he.html" class="nav-link"><i class="fas fa-envelope"></i><span>Liên hệ</span></a></li>
+                <li class="nav-item active"><a href="admin-danh-gia.html" class="nav-link"><i class="fas fa-star"></i><span>Đánh giá</span></a></li>
+                <li class="nav-item"><a href="admin-thanh-toan.html" class="nav-link"><i class="fas fa-credit-card"></i><span>Thanh toán</span></a></li>
+            </ul>
+            <div class="nav-separator">HỆ THỐNG</div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="admin-cai-dat.html" class="nav-link"><i class="fas fa-cog"></i><span>Cài đặt</span></a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+        <div class="main-header">
+            <h2>⭐ Quản lý đánh giá</h2>
+        </div>
+
+        <!-- FILTER SECTION -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Sản phẩm</label>
+                    <select class="form-select" id="filterSanPham">
+                        <option value="">Tất cả sản phẩm</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Số sao</label>
+                    <select class="form-select" id="filterSoSao">
+                        <option value="">Tất cả</option>
+                        <option value="5">5 sao</option>
+                        <option value="4">4 sao</option>
+                        <option value="3">3 sao</option>
+                        <option value="2">2 sao</option>
+                        <option value="1">1 sao</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="loadDanhGia()" style="width: 100%;">
+                        <i class="fas fa-filter"></i> Lọc
+                    </button>
+                </div>
+                <div class="filter-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-secondary" onclick="resetFilter()" style="width: 100%;">
+                        <i class="fas fa-redo"></i> Làm mới
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVIEWS LIST -->
+        <div id="reviewsList">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Đang tải...</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="toastContainer"></div>
+
+<!-- Modal Chi tiết đánh giá -->
+<div class="modal fade" id="reviewDetailModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--gradient-modern-1); color: white;">
+                <h5 class="modal-title"><i class="fas fa-star"></i> Chi tiết đánh giá</h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="reviewDetailContent">
+                <!-- Nội dung sẽ được load động -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
     </div>
-</header>
-<section class="container mt-4">
-    <h3>⭐ Danh sách đánh giá</h3>
-    <div class="table-responsive mt-3">
-        <table class="table table-bordered bg-white">
-            <thead class="table-light">
-                <tr><th>#</th><th>Khách hàng</th><th>Sản phẩm</th><th>Số sao</th><th>Nội dung</th><th>Ngày đánh giá</th><th>Hành động</th></tr>
-            </thead>
-            <tbody id="danhGiaTable"><tr><td colspan="7" class="text-center">Đang tải...</td></tr></tbody>
-        </table>
-    </div>
-</section>
-<script>
-if (!localStorage.getItem("admin_token")) window.location.href = "login-admin.html";
-fetch("http://127.0.0.1:5000/api/admin/danh-gia")
-    .then(r => r.json())
-    .then(d => {
-        const t = document.getElementById("danhGiaTable");
-        t.innerHTML = d.length === 0 ? '<tr><td colspan="7" class="text-center">Chưa có đánh giá</td></tr>' :
-            d.map((dg, i) => `<tr>
-                <td>${i+1}</td>
-                <td>${dg.hoTen}</td>
-                <td>${dg.tenSanPham}</td>
-                <td>${'⭐'.repeat(dg.soSao)}</td>
-                <td>${dg.noiDung || '-'}</td>
-                <td>${dg.ngayDanhGia ? new Date(dg.ngayDanhGia).toLocaleDateString('vi-VN') : '-'}</td>
-                <td><button class="btn btn-sm btn-danger" onclick="if(confirm('Xóa?')) fetch('http://127.0.0.1:5000/api/admin/danh-gia/${dg.id}', {method:'DELETE'}).then(() => location.reload())">Xóa</button></td>
-            </tr>`).join('');
-    });
-</script>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/admin-danh-gia.js"></script>
 </body>
 </html>
-
-

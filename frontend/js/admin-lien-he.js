@@ -43,35 +43,55 @@ function loadLienHe() {
 
     fetch(API_URL, {
         headers: {
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
         }
     })
     .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch');
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
         return res.json();
     })
     .then(data => {
         loadingLienHe.style.display = "none";
 
-        if (!data || data.length === 0) {
+        // Kiểm tra nếu data có success: false (lỗi từ backend)
+        if (data && data.success === false) {
+            throw new Error(data.message || "Lỗi khi tải danh sách liên hệ");
+        }
+
+        // Đảm bảo data là array
+        const contactArray = Array.isArray(data) ? data : [];
+
+        if (contactArray.length === 0) {
             emptyLienHe.style.display = "block";
             return;
         }
 
         emptyLienHe.style.display = "none";
-        renderLienHeList(data);
+        renderLienHeList(contactArray);
     })
     .catch(err => {
         loadingLienHe.style.display = "none";
+        const errorMsg = err.message || "Không thể kết nối đến server. Vui lòng kiểm tra backend đã chạy chưa.";
         lienHeList.innerHTML = `
             <div class="col-12">
                 <div class="alert alert-danger">
                     <i class="fa fa-exclamation-triangle"></i> 
-                    Không thể tải danh sách liên hệ. Vui lòng thử lại sau.
+                    <strong>Lỗi khi tải danh sách liên hệ:</strong><br>
+                    ${errorMsg}
+                    <br><br>
+                    <button class="btn btn-primary btn-sm" onclick="loadLienHe()">
+                        <i class="fa fa-refresh"></i> Thử lại
+                    </button>
                 </div>
             </div>
         `;
         console.error("Lỗi load liên hệ:", err);
+        showToast(`Lỗi: ${errorMsg}`, "error");
     });
 }
 
@@ -81,10 +101,16 @@ function loadLienHe() {
 function renderLienHeList(data) {
     lienHeList.innerHTML = "";
 
+    if (!data || !Array.isArray(data) || data.length === 0) {
+        emptyLienHe.style.display = "block";
+        return;
+    }
+
     data.forEach((contact, index) => {
-        const noiDungShort = contact.noiDung 
-            ? (contact.noiDung.length > 150 ? contact.noiDung.substring(0, 150) + "..." : contact.noiDung)
-            : "Chưa có nội dung";
+        const noiDung = contact.noiDung || "";
+        const noiDungShort = noiDung.length > 150 
+            ? noiDung.substring(0, 150) + "..." 
+            : noiDung || "Chưa có nội dung";
         
         const ngayGui = contact.ngayGui 
             ? new Date(contact.ngayGui).toLocaleDateString('vi-VN', {
@@ -95,6 +121,9 @@ function renderLienHeList(data) {
                 minute: '2-digit'
             })
             : "Chưa có ngày";
+        
+        const hoTen = contact.hoTen || "Khách hàng";
+        const email = contact.email || "Chưa có email";
 
         const card = document.createElement("div");
         card.className = "col-md-6 col-lg-4";
@@ -103,10 +132,10 @@ function renderLienHeList(data) {
                 <div class="contact-header">
                     <div class="contact-info">
                         <div class="contact-name">
-                            <i class="fa fa-user-circle"></i> ${escapeHtml(contact.hoTen || 'Không tên')}
+                            <i class="fa fa-user-circle"></i> ${escapeHtml(hoTen)}
                         </div>
-                        <a href="mailto:${escapeHtml(contact.email)}" class="contact-email">
-                            <i class="fa fa-envelope"></i> ${escapeHtml(contact.email || 'Không có email')}
+                        <a href="mailto:${escapeHtml(email)}" class="contact-email">
+                            <i class="fa fa-envelope"></i> ${escapeHtml(email)}
                         </a>
                         <div class="contact-date">
                             <i class="fa fa-calendar"></i> ${ngayGui}

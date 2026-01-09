@@ -396,6 +396,37 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Doanh thu tháng và tổng doanh thu */
+        .row.mt-4 .admin-card p {
+            background: var(--gradient-modern-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(1) .admin-card p {
+            background: var(--gradient-modern-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(2) .admin-card p {
+            background: var(--gradient-modern-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(3) .admin-card p {
+            background: var(--gradient-modern-5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .row.mt-4 > div:nth-child(4) .admin-card p {
+            background: var(--gradient-modern-4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         /* ========== MENU CARDS ========== */
         .admin-menu {
             background: white;
@@ -748,8 +779,9 @@
 <div class="admin-layout">
     <aside class="admin-sidebar">
         <div class="sidebar-header">
-            <div class="logo">
-                <span>🛠 BabyCutie Admin</span>
+            <div class="logo" onclick="window.location='index.html'">
+                <img src="images/logo2.jpg" alt="BabyCutie">
+                <span>BabyCutie</span>
             </div>
         </div>
 
@@ -874,14 +906,42 @@
 
         <div class="col-md-3">
             <div class="admin-card">
-                <h4>🧾 Đơn hàng</h4>
-                <p id="soDonHang">-</p>
+                <h4>🧾 Đơn hàng hôm nay</h4>
+                <p id="soDonHangNgay">-</p>
             </div>
         </div>
 
         <div class="col-md-3">
             <div class="admin-card">
-                <h4>💰 Doanh thu</h4>
+                <h4>💰 Doanh thu hôm nay</h4>
+                <p id="doanhThuNgay">-</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ĐƠN HÀNG VÀ DOANH THU THEO THÁNG -->
+    <div class="row g-4 mt-4">
+        <div class="col-md-3">
+            <div class="admin-card">
+                <h4>📦 Đơn hàng tháng này</h4>
+                <p id="soDonHangThang">-</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-card">
+                <h4>📅 Doanh thu tháng này</h4>
+                <p id="doanhThuThang">-</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-card">
+                <h4>📊 Tổng đơn hàng</h4>
+                <p id="soDonHang">-</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-card">
+                <h4>💵 Tổng doanh thu</h4>
                 <p id="tongDoanhThu">-</p>
             </div>
         </div>
@@ -982,7 +1042,7 @@ function animateValue(element, start, end, duration) {
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
         const current = Math.floor(progress * (end - start) + start);
         
-        if (element.id === 'tongDoanhThu') {
+        if (element.id === 'tongDoanhThu' || element.id === 'doanhThuNgay' || element.id === 'doanhThuThang') {
             element.textContent = new Intl.NumberFormat('vi-VN').format(current) + "đ";
         } else {
             element.textContent = current;
@@ -995,25 +1055,44 @@ function animateValue(element, start, end, duration) {
     window.requestAnimationFrame(step);
 }
 
-fetch("http://127.0.0.1:5000/api/admin/dashboard/thong-ke")
-    .then(res => res.json())
+fetch("http://127.0.0.1:5000/api/admin/dashboard/thong-ke", {
+    headers: {
+        "Authorization": "Bearer " + adminToken
+    }
+})
+    .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+    })
     .then(data => {
         const soNguoiDung = data.soNguoiDung || 0;
         const soSanPham = data.soSanPham || 0;
         const soDonHang = data.soDonHang || 0;
+        const soDonHangNgay = data.soDonHangNgay || 0;
+        const soDonHangThang = data.soDonHangThang || 0;
+        const doanhThuNgay = data.doanhThuNgay || 0;
+        const doanhThuThang = data.doanhThuThang || 0;
         const tongDoanhThu = data.tongDoanhThu || 0;
 
         // Animate với delay để tạo hiệu ứng tuần tự
         setTimeout(() => animateValue(document.getElementById("soNguoiDung"), 0, soNguoiDung, 1000), 100);
         setTimeout(() => animateValue(document.getElementById("soSanPham"), 0, soSanPham, 1000), 200);
-        setTimeout(() => animateValue(document.getElementById("soDonHang"), 0, soDonHang, 1000), 300);
-        setTimeout(() => animateValue(document.getElementById("tongDoanhThu"), 0, tongDoanhThu, 1500), 400);
+        setTimeout(() => animateValue(document.getElementById("soDonHangNgay"), 0, soDonHangNgay, 1000), 300);
+        setTimeout(() => animateValue(document.getElementById("doanhThuNgay"), 0, doanhThuNgay, 1500), 400);
+        setTimeout(() => animateValue(document.getElementById("soDonHangThang"), 0, soDonHangThang, 1000), 500);
+        setTimeout(() => animateValue(document.getElementById("doanhThuThang"), 0, doanhThuThang, 1500), 600);
+        setTimeout(() => animateValue(document.getElementById("soDonHang"), 0, soDonHang, 1000), 700);
+        setTimeout(() => animateValue(document.getElementById("tongDoanhThu"), 0, tongDoanhThu, 1500), 800);
     })
     .catch(err => {
         console.error("Lỗi load thống kê:", err);
         document.getElementById("soNguoiDung").textContent = "0";
         document.getElementById("soSanPham").textContent = "0";
+        document.getElementById("soDonHangNgay").textContent = "0";
+        document.getElementById("soDonHangThang").textContent = "0";
         document.getElementById("soDonHang").textContent = "0";
+        document.getElementById("doanhThuNgay").textContent = "0đ";
+        document.getElementById("doanhThuThang").textContent = "0đ";
         document.getElementById("tongDoanhThu").textContent = "0đ";
     });
 
