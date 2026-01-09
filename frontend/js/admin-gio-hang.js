@@ -45,29 +45,43 @@ function showToast(message, type = 'success') {
 function loadKhachHang() {
     fetch(API_KHACH_HANG, {
         headers: {
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
         }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
+        return res.json();
+    })
     .then(data => {
-        if (data.success === false) {
+        // Kiểm tra nếu data có success: false
+        if (data && data.success === false) {
             console.error("Lỗi load khách hàng:", data.message);
+            showToast(`Lỗi khi tải khách hàng: ${data.message}`, "error");
             return;
         }
         
-        allKhachHang = data;
+        // Đảm bảo data là array
+        const khachHangArray = Array.isArray(data) ? data : [];
+        
+        allKhachHang = khachHangArray;
         const select = document.getElementById("nguoiDungSelect");
         select.innerHTML = '<option value="">Chọn khách hàng...</option>';
         
-        data.forEach(kh => {
+        khachHangArray.forEach(kh => {
             const option = document.createElement('option');
             option.value = kh.id;
-            option.textContent = `${kh.hoTen} (${kh.email})`;
+            option.textContent = `${kh.hoTen || 'Không tên'} (${kh.email || 'Không có email'})`;
             select.appendChild(option);
         });
     })
     .catch(err => {
         console.error("Lỗi load khách hàng:", err);
+        showToast(`Lỗi khi tải khách hàng: ${err.message}`, "error");
     });
 }
 
@@ -77,32 +91,47 @@ function loadKhachHang() {
 function loadSanPham() {
     fetch(API_SAN_PHAM, {
         headers: {
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
         }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
+        return res.json();
+    })
     .then(data => {
-        if (data.success === false) {
+        // Kiểm tra nếu data có success: false
+        if (data && data.success === false) {
             console.error("Lỗi load sản phẩm:", data.message);
+            showToast(`Lỗi khi tải sản phẩm: ${data.message}`, "error");
             return;
         }
         
-        allSanPham = data;
+        // Đảm bảo data là array
+        const sanPhamArray = Array.isArray(data) ? data : [];
+        
+        allSanPham = sanPhamArray;
         const select = document.getElementById("sanPhamSelect");
         select.innerHTML = '<option value="">Chọn sản phẩm...</option>';
         
-        data.forEach(sp => {
+        sanPhamArray.forEach(sp => {
             const option = document.createElement('option');
             option.value = sp.id;
-            option.textContent = `${sp.tenSanPham} - ${sp.gia.toLocaleString()}₫ ${sp.trangThai ? '' : '(Đã ẩn)'}`;
-            option.dataset.gia = sp.gia;
-            option.dataset.hinhAnh = sp.hinhAnh;
-            option.dataset.trangThai = sp.trangThai;
+            const trangThaiText = sp.trangThai ? '' : ' (Đã ẩn)';
+            option.textContent = `${sp.tenSanPham || 'Không tên'} - ${(sp.gia || 0).toLocaleString()}₫${trangThaiText}`;
+            option.dataset.gia = sp.gia || 0;
+            option.dataset.hinhAnh = sp.hinhAnh || '';
+            option.dataset.trangThai = sp.trangThai ? '1' : '0';
             select.appendChild(option);
         });
     })
     .catch(err => {
         console.error("Lỗi load sản phẩm:", err);
+        showToast(`Lỗi khi tải sản phẩm: ${err.message}`, "error");
     });
 }
 
@@ -139,34 +168,44 @@ function loadGioHang() {
 
     fetch(API_URL, {
         headers: {
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
         }
     })
     .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch');
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
         return res.json();
     })
     .then(data => {
         loadingGioHang.style.display = "none";
 
-        if (data.success === false) {
+        // Kiểm tra nếu data có success: false
+        if (data && data.success === false) {
             showToast(data.message || "Lỗi khi tải giỏ hàng", "error");
+            emptyGioHang.style.display = "block";
             return;
         }
 
-        if (!data || data.length === 0) {
+        // Đảm bảo data là array
+        const gioHangArray = Array.isArray(data) ? data : [];
+
+        if (gioHangArray.length === 0) {
             emptyGioHang.style.display = "block";
             return;
         }
 
         emptyGioHang.style.display = "none";
-        allGioHang = data;
+        allGioHang = gioHangArray;
         
         // Filter
         const searchName = document.getElementById("searchInput").value.toLowerCase();
         const searchProduct = document.getElementById("searchProductInput").value.toLowerCase();
         
-        let filtered = data;
+        let filtered = gioHangArray;
         if (searchName) {
             filtered = filtered.filter(item => 
                 (item.hoTen || "").toLowerCase().includes(searchName)
@@ -178,19 +217,36 @@ function loadGioHang() {
             );
         }
 
+        if (filtered.length === 0) {
+            emptyGioHang.style.display = "block";
+            emptyGioHang.innerHTML = `
+                <i class="fa fa-search"></i>
+                <h4>Không tìm thấy kết quả</h4>
+                <p>Không có sản phẩm nào trong giỏ hàng phù hợp với từ khóa tìm kiếm</p>
+            `;
+            return;
+        }
+
         renderGioHangList(filtered);
     })
     .catch(err => {
         loadingGioHang.style.display = "none";
+        const errorMsg = err.message || "Không thể kết nối đến server. Vui lòng kiểm tra backend đã chạy chưa.";
         gioHangList.innerHTML = `
             <div class="col-12">
                 <div class="alert alert-danger">
                     <i class="fa fa-exclamation-triangle"></i> 
-                    Không thể tải danh sách giỏ hàng. Vui lòng thử lại sau.
+                    <strong>Lỗi khi tải danh sách giỏ hàng:</strong><br>
+                    ${errorMsg}
+                    <br><br>
+                    <button class="btn btn-primary btn-sm" onclick="loadGioHang()">
+                        <i class="fa fa-refresh"></i> Thử lại
+                    </button>
                 </div>
             </div>
         `;
         console.error("Lỗi load giỏ hàng:", err);
+        showToast(`Lỗi: ${errorMsg}`, "error");
     });
 }
 
@@ -293,10 +349,18 @@ function openForm() {
 function editCart(id) {
     fetch(`${API_URL}/${id}`, {
         headers: {
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
         }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
+        return res.json();
+    })
     .then(result => {
         if (!result.success) {
             showToast(result.message || "Không tìm thấy giỏ hàng", "error");
@@ -318,7 +382,7 @@ function editCart(id) {
         cartModal.show();
     })
     .catch(err => {
-        showToast("Lỗi khi tải thông tin giỏ hàng", "error");
+        showToast(`Lỗi khi tải thông tin giỏ hàng: ${err.message}`, "error");
         console.error(err);
     });
 }
@@ -378,7 +442,14 @@ function saveCart() {
         },
         body: JSON.stringify(data)
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
+        return res.json();
+    })
     .then(result => {
         saveBtn.disabled = false;
         saveBtn.innerHTML = originalText;
@@ -394,7 +465,8 @@ function saveCart() {
     .catch(err => {
         saveBtn.disabled = false;
         saveBtn.innerHTML = originalText;
-        showToast("Lỗi: " + err.message, "error");
+        const errorMsg = err.message || "Lỗi không xác định";
+        showToast(`Lỗi: ${errorMsg}`, "error");
         console.error(err);
     });
 }
@@ -427,7 +499,14 @@ function saveQuantity() {
         },
         body: JSON.stringify({ soLuong: soLuong })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
+        return res.json();
+    })
     .then(data => {
         if (data.success !== false) {
             showToast("✅ Cập nhật số lượng thành công!", "success");
@@ -438,7 +517,8 @@ function saveQuantity() {
         }
     })
     .catch(err => {
-        showToast("Lỗi: " + err.message, "error");
+        const errorMsg = err.message || "Lỗi không xác định";
+        showToast(`Lỗi: ${errorMsg}`, "error");
         console.error(err);
     });
 }
@@ -454,10 +534,18 @@ function deleteCart(id) {
     fetch(`${API_URL}/${id}`, {
         method: "DELETE",
         headers: {
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"
         }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
+            });
+        }
+        return res.json();
+    })
     .then(result => {
         if (result.success !== false) {
             showToast("✅ Xóa giỏ hàng thành công!", "success");
@@ -467,7 +555,8 @@ function deleteCart(id) {
         }
     })
     .catch(err => {
-        showToast("Lỗi: " + err.message, "error");
+        const errorMsg = err.message || "Lỗi không xác định";
+        showToast(`Lỗi: ${errorMsg}`, "error");
         console.error(err);
     });
 }

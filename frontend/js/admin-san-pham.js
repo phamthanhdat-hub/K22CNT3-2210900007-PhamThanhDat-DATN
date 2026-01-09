@@ -1,5 +1,4 @@
 const API_URL = "http://127.0.0.1:5000/api/admin/san-pham";
-const API_THUC_DON = "http://127.0.0.1:5000/api/thuc-don";
 const IMAGE_URL = "http://127.0.0.1:5000/images/";
 
 let modal = null;
@@ -292,7 +291,7 @@ function openForm() {
 
 // Edit product
 function editProduct(id) {
-    safeFetch(`${API_THUC_DON}/${id}`, {
+    safeFetch(`${API_URL}/${id}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${adminToken}`
@@ -333,7 +332,7 @@ function editProduct(id) {
         console.error("Error loading product:", error);
         console.error("Error details:", {
             id: id,
-            url: `${API_THUC_DON}/${id}`,
+            url: `${API_URL}/${id}`,
             token: adminToken ? "Có token" : "Không có token"
         });
     });
@@ -392,7 +391,7 @@ function saveProduct() {
         trangThai: document.getElementById("trangThai").checked ? 1 : 0
     };
 
-    const url = id ? `${API_THUC_DON}/${id}` : API_THUC_DON;
+    const url = id ? `${API_URL}/${id}` : API_URL;
     const method = id ? "PUT" : "POST";
     const saveBtn = document.getElementById("saveBtn");
     const originalText = saveBtn.innerHTML;
@@ -444,7 +443,7 @@ function deleteProduct(id) {
         return;
     }
     
-    safeFetch(`${API_THUC_DON}/${id}`, {
+    safeFetch(`${API_URL}/${id}`, {
         method: "DELETE",
         headers: {
             "Authorization": `Bearer ${adminToken}`
@@ -464,7 +463,7 @@ function deleteProduct(id) {
         console.error("Delete product error:", error);
         console.error("Error details:", {
             id: id,
-            url: `${API_THUC_DON}/${id}`,
+            url: `${API_URL}/${id}`,
             token: adminToken ? "Có token" : "Không có token"
         });
     });
