@@ -240,3 +240,4 @@ function deleteCategory(id) {
     });
 }
 
+
