@@ -167,6 +167,9 @@ def create_san_pham():
         if not cursor.fetchone():
             return jsonify({"success": False, "message": "Danh mục không tồn tại"}), 400
         
+        # Đảm bảo sản phẩm mới luôn có trangThai = 1 (hiển thị cho khách hàng)
+        trangThai = 1  # Mặc định luôn hiển thị khi thêm mới
+        
         cursor.execute("""
             INSERT INTO SanPham
             (tenSanPham, moTa, gia, hinhAnh, doTuoi,
@@ -182,7 +185,7 @@ def create_san_pham():
             float(data.get("carb")) if data.get("carb") else None,
             float(data.get("chatBeo")) if data.get("chatBeo") else None,
             int(danhMuc_id),
-            1 if data.get("trangThai", True) else 0
+            trangThai
         ))
 
         conn.commit()

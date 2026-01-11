@@ -13,12 +13,19 @@ if (!adminToken) {
 // Wrapper function cho fetch với error handling tốt hơn
 async function safeFetch(url, options = {}) {
     try {
+        // Đảm bảo Content-Type luôn được set nếu có body
+        const headers = {
+            ...(options.headers || {})
+        };
+        
+        // Nếu có body và chưa có Content-Type, thêm vào
+        if (options.body && !headers["Content-Type"] && !headers["content-type"]) {
+            headers["Content-Type"] = "application/json";
+        }
+        
         const defaultOptions = {
-            headers: {
-                "Content-Type": "application/json",
-                ...options.headers
-            },
-            ...options
+            ...options,
+            headers: headers  // Đảm bảo headers được set sau để không bị ghi đè
         };
 
         const response = await fetch(url, defaultOptions);
@@ -364,6 +371,7 @@ function saveProduct() {
     safeFetch(url, {
         method: method,
         headers: {
+            "Content-Type": "application/json",
             "Authorization": `Bearer ${adminToken}`
         },
         body: JSON.stringify(data)

@@ -63,8 +63,8 @@ def create_tin_tuc():
         cursor = conn.cursor()
         
         cursor.execute("""
-            INSERT INTO TinTuc (tieuDe, noiDung, hinhAnh, nguoiDung_id)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO TinTuc (tieuDe, noiDung, hinhAnh, nguoiDung_id, ngayDang)
+            VALUES (?, ?, ?, ?, GETDATE())
         """, (
             data["tieuDe"],
             data.get("noiDung", ""),
