@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from db import get_db
+from utils.jwt_helper import lay_user_tu_token
 
 admin_san_pham_bp = Blueprint("admin_san_pham", __name__)
 
@@ -131,6 +132,14 @@ def get_san_pham_by_id(id):
 @admin_san_pham_bp.route("", methods=["POST"])
 def create_san_pham():
     try:
+        # Kiểm tra quyền admin
+        user = lay_user_tu_token()
+        if not user or user.get("vaiTro") != "admin":
+            return jsonify({
+                "success": False,
+                "message": "Không có quyền truy cập. Vui lòng đăng nhập admin."
+            }), 403
+        
         data = request.json
         
         # Validation
@@ -191,6 +200,14 @@ def create_san_pham():
 @admin_san_pham_bp.route("/<int:id>", methods=["PUT"])
 def update_san_pham(id):
     try:
+        # Kiểm tra quyền admin
+        user = lay_user_tu_token()
+        if not user or user.get("vaiTro") != "admin":
+            return jsonify({
+                "success": False,
+                "message": "Không có quyền truy cập. Vui lòng đăng nhập admin."
+            }), 403
+        
         data = request.json
         
         # Validation
@@ -258,6 +275,14 @@ def update_san_pham(id):
 @admin_san_pham_bp.route("/<int:id>", methods=["DELETE"])
 def delete_san_pham(id):
     try:
+        # Kiểm tra quyền admin
+        user = lay_user_tu_token()
+        if not user or user.get("vaiTro") != "admin":
+            return jsonify({
+                "success": False,
+                "message": "Không có quyền truy cập. Vui lòng đăng nhập admin."
+            }), 403
+        
         conn = get_db()
         cursor = conn.cursor()
         

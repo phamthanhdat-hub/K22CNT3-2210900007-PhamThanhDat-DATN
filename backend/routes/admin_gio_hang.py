@@ -118,6 +118,60 @@ def get_gio_hang_by_user(nguoiDung_id):
 
 
 # =====================================================
+# ADMIN - LẤY CHI TIẾT GIỎ HÀNG (CHO SỬA)
+# =====================================================
+@admin_gio_hang_bp.route("/<int:id>", methods=["GET"])
+def get_gio_hang_by_id(id):
+    try:
+        # Kiểm tra quyền admin
+        user = lay_user_tu_token()
+        if not user or user.get("vaiTro") != "admin":
+            return jsonify({
+                "success": False,
+                "message": "Không có quyền truy cập"
+            }), 403
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT 
+                gh.id,
+                gh.nguoiDung_id,
+                gh.sanPham_id,
+                gh.soLuong
+            FROM GioHang gh
+            WHERE gh.id = ?
+        """, (id,))
+
+        row = cursor.fetchone()
+        
+        if not row:
+            return jsonify({
+                "success": False,
+                "message": "Không tìm thấy giỏ hàng"
+            }), 404
+
+        data = {
+            "id": row[0],
+            "nguoiDung_id": row[1],
+            "sanPham_id": row[2],
+            "soLuong": row[3]
+        }
+
+        return jsonify({
+            "success": True,
+            "data": data
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
+
+
+# =====================================================
 # ADMIN - CẬP NHẬT GIỎ HÀNG (SỐ LƯỢNG HOẶC SẢN PHẨM)
 # =====================================================
 @admin_gio_hang_bp.route("/<int:id>", methods=["PUT"])
@@ -299,6 +353,220 @@ def delete_gio_hang(id):
             "message": "Đã xóa sản phẩm khỏi giỏ hàng"
         })
 
+    except Exception as e:
+        if 'conn' in locals():
+            conn.rollback()
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
+
+
+# =====================================================
+# ADMIN - LẤY DANH SÁCH KHÁCH HÀNG (CHO DROPDOWN)
+# =====================================================
+@admin_gio_hang_bp.route("/khach-hang", methods=["GET"])
+def get_khach_hang_list():
+    try:
+        # Kiểm tra quyền admin
+        user = lay_user_tu_token()
+        if not user or user.get("vaiTro") != "admin":
+            return jsonify({
+                "success": False,
+                "message": "Không có quyền truy cập"
+            }), 403
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, hoTen, email, dienThoai
+            FROM NguoiDung
+            WHERE vaiTro = N'khach'
+            ORDER BY hoTen
+        """)
+
+        rows = cursor.fetchall()
+        data = []
+
+        for r in rows:
+            data.append({
+                "id": r[0],
+                "hoTen": r[1] or "Không tên",
+                "email": r[2] or "Không có email",
+                "dienThoai": r[3] or "Không có"
+            })
+
+        return jsonify(data)
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
+
+
+# =====================================================
+# ADMIN - LẤY DANH SÁCH SẢN PHẨM (CHO DROPDOWN)
+# =====================================================
+@admin_gio_hang_bp.route("/san-pham", methods=["GET"])
+def get_san_pham_list():
+    try:
+        # Kiểm tra quyền admin
+        user = lay_user_tu_token()
+        if not user or user.get("vaiTro") != "admin":
+            return jsonify({
+                "success": False,
+                "message": "Không có quyền truy cập"
+            }), 403
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, tenSanPham, gia, hinhAnh, trangThai
+            FROM SanPham
+            ORDER BY tenSanPham
+        """)
+
+        rows = cursor.fetchall()
+        data = []
+
+        for r in rows:
+            data.append({
+                "id": r[0],
+                "tenSanPham": r[1] or "Không tên",
+                "gia": float(r[2]) if r[2] else 0,
+                "hinhAnh": r[3] or "",
+                "trangThai": r[4] if r[4] is not None else 1
+            })
+
+        return jsonify(data)
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
+
+
+
+
+# =====================================================
+# ADMIN - THÊM SẢN PHẨM VÀO GIỎ HÀNG
+# =====================================================
+@admin_gio_hang_bp.route("", methods=["POST"])
+def create_gio_hang():
+    try:
+        # Kiểm tra quyền admin
+        user = lay_user_tu_token()
+        if not user or user.get("vaiTro") != "admin":
+            return jsonify({
+                "success": False,
+                "message": "Không có quyền truy cập"
+            }), 403
+
+        data = request.json
+        
+        if not data:
+            return jsonify({
+                "success": False,
+                "message": "Thiếu dữ liệu"
+            }), 400
+
+        nguoiDung_id = data.get("nguoiDung_id")
+        sanPham_id = data.get("sanPham_id")
+        soLuong = data.get("soLuong", 1)
+
+        # Validation
+        if not nguoiDung_id:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng chọn khách hàng"
+            }), 400
+
+        if not sanPham_id:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng chọn sản phẩm"
+            }), 400
+
+        if not soLuong or soLuong <= 0:
+            return jsonify({
+                "success": False,
+                "message": "Số lượng phải lớn hơn 0"
+            }), 400
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Kiểm tra khách hàng có tồn tại không
+        cursor.execute("""
+            SELECT id FROM NguoiDung WHERE id = ? AND vaiTro = N'khach'
+        """, (nguoiDung_id,))
+        
+        if not cursor.fetchone():
+            return jsonify({
+                "success": False,
+                "message": "Khách hàng không tồn tại"
+            }), 404
+
+        # Kiểm tra sản phẩm có tồn tại và đang hoạt động không
+        cursor.execute("""
+            SELECT id, trangThai FROM SanPham WHERE id = ?
+        """, (sanPham_id,))
+        
+        sanPham = cursor.fetchone()
+        if not sanPham:
+            return jsonify({
+                "success": False,
+                "message": "Sản phẩm không tồn tại"
+            }), 404
+
+        if not sanPham[1]:  # trangThai = 0
+            return jsonify({
+                "success": False,
+                "message": "Sản phẩm hiện không khả dụng"
+            }), 400
+
+        # Kiểm tra sản phẩm đã có trong giỏ hàng của user này chưa
+        cursor.execute("""
+            SELECT id, soLuong FROM GioHang
+            WHERE nguoiDung_id = ? AND sanPham_id = ?
+        """, (nguoiDung_id, sanPham_id))
+        
+        existing = cursor.fetchone()
+        
+        if existing:
+            # Nếu đã có, cập nhật số lượng
+            new_soLuong = existing[1] + soLuong
+            cursor.execute("""
+                UPDATE GioHang SET soLuong = ? WHERE id = ?
+            """, (new_soLuong, existing[0]))
+            conn.commit()
+            
+            return jsonify({
+                "success": True,
+                "message": f"Cập nhật số lượng thành {new_soLuong}"
+            })
+        else:
+            # Nếu chưa có, thêm mới
+            cursor.execute("""
+                INSERT INTO GioHang (nguoiDung_id, sanPham_id, soLuong)
+                VALUES (?, ?, ?)
+            """, (nguoiDung_id, sanPham_id, soLuong))
+            conn.commit()
+            
+            return jsonify({
+                "success": True,
+                "message": "Thêm vào giỏ hàng thành công"
+            })
+
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "message": "Dữ liệu không hợp lệ"
+        }), 400
     except Exception as e:
         if 'conn' in locals():
             conn.rollback()

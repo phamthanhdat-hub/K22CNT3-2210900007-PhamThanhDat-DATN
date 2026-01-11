@@ -89,7 +89,7 @@ function showToast(message, type = "success") {
     });
 }
 
-// Load danh mục - chỉ hiển thị: Cháo thịt, Cháo cá, Cháo dinh dưỡng
+// Load danh mục - hiển thị tất cả danh mục có trong database
 function loadDanhMuc() {
     safeFetch(`${API_URL}/danh-muc`, {
         method: "GET",
@@ -102,58 +102,19 @@ function loadDanhMuc() {
             const select = document.getElementById("danhMucSelect");
             select.innerHTML = '<option value="">Chọn danh mục</option>';
             
-            // Lọc chỉ hiển thị 3 danh mục: Cháo thịt, Cháo cá, Cháo dinh dưỡng
-            const allowedCategories = [
-                "Cháo thịt", 
-                "Cháo cá", 
-                "Cháo dinh dưỡng"
-            ];
-            
-            // Tìm các danh mục phù hợp
-            const matchedCategories = [];
-            data.forEach(dm => {
-                const tenDanhMuc = (dm.tenDanhMuc || "").trim();
-                
-                // Kiểm tra chính xác hoặc chứa từ khóa
-                allowedCategories.forEach(cat => {
-                    if (tenDanhMuc.toLowerCase() === cat.toLowerCase() || 
-                        tenDanhMuc.toLowerCase().includes(cat.toLowerCase())) {
-                        // Tránh trùng lặp
-                        if (!matchedCategories.find(m => m.id === dm.id)) {
-                            matchedCategories.push(dm);
-                        }
-                    }
-                });
-            });
-            
-            // Hiển thị các danh mục đã tìm thấy
-            if (matchedCategories.length > 0) {
-                matchedCategories.forEach(dm => {
-                    select.innerHTML += `<option value="${dm.id}">${dm.tenDanhMuc}</option>`;
-                });
-            } else {
-                // Nếu không tìm thấy, hiển thị tất cả (fallback)
+            // Hiển thị tất cả danh mục từ database
+            if (data && data.length > 0) {
                 data.forEach(dm => {
                     select.innerHTML += `<option value="${dm.id}">${dm.tenDanhMuc}</option>`;
                 });
-                console.warn("Không tìm thấy danh mục phù hợp, hiển thị tất cả danh mục");
+            } else {
+                console.warn("Không có danh mục nào trong database");
             }
         })
         .catch(err => {
             console.error("Lỗi load danh mục:", err);
             const errorMsg = err.message || "Lỗi không xác định";
             showToast(`Lỗi khi tải danh mục: ${errorMsg}`, "error");
-            
-            // Fallback: hiển thị danh mục mặc định nếu có
-            const select = document.getElementById("danhMucSelect");
-            if (select && select.options.length === 1) {
-                select.innerHTML = `
-                    <option value="">Chọn danh mục</option>
-                    <option value="1">Cháo dinh dưỡng</option>
-                    <option value="2">Cháo 6–12 tháng</option>
-                    <option value="3">Cháo 1–3 tuổi</option>
-                `;
-            }
         });
 }
 
