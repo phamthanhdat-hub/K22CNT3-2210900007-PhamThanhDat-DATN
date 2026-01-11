@@ -328,7 +328,7 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: var(--gradient-1);
+            background: var(--gradient-modern-1);
             transform: scaleX(0);
             transform-origin: left;
             transition: var(--transition);
@@ -336,11 +336,6 @@
 
         .admin-card:hover::before {
             transform: scaleX(1);
-        }
-
-        .admin-card:nth-child(1) .admin-card::before,
-        #thongKeRow > div:nth-child(1) .admin-card::before {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         #thongKeRow > div:nth-child(1) .admin-card {
@@ -919,9 +914,7 @@
             </button>
         </div>
 
-    <h2 class="mb-4">📊 Bảng điều khiển</h2>
-
-    <!-- STATISTIC -->
+        <!-- STATISTIC -->
     <div class="row g-4" id="thongKeRow">
         <div class="col-md-3">
             <div class="admin-card">
