@@ -315,6 +315,74 @@
 <!-- ================= TOAST NOTIFICATION ================= -->
 <div id="toast" class="toast-notification"></div>
 
+<!-- ================= CHATBOT WIDGET ================= -->
+<div id="chatbotWidget" class="chatbot-widget">
+    <!-- Chat Button -->
+    <div id="chatbotButton" class="chatbot-button" onclick="toggleChatbot()">
+        <i class="fas fa-comments"></i>
+        <span class="chatbot-badge">1</span>
+    </div>
+    
+    <!-- Chat Window -->
+    <div id="chatbotWindow" class="chatbot-window">
+        <div class="chatbot-header">
+            <div class="chatbot-header-info">
+                <div class="chatbot-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div>
+                    <h5>BabyCutie Bot</h5>
+                    <span class="chatbot-status">Đang trực tuyến</span>
+                </div>
+            </div>
+            <button class="chatbot-close" onclick="toggleChatbot()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chatbot-message bot-message">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <p>Xin chào! 👋 Tôi là BabyCutie Bot, tôi có thể giúp gì cho bạn?</p>
+                </div>
+            </div>
+            
+            <!-- Quick Questions -->
+            <div class="quick-questions">
+                <p class="quick-questions-title">Câu hỏi thường gặp:</p>
+                <button class="quick-question-btn" onclick="sendQuickQuestion('Giá sản phẩm như thế nào?')">
+                    💰 Giá sản phẩm
+                </button>
+                <button class="quick-question-btn" onclick="sendQuickQuestion('Cách đặt hàng?')">
+                    🛒 Cách đặt hàng
+                </button>
+                <button class="quick-question-btn" onclick="sendQuickQuestion('Thời gian giao hàng?')">
+                    🚚 Thời gian giao hàng
+                </button>
+                <button class="quick-question-btn" onclick="sendQuickQuestion('Phương thức thanh toán?')">
+                    💳 Thanh toán
+                </button>
+            </div>
+        </div>
+        
+        <div class="chatbot-input-area">
+            <input 
+                type="text" 
+                id="chatbotInput" 
+                class="chatbot-input" 
+                placeholder="Nhập câu hỏi của bạn..."
+                onkeypress="handleChatbotKeyPress(event)"
+            >
+            <button class="chatbot-send-btn" onclick="sendChatbotMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- ================= JS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -701,6 +769,181 @@ if ('IntersectionObserver' in window) {
         imageObserver.observe(img);
     });
 }
+
+// ================= CHATBOT FUNCTIONALITY =================
+let chatbotOpen = false;
+
+// Toggle chatbot window
+function toggleChatbot() {
+    const chatbotWindow = document.getElementById('chatbotWindow');
+    const chatbotButton = document.getElementById('chatbotButton');
+    const chatbotBadge = document.querySelector('.chatbot-badge');
+    
+    chatbotOpen = !chatbotOpen;
+    
+    if (chatbotOpen) {
+        chatbotWindow.classList.add('active');
+        chatbotBadge.style.display = 'none';
+        // Focus input
+        setTimeout(() => {
+            document.getElementById('chatbotInput').focus();
+        }, 300);
+    } else {
+        chatbotWindow.classList.remove('active');
+    }
+}
+
+// Send message from quick question button
+function sendQuickQuestion(question) {
+    document.getElementById('chatbotInput').value = question;
+    sendChatbotMessage();
+}
+
+// Handle Enter key press
+function handleChatbotKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendChatbotMessage();
+    }
+}
+
+// Send chatbot message
+function sendChatbotMessage() {
+    const input = document.getElementById('chatbotInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message
+    addChatbotMessage(message, 'user');
+    input.value = '';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Get bot response after delay
+    setTimeout(() => {
+        hideTypingIndicator();
+        const botResponse = getBotResponse(message);
+        addChatbotMessage(botResponse, 'bot');
+    }, 1000);
+}
+
+// Add message to chat
+function addChatbotMessage(message, type) {
+    const messagesContainer = document.getElementById('chatbotMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chatbot-message ${type}-message`;
+    
+    const avatarIcon = type === 'bot' ? 'fa-robot' : 'fa-user';
+    
+    // Convert newlines to <br> and preserve emojis
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="fas ${avatarIcon}"></i>
+        </div>
+        <div class="message-content">
+            <p>${formattedMessage}</p>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Show typing indicator
+function showTypingIndicator() {
+    const messagesContainer = document.getElementById('chatbotMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.id = 'typingIndicator';
+    typingDiv.className = 'chatbot-message bot-message';
+    typingDiv.innerHTML = `
+        <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="message-content">
+            <p><i class="fas fa-circle" style="font-size: 8px; animation: typing 1.4s infinite;"></i>
+               <i class="fas fa-circle" style="font-size: 8px; animation: typing 1.4s infinite 0.2s;"></i>
+               <i class="fas fa-circle" style="font-size: 8px; animation: typing 1.4s infinite 0.4s;"></i></p>
+        </div>
+    `;
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Hide typing indicator
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+// Get bot response based on user message
+function getBotResponse(message) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Keywords matching
+    if (lowerMessage.includes('giá') || lowerMessage.includes('price') || lowerMessage.includes('cost')) {
+        return '💰 Giá sản phẩm của chúng tôi dao động từ 25.000đ - 50.000đ tùy theo loại cháo. Bạn có thể xem chi tiết giá tại trang Thực đơn. Chúng tôi thường xuyên có các chương trình khuyến mãi hấp dẫn!';
+    }
+    
+    if (lowerMessage.includes('đặt hàng') || lowerMessage.includes('order') || lowerMessage.includes('mua')) {
+        return '🛒 Để đặt hàng, bạn có thể:\n1. Chọn món tại trang Thực đơn\n2. Thêm vào giỏ hàng\n3. Điền thông tin và thanh toán\n4. Chúng tôi sẽ giao hàng tận nơi cho bạn!';
+    }
+    
+    if (lowerMessage.includes('giao hàng') || lowerMessage.includes('delivery') || lowerMessage.includes('ship')) {
+        return '🚚 Chúng tôi giao hàng trong ngày, đảm bảo cháo còn nóng hổi khi đến tay bạn. Thời gian giao hàng thường từ 30 phút - 2 giờ tùy theo địa chỉ. Phí giao hàng: 15.000đ - 30.000đ tùy khu vực.';
+    }
+    
+    if (lowerMessage.includes('thanh toán') || lowerMessage.includes('payment') || lowerMessage.includes('pay')) {
+        return '💳 Chúng tôi hỗ trợ 2 phương thức thanh toán:\n1. 💵 Thanh toán khi nhận hàng (COD)\n2. 🏦 Chuyển khoản ngân hàng\nBạn có thể chọn phương thức phù hợp khi đặt hàng!';
+    }
+    
+    if (lowerMessage.includes('dinh dưỡng') || lowerMessage.includes('nutrition') || lowerMessage.includes('thành phần')) {
+        return '🌱 Sản phẩm của chúng tôi được nấu từ nguyên liệu tươi sạch, đảm bảo đầy đủ dinh dưỡng cho bé. Mỗi món cháo đều có thông tin chi tiết về protein, carb và chất béo. Bạn có thể xem tại trang sản phẩm!';
+    }
+    
+    if (lowerMessage.includes('độ tuổi') || lowerMessage.includes('age') || lowerMessage.includes('tuổi')) {
+        return '👶 Chúng tôi có thực đơn phù hợp cho các độ tuổi:\n- 6-8 tháng: Cháo xay nhuyễn\n- 9-12 tháng: Cháo đặc hơn\n- Trên 1 tuổi: Cháo đầy đủ dinh dưỡng\nBạn có thể chọn món phù hợp với độ tuổi của bé!';
+    }
+    
+    if (lowerMessage.includes('liên hệ') || lowerMessage.includes('contact') || lowerMessage.includes('hotline')) {
+        return '📞 Bạn có thể liên hệ với chúng tôi qua:\n- Hotline: 1900 1234\n- Email: babycutie@gmail.com\n- Hoặc truy cập trang Liên hệ để gửi tin nhắn trực tiếp!';
+    }
+    
+    if (lowerMessage.includes('khuyến mãi') || lowerMessage.includes('promotion') || lowerMessage.includes('sale') || lowerMessage.includes('giảm giá')) {
+        return '🎉 Chúng tôi thường xuyên có các chương trình khuyến mãi hấp dẫn! Hãy theo dõi trang web hoặc fanpage để không bỏ lỡ các ưu đãi đặc biệt. Khách hàng mới sẽ nhận được ưu đãi đặc biệt!';
+    }
+    
+    if (lowerMessage.includes('chào') || lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('xin chào')) {
+        return 'Xin chào! 👋 Tôi rất vui được hỗ trợ bạn. Bạn có câu hỏi gì về sản phẩm, đặt hàng hay dịch vụ của BabyCutie không?';
+    }
+    
+    if (lowerMessage.includes('cảm ơn') || lowerMessage.includes('thank') || lowerMessage.includes('thanks')) {
+        return 'Không có gì! 😊 Nếu bạn có thêm câu hỏi nào khác, đừng ngần ngại hỏi tôi nhé. Chúc bạn và bé yêu một ngày tốt lành! ❤️';
+    }
+    
+    // Default response
+    return 'Xin lỗi, tôi chưa hiểu rõ câu hỏi của bạn. 😅 Bạn có thể hỏi tôi về:\n- 💰 Giá sản phẩm\n- 🛒 Cách đặt hàng\n- 🚚 Thời gian giao hàng\n- 💳 Phương thức thanh toán\n- 📞 Thông tin liên hệ\nHoặc bạn có thể gọi hotline 1900 1234 để được tư vấn trực tiếp!';
+}
+
+// Add typing animation CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes typing {
+        0%, 60%, 100% {
+            opacity: 0.3;
+        }
+        30% {
+            opacity: 1;
+        }
+    }
+`;
+document.head.appendChild(style);
 </script>
 
 </body>
