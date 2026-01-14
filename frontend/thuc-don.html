@@ -20,6 +20,11 @@
 <header class="header">
     <div class="container header-wrap">
 
+        <!-- MOBILE MENU TOGGLE -->
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+
         <!-- LOGO -->
         <div class="logo" onclick="window.location='index.html'">
             <img src="images/logo2.jpg" alt="BabyCutie">
@@ -32,7 +37,7 @@
             <input type="text" id="searchInput" placeholder="Tìm món ăn cho bé..." onkeyup="handleSearch(event)">
         </div>
 
-        <!-- MENU -->
+        <!-- DESKTOP MENU -->
         <nav class="main-menu">
             <a href="index.html">Trang chủ</a>
             <a href="thuc-don.html" class="active">Thực đơn</a>
@@ -82,6 +87,22 @@
 
     </div>
 </header>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close" onclick="toggleMobileMenu()">
+        <i class="fas fa-times"></i>
+    </button>
+    <nav>
+        <a href="index.html" onclick="toggleMobileMenu()">🏠 Trang chủ</a>
+        <a href="thuc-don.html" class="active" onclick="toggleMobileMenu()">🍲 Thực đơn</a>
+        <a href="tin-tuc.html" onclick="toggleMobileMenu()">📰 Tin tức</a>
+        <a href="lien-he.html" onclick="toggleMobileMenu()">📞 Liên hệ</a>
+        <a href="gio-hang.html" onclick="toggleMobileMenu()">🛒 Giỏ hàng</a>
+        <a href="login-khach.html" onclick="toggleMobileMenu()">👤 Đăng nhập</a>
+    </nav>
+</div>
+
 <!-- ================= MAIN ================= -->
 <section class="menu-page">
     <div class="container">
@@ -192,6 +213,31 @@ if (token && userInfo.hoTen) {
     document.getElementById("userInfo").style.display = "none";
     document.getElementById("loginBtn").style.display = "block";
 }
+
+// Mobile Menu Toggle
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenu) {
+        mobileMenu.classList.toggle('active');
+        if (mobileMenu.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(event) {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    
+    if (mobileMenu && !mobileMenu.contains(event.target) && 
+        menuToggle && !menuToggle.contains(event.target) &&
+        mobileMenu.classList.contains('active')) {
+        toggleMobileMenu();
+    }
+});
 
 function logout() {
     localStorage.removeItem("token");
