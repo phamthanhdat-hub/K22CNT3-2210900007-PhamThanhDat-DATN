@@ -309,4 +309,3 @@ def delete_san_pham(id):
         return jsonify({"success": False, "message": f"Lỗi hệ thống: {str(e)}"}), 500
 
 
-
