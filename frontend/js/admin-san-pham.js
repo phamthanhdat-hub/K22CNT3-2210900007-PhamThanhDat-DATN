@@ -149,7 +149,25 @@ function loadProducts() {
             return;
         }
         
-        data.forEach((p) => {
+        // Filter chỉ hiển thị sản phẩm đang hoạt động (trangThai = 1 hoặc true)
+        // Xử lý cả trường hợp trangThai là số (1/0) hoặc boolean (true/false)
+        const activeProducts = data.filter(p => {
+            const trangThai = p.trangThai;
+            return trangThai === 1 || trangThai === true || trangThai == 1;
+        });
+        
+        if (activeProducts.length === 0) {
+            productList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-utensils"></i>
+                    <h4>Chưa có sản phẩm nào</h4>
+                    <p>Hãy thêm sản phẩm mới để bắt đầu!</p>
+                </div>
+            `;
+            return;
+        }
+        
+        activeProducts.forEach((p) => {
             const productCard = document.createElement("div");
             productCard.className = "product-card";
             productCard.innerHTML = `
@@ -252,6 +270,9 @@ function openForm() {
     document.getElementById("chatBeo").value = "";
     document.getElementById("danhMucSelect").value = "";
     document.getElementById("trangThai").checked = true;
+    document.getElementById("giaVua").value = "";
+    document.getElementById("giaLon").value = "";
+    document.getElementById("giaDai").value = "";
     document.getElementById("errorMessage").style.display = "none";
     document.getElementById("imagePreviewContainer").style.display = "none";
     modal.show();
@@ -283,6 +304,9 @@ function editProduct(id) {
         document.getElementById("chatBeo").value = data.chatBeo || "";
         document.getElementById("danhMucSelect").value = data.danhMuc_id || "";
         document.getElementById("trangThai").checked = data.trangThai !== false;
+        document.getElementById("giaVua").value = data.giaVua || "";
+        document.getElementById("giaLon").value = data.giaLon || "";
+        document.getElementById("giaDai").value = data.giaDai || "";
         document.getElementById("errorMessage").style.display = "none";
         
         // Update image preview
@@ -356,7 +380,10 @@ function saveProduct() {
         carb: document.getElementById("carb").value ? parseFloat(document.getElementById("carb").value) : null,
         chatBeo: document.getElementById("chatBeo").value ? parseFloat(document.getElementById("chatBeo").value) : null,
         danhMuc_id: danhMuc_id,
-        trangThai: document.getElementById("trangThai").checked ? 1 : 0
+        trangThai: document.getElementById("trangThai").checked ? 1 : 0,
+        giaVua: document.getElementById("giaVua").value ? parseFloat(document.getElementById("giaVua").value) : null,
+        giaLon: document.getElementById("giaLon").value ? parseFloat(document.getElementById("giaLon").value) : null,
+        giaDai: document.getElementById("giaDai").value ? parseFloat(document.getElementById("giaDai").value) : null
     };
 
     const url = id ? `${API_URL}/${id}` : API_URL;

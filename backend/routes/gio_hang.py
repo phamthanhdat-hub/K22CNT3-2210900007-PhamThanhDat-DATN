@@ -25,7 +25,11 @@ def get_gio_hang():
             sp.tenSanPham,
             sp.gia,
             sp.hinhAnh,
-            gh.soLuong
+            gh.soLuong,
+            gh.size,
+            sp.giaVua,
+            sp.giaLon,
+            sp.giaDai
         FROM GioHang gh
         JOIN SanPham sp ON gh.sanPham_id = sp.id
         WHERE gh.nguoiDung_id = ?
@@ -35,13 +39,24 @@ def get_gio_hang():
     data = []
 
     for r in rows:
+        # Tính giá theo size
+        size = r[6] or 'vua'
+        gia = float(r[3])  # Giá mặc định
+        if size == 'vua' and r[7]:
+            gia = float(r[7])
+        elif size == 'lon' and r[8]:
+            gia = float(r[8])
+        elif size == 'dai' and r[9]:
+            gia = float(r[9])
+        
         data.append({
             "gioHang_id": r[0],
             "sanPham_id": r[1],
             "tenSanPham": r[2],
-            "gia": float(r[3]),
+            "gia": gia,
             "hinhAnh": r[4],
-            "soLuong": r[5]
+            "soLuong": r[5],
+            "size": size
         })
 
     return jsonify(data)
@@ -71,6 +86,7 @@ def add_to_cart():
 
         sanPham_id = data["sanPham_id"]
         soLuong = data.get("soLuong", 1)
+        size = data.get("size", "vua")  # Mặc định là size vừa
 
         # Validation số lượng
         if soLuong <= 0:
@@ -84,7 +100,7 @@ def add_to_cart():
 
         # Kiểm tra sản phẩm có tồn tại và đang hoạt động không
         cursor.execute("""
-            SELECT id, tenSanPham, gia, trangThai
+            SELECT id, tenSanPham, gia, trangThai, giaVua, giaLon, giaDai
             FROM SanPham
             WHERE id = ?
         """, (sanPham_id,))
@@ -102,12 +118,12 @@ def add_to_cart():
                 "message": "Sản phẩm hiện không khả dụng"
             }), 400
 
-        # Kiểm tra sản phẩm đã có trong giỏ hàng chưa
+        # Kiểm tra sản phẩm đã có trong giỏ hàng chưa (cùng size)
         cursor.execute("""
             SELECT id, soLuong
             FROM GioHang
-            WHERE nguoiDung_id = ? AND sanPham_id = ?
-        """, (nguoiDung_id, sanPham_id))
+            WHERE nguoiDung_id = ? AND sanPham_id = ? AND size = ?
+""", (nguoiDung_id, sanPham_id, size))
 
         row = cursor.fetchone()
 
@@ -122,9 +138,9 @@ def add_to_cart():
         else:
             # Thêm mới vào giỏ hàng
             cursor.execute("""
-                INSERT INTO GioHang (nguoiDung_id, sanPham_id, soLuong)
-                VALUES (?, ?, ?)
-            """, (nguoiDung_id, sanPham_id, soLuong))
+                INSERT INTO GioHang (nguoiDung_id, sanPham_id, soLuong, size)
+                VALUES (?, ?, ?, ?)
+            """, (nguoiDung_id, sanPham_id, soLuong, size))
 
         # Commit vào database
         conn.commit()

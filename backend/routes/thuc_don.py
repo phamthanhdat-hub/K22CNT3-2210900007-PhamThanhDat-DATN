@@ -50,7 +50,10 @@ def get_all_san_pham():
             sp.carb,
             sp.chatBeo,
             sp.danhMuc_id,
-            dm.tenDanhMuc
+            dm.tenDanhMuc,
+            sp.giaVua,
+            sp.giaLon,
+            sp.giaDai
         FROM SanPham sp
         JOIN DanhMuc dm ON sp.danhMuc_id = dm.id
         WHERE sp.trangThai = 1
@@ -65,14 +68,17 @@ def get_all_san_pham():
             "id": r[0],
             "tenSanPham": r[1],
             "moTa": r[2],
-            "gia": float(r[3]),
+            "gia": float(r[3]) if r[3] else 0,
             "hinhAnh": r[4],
             "doTuoi": r[5],
             "protein": r[6],
             "carb": r[7],
             "chatBeo": r[8],
             "danhMuc_id": r[9],
-            "tenDanhMuc": r[10]
+            "tenDanhMuc": r[10],
+            "giaVua": float(r[11]) if r[11] else None,
+            "giaLon": float(r[12]) if r[12] else None,
+            "giaDai": float(r[13]) if r[13] else None
         })
 
     return jsonify(data)
@@ -90,7 +96,8 @@ def get_san_pham_by_id(id):
     cursor.execute("""
         SELECT 
             id, tenSanPham, moTa, gia, hinhAnh,
-            doTuoi, protein, carb, chatBeo, danhMuc_id, trangThai
+            doTuoi, protein, carb, chatBeo, danhMuc_id, trangThai,
+            giaVua, giaLon, giaDai
         FROM SanPham
         WHERE id = ?
     """, (id,))
@@ -103,14 +110,17 @@ def get_san_pham_by_id(id):
         "id": r[0],
         "tenSanPham": r[1],
         "moTa": r[2],
-        "gia": float(r[3]),
+        "gia": float(r[3]) if r[3] else 0,
         "hinhAnh": r[4],
         "doTuoi": r[5],
         "protein": float(r[6]) if r[6] else None,
         "carb": float(r[7]) if r[7] else None,
         "chatBeo": float(r[8]) if r[8] else None,
         "danhMuc_id": r[9],
-        "trangThai": bool(r[10]) if r[10] is not None else True
+        "trangThai": bool(r[10]) if r[10] is not None else True,
+        "giaVua": float(r[11]) if r[11] else None,
+        "giaLon": float(r[12]) if r[12] else None,
+        "giaDai": float(r[13]) if r[13] else None
     })
 
 

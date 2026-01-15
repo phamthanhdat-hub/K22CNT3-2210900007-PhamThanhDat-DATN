@@ -86,7 +86,24 @@ function loadCustomers() {
             return;
         }
         
-        data.forEach((customer) => {
+        // Filter chỉ hiển thị khách hàng đang hoạt động (trangThai = 1 hoặc true)
+        // Xử lý cả trường hợp trangThai là số (1/0) hoặc boolean (true/false)
+        const activeCustomers = data.filter(customer => {
+            const trangThai = customer.trangThai;
+            return trangThai === 1 || trangThai === true || trangThai == 1;
+        });
+        
+        if (activeCustomers.length === 0) {
+            customerList.innerHTML = `
+                <div class="empty-state text-center py-5">
+                    <i class="fas fa-users" style="font-size: 64px; color: #94a3b8; margin-bottom: 20px;"></i>
+                    <h4>Chưa có khách hàng nào</h4>
+                </div>
+            `;
+            return;
+        }
+        
+        activeCustomers.forEach((customer) => {
             const customerCard = document.createElement("div");
             customerCard.className = "customer-card";
             customerCard.innerHTML = `

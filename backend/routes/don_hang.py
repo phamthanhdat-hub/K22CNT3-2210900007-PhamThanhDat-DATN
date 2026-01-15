@@ -138,7 +138,8 @@ def tao_don_hang():
 
         # Lấy giỏ hàng từ database
         cursor.execute("""
-            SELECT gh.sanPham_id, gh.soLuong, sp.gia, sp.tenSanPham, sp.trangThai
+            SELECT gh.sanPham_id, gh.soLuong, sp.gia, sp.tenSanPham, sp.trangThai,
+                   gh.size, sp.giaVua, sp.giaLon, sp.giaDai
             FROM GioHang gh
             JOIN SanPham sp ON gh.sanPham_id = sp.id
             WHERE gh.nguoiDung_id = ?
@@ -159,8 +160,19 @@ def tao_don_hang():
                 "message": f"Sản phẩm không còn khả dụng: {', '.join(unavailable_products)}"
             }), 400
 
-        # Tính tổng tiền ban đầu (chuyển đổi sang float để tránh lỗi decimal)
-        tongTienGoc = float(sum(float(row[1]) * float(row[2]) for row in gio_hang))
+        # Tính tổng tiền dựa trên size
+        tongTienGoc = 0
+        for row in gio_hang:
+            sp_id, soLuong, gia_mac_dinh, _, _, size, giaVua, giaLon, giaDai = row
+            # Tính giá theo size
+            gia = float(gia_mac_dinh)
+            if size == 'vua' and giaVua:
+                gia = float(giaVua)
+            elif size == 'lon' and giaLon:
+                gia = float(giaLon)
+            elif size == 'dai' and giaDai:
+                gia = float(giaDai)
+            tongTienGoc += gia * float(soLuong)
         tongTien = tongTienGoc
         khuyenMai_id = data.get("khuyenMai_id")
         soTienGiam = 0
@@ -233,12 +245,22 @@ def tao_don_hang():
         donHang_id = cursor.fetchone()[0]
 
         # Thêm chi tiết đơn hàng vào database
-        for sp_id, soLuong, gia, _, _ in gio_hang:
+        for row in gio_hang:
+            sp_id, soLuong, gia_mac_dinh, _, _, size, giaVua, giaLon, giaDai = row
+            # Tính giá theo size
+            gia = float(gia_mac_dinh)
+            if size == 'vua' and giaVua:
+                gia = float(giaVua)
+            elif size == 'lon' and giaLon:
+                gia = float(giaLon)
+            elif size == 'dai' and giaDai:
+                gia = float(giaDai)
+            
             cursor.execute("""
                 INSERT INTO ChiTietDonHang
-                (donHang_id, sanPham_id, soLuong, gia)
-                VALUES (?, ?, ?, ?)
-            """, (donHang_id, sp_id, soLuong, gia))
+                (donHang_id, sanPham_id, soLuong, gia, size)
+                VALUES (?, ?, ?, ?, ?)
+            """, (donHang_id, sp_id, soLuong, gia, size or 'vua'))
 
         # Lưu khuyến mãi vào DonHang_KhuyenMai nếu có
         if khuyenMai_id and soTienGiam > 0:

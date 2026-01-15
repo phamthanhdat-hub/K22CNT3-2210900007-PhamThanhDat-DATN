@@ -26,7 +26,10 @@ def get_all_san_pham():
             sp.danhMuc_id,
             dm.tenDanhMuc,
             sp.ngayTao,
-            sp.trangThai
+            sp.trangThai,
+            sp.giaVua,
+            sp.giaLon,
+            sp.giaDai
         FROM SanPham sp
         LEFT JOIN DanhMuc dm ON sp.danhMuc_id = dm.id
         ORDER BY sp.ngayTao DESC
@@ -40,7 +43,7 @@ def get_all_san_pham():
             "id": r[0],
             "tenSanPham": r[1],
             "moTa": r[2],
-            "gia": float(r[3]),
+            "gia": float(r[3]) if r[3] else 0,
             "hinhAnh": r[4],
             "doTuoi": r[5],
             "protein": r[6],
@@ -49,7 +52,10 @@ def get_all_san_pham():
             "danhMuc_id": r[9],
             "tenDanhMuc": r[10],
             "ngayTao": r[11].isoformat() if r[11] else None,
-            "trangThai": r[12]
+            "trangThai": r[12],
+            "giaVua": float(r[13]) if r[13] else None,
+            "giaLon": float(r[14]) if r[14] else None,
+            "giaDai": float(r[15]) if r[15] else None
         })
 
     return jsonify(data)
@@ -91,7 +97,10 @@ def get_san_pham_by_id(id):
                 sp.chatBeo,
                 sp.danhMuc_id,
                 dm.tenDanhMuc,
-                sp.trangThai
+                sp.trangThai,
+                sp.giaVua,
+                sp.giaLon,
+                sp.giaDai
             FROM SanPham sp
             LEFT JOIN DanhMuc dm ON sp.danhMuc_id = dm.id
             WHERE sp.id = ?
@@ -116,7 +125,10 @@ def get_san_pham_by_id(id):
             "chatBeo": float(r[8]) if r[8] else None,
             "danhMuc_id": r[9],
             "tenDanhMuc": r[10],
-            "trangThai": bool(r[11]) if r[11] is not None else True
+            "trangThai": bool(r[11]) if r[11] is not None else True,
+            "giaVua": float(r[12]) if r[12] else None,
+            "giaLon": float(r[13]) if r[13] else None,
+            "giaDai": float(r[14]) if r[14] else None
         })
 
     except Exception as e:
@@ -170,11 +182,21 @@ def create_san_pham():
         # Đảm bảo sản phẩm mới luôn có trangThai = 1 (hiển thị cho khách hàng)
         trangThai = 1  # Mặc định luôn hiển thị khi thêm mới
         
+        # Lấy giá các size (nếu có)
+        giaVua = data.get("giaVua")
+        giaLon = data.get("giaLon")
+        giaDai = data.get("giaDai")
+        
+        # Nếu không có giá size, dùng giá mặc định cho size vừa
+        if not giaVua:
+            giaVua = float(gia)
+        
         cursor.execute("""
             INSERT INTO SanPham
             (tenSanPham, moTa, gia, hinhAnh, doTuoi,
-             protein, carb, chatBeo, danhMuc_id, trangThai)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             protein, carb, chatBeo, danhMuc_id, trangThai,
+             giaVua, giaLon, giaDai)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             tenSanPham,
             data.get("moTa", "").strip() or None,
@@ -185,7 +207,10 @@ def create_san_pham():
             float(data.get("carb")) if data.get("carb") else None,
             float(data.get("chatBeo")) if data.get("chatBeo") else None,
             int(danhMuc_id),
-            trangThai
+            trangThai,
+            float(giaVua) if giaVua else None,
+            float(giaLon) if giaLon else None,
+            float(giaDai) if giaDai else None
         ))
 
         conn.commit()
@@ -243,11 +268,17 @@ def update_san_pham(id):
         if not cursor.fetchone():
             return jsonify({"success": False, "message": "Danh mục không tồn tại"}), 400
 
+        # Lấy giá các size (nếu có)
+        giaVua = data.get("giaVua")
+        giaLon = data.get("giaLon")
+        giaDai = data.get("giaDai")
+        
         cursor.execute("""
             UPDATE SanPham
             SET tenSanPham = ?, moTa = ?, gia = ?, hinhAnh = ?,
                 doTuoi = ?, protein = ?, carb = ?, chatBeo = ?, 
-                danhMuc_id = ?, trangThai = ?
+                danhMuc_id = ?, trangThai = ?,
+                giaVua = ?, giaLon = ?, giaDai = ?
             WHERE id = ?
         """, (
             tenSanPham,
@@ -260,6 +291,9 @@ def update_san_pham(id):
             float(data.get("chatBeo")) if data.get("chatBeo") else None,
             int(danhMuc_id),
             1 if data.get("trangThai", True) else 0,
+            float(giaVua) if giaVua else None,
+            float(giaLon) if giaLon else None,
+            float(giaDai) if giaDai else None,
             id
         ))
 

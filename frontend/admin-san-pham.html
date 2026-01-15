@@ -552,6 +552,26 @@
                         <label class="form-label">Giá (VNĐ) *</label>
                         <div class="input-group">
                             <input type="number" class="form-control" id="giaSanPham" placeholder="0" min="0" step="1000" required>
+                        </div>
+                        
+                        <!-- Giá theo size -->
+                        <div class="mb-3">
+                            <label class="form-label"><i class="fas fa-ruler"></i> Giá theo kích thước (₫)</label>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small">Size Vừa</label>
+                                    <input type="number" class="form-control" id="giaVua" placeholder="Giá size vừa" min="0" step="1000">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Size Lớn</label>
+                                    <input type="number" class="form-control" id="giaLon" placeholder="Giá size lớn" min="0" step="1000">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Size Đại</label>
+                                    <input type="number" class="form-control" id="giaDai" placeholder="Giá size đại" min="0" step="1000">
+                                </div>
+                            </div>
+                            <small class="text-muted">Nếu không nhập, giá mặc định sẽ được dùng cho size vừa</small>
                             <span class="input-group-text">đ</span>
                         </div>
                         <small class="text-muted">Giá phải lớn hơn 0</small>

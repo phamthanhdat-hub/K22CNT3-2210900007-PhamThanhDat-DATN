@@ -23,6 +23,25 @@
         <div class="col-md-6">
             <h2 id="productName"></h2>
             <p class="text-muted" id="productMoTa"></p>
+            
+            <!-- Chọn size -->
+            <div class="mb-3">
+                <label class="form-label"><strong>📏 Chọn kích thước:</strong></label>
+                <div class="btn-group" role="group" id="sizeSelector">
+                    <input type="radio" class="btn-check" name="size" id="sizeVua" value="vua" checked>
+                    <label class="btn btn-outline-primary" for="sizeVua">Vừa</label>
+                    
+                    <input type="radio" class="btn-check" name="size" id="sizeLon" value="lon">
+                    <label class="btn btn-outline-primary" for="sizeLon">Lớn</label>
+                    
+                    <input type="radio" class="btn-check" name="size" id="sizeDai" value="dai">
+                    <label class="btn btn-outline-primary" for="sizeDai">Đại</label>
+                </div>
+                <div id="sizePriceInfo" class="mt-2">
+                    <small class="text-muted">Giá: <span id="selectedSizePrice" class="fw-bold text-danger"></span></small>
+                </div>
+            </div>
+            
             <h3 class="text-danger" id="productPrice"></h3>
             <p><strong>Độ tuổi:</strong> <span id="productDoTuoi"></span></p>
             <div class="mb-3">
@@ -87,18 +106,29 @@ if (!productId) {
     window.location.href = "thuc-don.html";
 }
 
+// Lưu thông tin sản phẩm để dùng cho size
+let productData = null;
+
 // Load chi tiết sản phẩm
 fetch(`http://127.0.0.1:5000/api/thuc-don/${productId}`)
     .then(r => r.json())
     .then(data => {
+        productData = data;
         document.getElementById("productName").textContent = data.tenSanPham;
         document.getElementById("productMoTa").textContent = data.moTa || '';
-        document.getElementById("productPrice").textContent = new Intl.NumberFormat('vi-VN').format(data.gia) + 'đ';
         document.getElementById("productDoTuoi").textContent = data.doTuoi || '-';
         document.getElementById("productProtein").textContent = data.protein || 0;
         document.getElementById("productCarb").textContent = data.carb || 0;
         document.getElementById("productChatBeo").textContent = data.chatBeo || 0;
         document.getElementById("productImage").src = `http://127.0.0.1:5000/images/${data.hinhAnh || 'default.jpg'}`;
+        
+        // Hiển thị giá và size
+        updateSizeDisplay();
+        
+        // Thêm event listener cho size selector
+        document.querySelectorAll('input[name="size"]').forEach(radio => {
+            radio.addEventListener('change', updateSizeDisplay);
+        });
     });
 
 // Load đánh giá
@@ -171,6 +201,44 @@ function submitDanhGia() {
     });
 }
 
+// Cập nhật hiển thị giá theo size
+function updateSizeDisplay() {
+    if (!productData) return;
+    
+    const selectedSize = document.querySelector('input[name="size"]:checked').value;
+    let price = productData.gia || 0;
+    
+    // Ẩn/hiện các size không có
+    const sizeVua = document.getElementById('sizeVua');
+    const sizeLon = document.getElementById('sizeLon');
+    const sizeDai = document.getElementById('sizeDai');
+    
+    if (productData.giaVua) {
+        sizeVua.parentElement.style.display = 'inline-block';
+        if (selectedSize === 'vua') price = productData.giaVua;
+    } else {
+        sizeVua.parentElement.style.display = 'none';
+    }
+    
+    if (productData.giaLon) {
+        sizeLon.parentElement.style.display = 'inline-block';
+        if (selectedSize === 'lon') price = productData.giaLon;
+    } else {
+        sizeLon.parentElement.style.display = 'none';
+    }
+    
+    if (productData.giaDai) {
+        sizeDai.parentElement.style.display = 'inline-block';
+        if (selectedSize === 'dai') price = productData.giaDai;
+    } else {
+        sizeDai.parentElement.style.display = 'none';
+    }
+    
+    // Cập nhật giá hiển thị
+    document.getElementById("productPrice").textContent = new Intl.NumberFormat('vi-VN').format(price) + 'đ';
+    document.getElementById("selectedSizePrice").textContent = new Intl.NumberFormat('vi-VN').format(price) + 'đ';
+}
+
 function addToCart() {
     if (!token) {
         alert("Vui lòng đăng nhập");
@@ -183,13 +251,20 @@ function addToCart() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang thêm...';
 
+    // Lấy size đã chọn
+    const selectedSize = document.querySelector('input[name="size"]:checked').value;
+
     fetch("http://127.0.0.1:5000/api/gio-hang", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token
         },
-        body: JSON.stringify({ sanPham_id: parseInt(productId), soLuong: 1 })
+        body: JSON.stringify({ 
+            sanPham_id: parseInt(productId), 
+            soLuong: 1,
+            size: selectedSize
+        })
     })
     .then(r => r.json())
     .then(data => {
