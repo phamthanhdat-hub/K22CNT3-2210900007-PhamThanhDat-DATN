@@ -15,6 +15,11 @@
 <!-- ===== HEADER ===== -->
 <header class="header">
     <div class="container header-wrap">
+        <!-- MOBILE MENU TOGGLE -->
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+
         <div class="logo" onclick="location='index.html'">
             <img src="images/logo2.jpg" alt="BabyCutie">
             <span>BabyCutie</span>
@@ -26,6 +31,7 @@
             <input type="text" id="searchInput" placeholder="Tìm món ăn cho bé..." onkeyup="handleSearch(event)">
         </div>
         
+        <!-- DESKTOP MENU -->
         <nav class="main-menu">
             <a href="index.html">Trang chủ</a>
             <a href="thuc-don.html">Thực đơn</a>
@@ -55,7 +61,7 @@
             <div id="loginBtn">
                 <div class="dropdown">
                     <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fa fa-user"></i> Đăng nhập
+                        <i class="fa fa-user"></i> <span class="d-none d-md-inline">Đăng nhập</span>
                     </button>
                     <ul class="dropdown-menu">
                         <li>
@@ -74,6 +80,21 @@
         </div>
     </div>
 </header>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close" onclick="toggleMobileMenu()">
+        <i class="fas fa-times"></i>
+    </button>
+    <nav>
+        <a href="index.html" onclick="toggleMobileMenu()">🏠 Trang chủ</a>
+        <a href="thuc-don.html" onclick="toggleMobileMenu()">🍲 Thực đơn</a>
+        <a href="tin-tuc.html" onclick="toggleMobileMenu()">📰 Tin tức</a>
+        <a href="lien-he.html" class="active" onclick="toggleMobileMenu()">📞 Liên hệ</a>
+        <a href="gio-hang.html" onclick="toggleMobileMenu()">🛒 Giỏ hàng</a>
+        <a href="login-khach.html" onclick="toggleMobileMenu()">👤 Đăng nhập</a>
+    </nav>
+</div>
 
 <!-- ===== BANNER ===== -->
 <section class="page-banner">
@@ -105,7 +126,10 @@
 
                     <div class="input-group">
                         <i class="fa fa-comment"></i>
-                        <textarea id="noiDung" placeholder="Nội dung tin nhắn *" rows="6" required></textarea>
+                        <textarea id="noiDung" placeholder="Nội dung tin nhắn *" rows="6" maxlength="500" required></textarea>
+                        <small class="text-muted" style="position: absolute; bottom: 8px; right: 15px; font-size: 12px;">
+                            <span id="charCount">0</span>/500 ký tự
+                        </small>
                     </div>
 
                     <div id="contactMessage" class="alert" style="display: none;"></div>
@@ -255,6 +279,42 @@ if (token) {
     updateCartCount();
 }
 
+// Mobile Menu Toggle
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenu) {
+        mobileMenu.classList.toggle('active');
+        if (mobileMenu.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(event) {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    
+    if (mobileMenu && !mobileMenu.contains(event.target) && 
+        menuToggle && !menuToggle.contains(event.target) &&
+        mobileMenu.classList.contains('active')) {
+        toggleMobileMenu();
+    }
+});
+
+// Search function
+function handleSearch(event) {
+    if (event.key === 'Enter' || event.type === 'click') {
+        const searchInput = document.getElementById('searchInput');
+        const keyword = searchInput.value.trim();
+        if (keyword) {
+            window.location.href = `thuc-don.html?search=${encodeURIComponent(keyword)}`;
+        }
+    }
+}
+
 // Toast notification
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
@@ -277,13 +337,34 @@ document.getElementById("contactForm").onsubmit = function(e) {
     const noiDung = document.getElementById("noiDung").value.trim();
     const messageDiv = document.getElementById("contactMessage");
 
-    if (!hoTen || !email || !noiDung) {
-        showMessage("Vui lòng nhập đầy đủ thông tin", "danger");
+    // Validation chi tiết
+    if (!hoTen || hoTen.length < 2) {
+        showMessage("Họ tên phải có ít nhất 2 ký tự", "danger");
+        document.getElementById("hoTen").focus();
+        return;
+    }
+
+    if (!email || !email.trim()) {
+        showMessage("Vui lòng nhập email", "danger");
+        document.getElementById("email").focus();
         return;
     }
 
     if (!isValidEmail(email)) {
-        showMessage("Email không hợp lệ", "danger");
+        showMessage("Email không hợp lệ. Vui lòng nhập đúng định dạng email", "danger");
+        document.getElementById("email").focus();
+        return;
+    }
+
+    if (!noiDung || noiDung.length < 10) {
+        showMessage("Nội dung phải có ít nhất 10 ký tự", "danger");
+        document.getElementById("noiDung").focus();
+        return;
+    }
+
+    if (noiDung.length > 500) {
+        showMessage("Nội dung không được vượt quá 500 ký tự", "danger");
+        document.getElementById("noiDung").focus();
         return;
     }
 
@@ -304,20 +385,37 @@ document.getElementById("contactForm").onsubmit = function(e) {
             noiDung: noiDung
         })
     })
-    .then(res => {
+    .then(async res => {
+        // Đọc response text trước
+        const text = await res.text();
+        let data;
+        
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            // Nếu không parse được JSON, có thể là lỗi HTML hoặc text
+            throw new Error(`Server error: ${res.status} ${res.statusText}. Response: ${text.substring(0, 200)}`);
+        }
+        
         // Kiểm tra status code
         if (!res.ok) {
-            return res.json().then(err => {
-                throw new Error(err.message || `HTTP ${res.status}: ${res.statusText}`);
-            });
+            throw new Error(data.message || `HTTP ${res.status}: ${res.statusText}`);
         }
-        return res.json();
+        
+        return data;
     })
     .then(data => {
         // Kiểm tra response có success field không
-        if (data.success !== false) {
+        if (data.success === true || data.success === undefined) {
             showMessage("✅ " + (data.message || "Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất."), "success");
             document.getElementById("contactForm").reset();
+            // Reset char count
+            const charCount = document.getElementById("charCount");
+            if (charCount) {
+                charCount.textContent = "0";
+                charCount.style.color = "#666";
+                charCount.style.fontWeight = "normal";
+            }
             if (typeof showToast === 'function') {
                 showToast("✅ Gửi liên hệ thành công!", "success");
             }
@@ -330,12 +428,26 @@ document.getElementById("contactForm").onsubmit = function(e) {
         }
     })
     .catch(err => {
-        const errorMsg = err.message || "Không thể kết nối server. Vui lòng thử lại sau.";
+        console.error("Lỗi khi gửi liên hệ:", err);
+        console.error("Error details:", {
+            name: err.name,
+            message: err.message,
+            stack: err.stack
+        });
+        
+        let errorMsg = err.message || "Không thể kết nối server. Vui lòng thử lại sau.";
+        
+        // Xử lý các lỗi cụ thể
+        if (errorMsg.includes("Failed to fetch") || errorMsg.includes("NetworkError")) {
+            errorMsg = "Không thể kết nối đến server. Vui lòng:\n1. Kiểm tra backend đã chạy chưa (python backend/app.py)\n2. Kiểm tra URL: http://127.0.0.1:5000\n3. Kiểm tra Firewall và Port 5000";
+        } else if (errorMsg.includes("CORS")) {
+            errorMsg = "Lỗi CORS. Vui lòng kiểm tra cấu hình backend.";
+        }
+        
         showMessage("❌ " + errorMsg, "danger");
         if (typeof showToast === 'function') {
             showToast("❌ " + errorMsg, "error");
         }
-        console.error("Lỗi khi gửi liên hệ:", err);
     })
     .finally(() => {
         btn.disabled = false;
@@ -361,6 +473,30 @@ function isValidEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
 }
+
+// Đếm ký tự trong textarea
+document.addEventListener('DOMContentLoaded', function() {
+    const noiDungInput = document.getElementById("noiDung");
+    const charCount = document.getElementById("charCount");
+    
+    if (noiDungInput && charCount) {
+        noiDungInput.addEventListener('input', function() {
+            const length = this.value.length;
+            charCount.textContent = length;
+            
+            // Đổi màu khi gần giới hạn
+            if (length > 450) {
+                charCount.style.color = '#d32f2f';
+                charCount.style.fontWeight = 'bold';
+            } else if (length > 400) {
+                charCount.style.color = '#f59e0b';
+            } else {
+                charCount.style.color = '#666';
+                charCount.style.fontWeight = 'normal';
+            }
+        });
+    }
+});
 </script>
 
 </body>

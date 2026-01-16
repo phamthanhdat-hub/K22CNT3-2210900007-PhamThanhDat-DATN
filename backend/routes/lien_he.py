@@ -8,8 +8,16 @@ lien_he_bp = Blueprint("lien_he", __name__)
 # ===============================
 @lien_he_bp.route("/", methods=["POST"])
 def gui_lien_he():
+    conn = None
     try:
-        data = request.json
+        # Kiểm tra Content-Type
+        if not request.is_json:
+            return jsonify({
+                "success": False,
+                "message": "Content-Type phải là application/json"
+            }), 400
+        
+        data = request.get_json()
         
         if not data:
             return jsonify({
@@ -55,39 +63,58 @@ def gui_lien_he():
                 "message": "Nội dung không được vượt quá 500 ký tự"
             }), 400
         
+        # Kết nối database
         conn = get_db()
         cursor = conn.cursor()
 
-        # Kiểm tra xem bảng LienHe có tồn tại không
-        try:
-            cursor.execute("""
-                INSERT INTO LienHe (hoTen, email, noiDung)
-                VALUES (?, ?, ?)
-            """, (hoTen, email, noiDung))
+        # Debug: In ra thông tin để kiểm tra
+        print(f"Attempting to insert: hoTen={hoTen}, email={email}, noiDung length={len(noiDung)}")
 
-            conn.commit()
-            
-            return jsonify({
-                "success": True,
-                "message": "Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất."
-            })
-        except Exception as db_error:
-            conn.rollback()
-            # Kiểm tra nếu lỗi là do bảng không tồn tại
-            if "Invalid object name" in str(db_error) or "LienHe" in str(db_error):
-                return jsonify({
-                    "success": False,
-                    "message": f"Lỗi database: Bảng LienHe không tồn tại. Vui lòng kiểm tra lại CSDL. Chi tiết: {str(db_error)}"
-                }), 500
-            raise db_error
+        # Insert vào bảng LienHe
+        cursor.execute("""
+            INSERT INTO LienHe (hoTen, email, noiDung)
+            VALUES (?, ?, ?)
+        """, (hoTen, email, noiDung))
+
+        conn.commit()
+        print("Insert successful!")
+        
+        return jsonify({
+            "success": True,
+            "message": "Gửi liên hệ thành công! Chúng tôi sẽ phản hồi sớm nhất."
+        })
     
     except Exception as e:
-        if 'conn' in locals():
-            conn.rollback()
-        return jsonify({
-            "success": False,
-            "message": f"Lỗi hệ thống: {str(e)}"
-        }), 500
+        if conn:
+            try:
+                conn.rollback()
+            except:
+                pass
+        error_msg = str(e)
+        print(f"Error in gui_lien_he: {error_msg}")  # Debug log
+        
+        # Xử lý các lỗi cụ thể
+        if "Invalid object name" in error_msg or "LienHe" in error_msg:
+            return jsonify({
+                "success": False,
+                "message": "Lỗi database: Bảng LienHe không tồn tại. Vui lòng kiểm tra lại CSDL."
+            }), 500
+        elif "Cannot insert" in error_msg or "constraint" in error_msg.lower():
+            return jsonify({
+                "success": False,
+                "message": f"Lỗi dữ liệu: {error_msg}"
+            }), 400
+        else:
+            return jsonify({
+                "success": False,
+                "message": f"Lỗi hệ thống: {error_msg}"
+            }), 500
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
 
 
 # ===============================
@@ -95,6 +122,7 @@ def gui_lien_he():
 # ===============================
 @lien_he_bp.route("/", methods=["GET"])
 def get_lien_he():
+    conn = None
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -120,7 +148,16 @@ def get_lien_he():
         return jsonify(data)
     
     except Exception as e:
+        error_msg = str(e)
+        print(f"Error in get_lien_he: {error_msg}")
         return jsonify({
             "success": False,
-            "message": f"Lỗi hệ thống: {str(e)}"
+            "message": f"Lỗi hệ thống: {error_msg}"
         }), 500
+    finally:
+        if conn:
+            try:
+                cursor.close()
+                conn.close()
+            except:
+                pass
