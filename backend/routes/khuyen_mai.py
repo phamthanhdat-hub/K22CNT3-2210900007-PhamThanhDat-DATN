@@ -5,44 +5,140 @@ from datetime import datetime
 khuyen_mai_bp = Blueprint("khuyen_mai", __name__)
 
 # =========================
-# LẤY DANH SÁCH KHUYẾN MÃI ĐANG HOẠT ĐỘNG
+# LẤY DANH SÁCH KHUYẾN MÃI (TẤT CẢ)
 # =========================
 @khuyen_mai_bp.route("/", methods=["GET"])
 def get_all_khuyen_mai():
-    conn = get_db()
-    cursor = conn.cursor()
-    now = datetime.now()
+    conn = None
+    try:
+        print("🔄 Bắt đầu xử lý request GET /api/khuyen-mai")
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Lấy tham số query (nếu có)
+        only_active = request.args.get("only_active", "false").lower() == "true"
+        print(f"📋 only_active = {only_active}")
+        
+        if only_active:
+            # Chỉ lấy mã đang hoạt động (dùng cho trang chủ)
+            now = datetime.now()
+            print(f"⏰ Thời gian hiện tại: {now}")
+            cursor.execute("""
+                SELECT 
+                    id, tenKhuyenMai, maKhuyenMai, loaiGiamGia,
+                    giaTriGiam, giaTriToiDa, donHangToiThieu,
+                    ngayBatDau, ngayKetThuc, trangThai
+                FROM KhuyenMai
+                WHERE trangThai = 1
+                  AND (ngayBatDau IS NULL OR ngayBatDau <= ?)
+                  AND (ngayKetThuc IS NULL OR ngayKetThuc >= ?)
+                ORDER BY ngayKetThuc ASC
+            """, (now, now))
+        else:
+            # Lấy tất cả mã khuyến mãi (dùng cho trang khuyến mãi)
+            now = datetime.now()
+            print(f"⏰ Lấy tất cả mã khuyến mãi, thời gian hiện tại: {now}")
+            cursor.execute("""
+                SELECT 
+                    id, tenKhuyenMai, maKhuyenMai, loaiGiamGia,
+                    giaTriGiam, giaTriToiDa, donHangToiThieu,
+                    ngayBatDau, ngayKetThuc, trangThai
+                FROM KhuyenMai
+                WHERE trangThai = 1
+                ORDER BY 
+                    CASE 
+                        WHEN (ngayKetThuc IS NULL OR ngayKetThuc >= ?) 
+                             AND (ngayBatDau IS NULL OR ngayBatDau <= ?) THEN 1
+                        ELSE 2
+                    END,
+                    ngayKetThuc ASC
+            """, (now, now))
 
-    cursor.execute("""
-        SELECT 
-            id, tenKhuyenMai, maKhuyenMai, loaiGiamGia,
-            giaTriGiam, giaTriToiDa, donHangToiThieu,
-            ngayBatDau, ngayKetThuc, trangThai
-        FROM KhuyenMai
-        WHERE trangThai = 1
-          AND ngayBatDau <= ?
-          AND ngayKetThuc >= ?
-        ORDER BY ngayKetThuc ASC
-    """, (now, now))
+        rows = cursor.fetchall()
+        print(f"📊 Số dòng query được: {len(rows)}")
+        data = []
 
-    rows = cursor.fetchall()
-    data = []
+        for idx, r in enumerate(rows):
+            try:
+                # Xử lý datetime để tránh lỗi None
+                ngay_bat_dau = None
+                ngay_ket_thuc = None
+                
+                if r[7]:  # ngayBatDau
+                    try:
+                        if hasattr(r[7], 'isoformat'):
+                            ngay_bat_dau = r[7].isoformat()
+                        else:
+                            ngay_bat_dau = str(r[7])
+                    except Exception as e:
+                        print(f"⚠️ Lỗi xử lý ngayBatDau cho row {idx}: {e}")
+                        ngay_bat_dau = None
+                
+                if r[8]:  # ngayKetThuc
+                    try:
+                        if hasattr(r[8], 'isoformat'):
+                            ngay_ket_thuc = r[8].isoformat()
+                        else:
+                            ngay_ket_thuc = str(r[8])
+                    except Exception as e:
+                        print(f"⚠️ Lỗi xử lý ngayKetThuc cho row {idx}: {e}")
+                        ngay_ket_thuc = None
+                
+                # Xử lý BIT (trangThai)
+                trang_thai = False
+                if r[9] is not None:
+                    if isinstance(r[9], bool):
+                        trang_thai = r[9]
+                    elif isinstance(r[9], (int, str)):
+                        trang_thai = bool(int(r[9]))
+                    else:
+                        trang_thai = bool(r[9])
+                
+                item = {
+                    "id": int(r[0]) if r[0] else 0,
+                    "tenKhuyenMai": str(r[1]) if r[1] else "",
+                    "maKhuyenMai": str(r[2]) if r[2] else "",
+                    "loaiGiamGia": str(r[3]) if r[3] else "phan_tram",
+                    "giaTriGiam": float(r[4]) if r[4] is not None else 0,
+                    "giaTriToiDa": float(r[5]) if r[5] is not None else None,
+                    "donHangToiThieu": float(r[6]) if r[6] is not None else None,
+                    "ngayBatDau": ngay_bat_dau,
+                    "ngayKetThuc": ngay_ket_thuc,
+                    "trangThai": trang_thai
+                }
+                
+                data.append(item)
+                print(f"   ✅ Mã {idx + 1}: {item['maKhuyenMai']} - {item['tenKhuyenMai']}")
+                
+            except Exception as e:
+                print(f"❌ Lỗi xử lý row {idx}: {e}")
+                import traceback
+                traceback.print_exc()
+                continue
 
-    for r in rows:
-        data.append({
-            "id": r[0],
-            "tenKhuyenMai": r[1],
-            "maKhuyenMai": r[2],
-            "loaiGiamGia": r[3],
-            "giaTriGiam": float(r[4]) if r[4] else 0,
-            "giaTriToiDa": float(r[5]) if r[5] else None,
-            "donHangToiThieu": float(r[6]) if r[6] else None,
-            "ngayBatDau": r[7].isoformat() if r[7] else None,
-            "ngayKetThuc": r[8].isoformat() if r[8] else None,
-            "trangThai": r[9]
-        })
-
-    return jsonify(data)
+        if conn:
+            conn.close()
+        
+        print(f"\n✅ API /api/khuyen-mai trả về {len(data)} mã khuyến mãi")
+        if len(data) > 0:
+            print(f"   Mẫu dữ liệu đầu tiên: {data[0]}")
+        return jsonify(data)
+    
+    except Exception as e:
+        print(f"❌ LỖI API /api/khuyen-mai: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
+        
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
 
 # =========================
 # TÍNH TOÁN KHUYẾN MÃI (TRƯỚC KHI TẠO ĐƠN HÀNG)

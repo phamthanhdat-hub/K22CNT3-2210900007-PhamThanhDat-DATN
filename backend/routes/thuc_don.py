@@ -12,7 +12,7 @@ def get_all_danh_muc():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT id, tenDanhMuc, moTa, danhMucCha_id
+        SELECT id, tenDanhMuc, moTa, danhMucCha_id, icon, hinhAnh, slug
         FROM DanhMuc
         ORDER BY tenDanhMuc
     """)
@@ -25,7 +25,10 @@ def get_all_danh_muc():
             "id": r[0],
             "tenDanhMuc": r[1],
             "moTa": r[2],
-            "danhMucCha_id": r[3]
+            "danhMucCha_id": r[3],
+            "icon": r[4],
+            "hinhAnh": r[5],
+            "slug": r[6]
         })
 
     return jsonify(data)

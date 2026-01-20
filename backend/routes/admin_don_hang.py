@@ -19,7 +19,9 @@ def get_all_don_hang():
             dh.tongTien,
             dh.trangThai,
             dh.ngayDat,
-            dh.diaChiGiaoHang
+            dh.diaChiGiaoHang,
+            dh.thoiGianNhanHang,
+            dh.trangThaiNhanHang
         FROM DonHang dh
         JOIN NguoiDung nd ON dh.nguoiDung_id = nd.id
         ORDER BY dh.ngayDat DESC
@@ -35,8 +37,10 @@ def get_all_don_hang():
             "dienThoai": r[2],
             "tongTien": float(r[3]),
             "trangThai": r[4],
-            "ngayDat": r[5],
-            "diaChiGiaoHang": r[6]
+            "ngayDat": r[5].isoformat() if r[5] else None,
+            "diaChiGiaoHang": r[6],
+            "thoiGianNhanHang": r[7].isoformat() if r[7] else None,
+            "trangThaiNhanHang": r[8]
         })
 
     return jsonify(data)
@@ -54,7 +58,8 @@ def get_chi_tiet_don_hang(donHang_id):
         SELECT 
             dh.id, nd.hoTen, nd.dienThoai,
             dh.tongTien, dh.trangThai,
-            dh.ngayDat, dh.diaChiGiaoHang
+            dh.ngayDat, dh.diaChiGiaoHang,
+            dh.thoiGianNhanHang, dh.trangThaiNhanHang
         FROM DonHang dh
         JOIN NguoiDung nd ON dh.nguoiDung_id = nd.id
         WHERE dh.id = ?
@@ -68,7 +73,8 @@ def get_chi_tiet_don_hang(donHang_id):
         SELECT 
             sp.tenSanPham,
             ctdh.soLuong,
-            ctdh.gia
+            ctdh.gia,
+            ctdh.size
         FROM ChiTietDonHang ctdh
         JOIN SanPham sp ON ctdh.sanPham_id = sp.id
         WHERE ctdh.donHang_id = ?
@@ -80,7 +86,8 @@ def get_chi_tiet_don_hang(donHang_id):
         sanPham.append({
             "tenSanPham": i[0],
             "soLuong": i[1],
-            "gia": float(i[2])
+            "gia": float(i[2]),
+            "size": i[3] if len(i) > 3 else None
         })
 
     return jsonify({
@@ -90,8 +97,10 @@ def get_chi_tiet_don_hang(donHang_id):
             "dienThoai": dh[2],
             "tongTien": float(dh[3]),
             "trangThai": dh[4],
-            "ngayDat": dh[5],
-            "diaChiGiaoHang": dh[6]
+            "ngayDat": dh[5].isoformat() if dh[5] else None,
+            "diaChiGiaoHang": dh[6],
+            "thoiGianNhanHang": dh[7].isoformat() if dh[7] else None,
+            "trangThaiNhanHang": dh[8] if len(dh) > 8 else None
         },
         "sanPham": sanPham
     })
@@ -205,6 +214,27 @@ def update_don_hang(id):
             if trangThai:
                 updates.append("trangThai = ?")
                 params.append(trangThai)
+
+        if "thoiGianNhanHang" in data:
+            from datetime import datetime
+            thoiGianNhanHang = data.get("thoiGianNhanHang")
+            if thoiGianNhanHang:
+                try:
+                    if isinstance(thoiGianNhanHang, str):
+                        thoiGianNhanHang = datetime.fromisoformat(thoiGianNhanHang.replace("Z", "+00:00"))
+                    updates.append("thoiGianNhanHang = ?")
+                    params.append(thoiGianNhanHang)
+                except:
+                    pass
+            else:
+                updates.append("thoiGianNhanHang = ?")
+                params.append(None)
+
+        if "trangThaiNhanHang" in data:
+            trangThaiNhanHang = data.get("trangThaiNhanHang", "").strip()
+            if trangThaiNhanHang:
+                updates.append("trangThaiNhanHang = ?")
+                params.append(trangThaiNhanHang)
 
         if not updates:
             return jsonify({

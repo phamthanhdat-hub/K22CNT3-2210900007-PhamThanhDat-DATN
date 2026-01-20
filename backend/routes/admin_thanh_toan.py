@@ -28,6 +28,8 @@ def get_all_thanh_toan():
                 tt.phuongThuc,
                 tt.trangThai,
                 tt.ngayThanhToan,
+                tt.soPhieuThu,
+                tt.filePhieuThu,
                 dh.nguoiDung_id,
                 dh.tongTien,
                 dh.diaChiGiaoHang,
@@ -52,14 +54,16 @@ def get_all_thanh_toan():
                 "phuongThuc": r[2],
                 "trangThai": r[3],
                 "ngayThanhToan": r[4].isoformat() if r[4] else None,
-                "nguoiDung_id": r[5],
-                "tongTien": float(r[6]),
-                "diaChiGiaoHang": r[7],
-                "ngayDat": r[8].isoformat() if r[8] else None,
-                "donHangTrangThai": r[9],
-                "hoTen": r[10],
-                "email": r[11],
-                "dienThoai": r[12]
+                "soPhieuThu": r[5],
+                "filePhieuThu": r[6],
+                "nguoiDung_id": r[7],
+                "tongTien": float(r[8]),
+                "diaChiGiaoHang": r[9],
+                "ngayDat": r[10].isoformat() if r[10] else None,
+                "donHangTrangThai": r[11],
+                "hoTen": r[12],
+                "email": r[13],
+                "dienThoai": r[14]
             })
 
         return jsonify(data)
@@ -95,6 +99,8 @@ def update_thanh_toan(id):
 
         trangThai = data.get("trangThai", "").strip()
         phuongThuc = data.get("phuongThuc", "").strip()
+        soPhieuThu = data.get("soPhieuThu", "").strip() or None
+        filePhieuThu = data.get("filePhieuThu", "").strip() or None
 
         if not trangThai:
             return jsonify({
@@ -126,15 +132,15 @@ def update_thanh_toan(id):
         if phuongThuc:
             cursor.execute("""
                 UPDATE ThanhToan
-                SET trangThai = ?, phuongThuc = ?
+                SET trangThai = ?, phuongThuc = ?, soPhieuThu = ?, filePhieuThu = ?
                 WHERE id = ?
-            """, (trangThai, phuongThuc, id))
+            """, (trangThai, phuongThuc, soPhieuThu, filePhieuThu, id))
         else:
             cursor.execute("""
                 UPDATE ThanhToan
-                SET trangThai = ?
+                SET trangThai = ?, soPhieuThu = ?, filePhieuThu = ?
                 WHERE id = ?
-            """, (trangThai, id))
+            """, (trangThai, soPhieuThu, filePhieuThu, id))
 
         # Cập nhật trạng thái đơn hàng tương ứng
         cursor.execute("""
@@ -185,6 +191,8 @@ def get_thanh_toan_by_id(id):
                 tt.phuongThuc,
                 tt.trangThai,
                 tt.ngayThanhToan,
+                tt.soPhieuThu,
+                tt.filePhieuThu,
                 dh.nguoiDung_id,
                 dh.tongTien,
                 dh.diaChiGiaoHang,
@@ -214,15 +222,17 @@ def get_thanh_toan_by_id(id):
             "phuongThuc": r[2],
             "trangThai": r[3],
             "ngayThanhToan": r[4].isoformat() if r[4] else None,
-            "nguoiDung_id": r[5],
-            "tongTien": float(r[6]),
-            "diaChiGiaoHang": r[7],
-            "ngayDat": r[8].isoformat() if r[8] else None,
-            "donHangTrangThai": r[9],
-            "hoTen": r[10],
-            "email": r[11],
-            "dienThoai": r[12],
-            "diaChi": r[13]
+            "soPhieuThu": r[5],
+            "filePhieuThu": r[6],
+            "nguoiDung_id": r[7],
+            "tongTien": float(r[8]),
+            "diaChiGiaoHang": r[9],
+            "ngayDat": r[10].isoformat() if r[10] else None,
+            "donHangTrangThai": r[11],
+            "hoTen": r[12],
+            "email": r[13],
+            "dienThoai": r[14],
+            "diaChi": r[15]
         })
 
     except Exception as e:

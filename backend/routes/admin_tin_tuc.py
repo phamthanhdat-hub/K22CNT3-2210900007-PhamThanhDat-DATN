@@ -15,7 +15,8 @@ def get_all_tin_tuc():
     cursor.execute("""
         SELECT 
             tt.id, tt.tieuDe, tt.noiDung, tt.hinhAnh,
-            tt.ngayDang, nd.hoTen, tt.nguoiDung_id
+            tt.ngayDang, nd.hoTen, tt.nguoiDung_id,
+            tt.tomTat, tt.luotXem, tt.trangThai
         FROM TinTuc tt
         LEFT JOIN NguoiDung nd ON tt.nguoiDung_id = nd.id
         ORDER BY tt.ngayDang DESC
@@ -32,7 +33,10 @@ def get_all_tin_tuc():
             "hinhAnh": r[3],
             "ngayDang": r[4].isoformat() if r[4] else None,
             "nguoiDang": r[5],
-            "nguoiDung_id": r[6]
+            "nguoiDung_id": r[6],
+            "tomTat": r[7],
+            "luotXem": r[8] if r[8] else 0,
+            "trangThai": bool(r[9]) if r[9] is not None else True
         })
 
     return jsonify(data)
@@ -63,13 +67,16 @@ def create_tin_tuc():
         cursor = conn.cursor()
         
         cursor.execute("""
-            INSERT INTO TinTuc (tieuDe, noiDung, hinhAnh, nguoiDung_id, ngayDang)
-            VALUES (?, ?, ?, ?, GETDATE())
+            INSERT INTO TinTuc (tieuDe, noiDung, hinhAnh, nguoiDung_id, tomTat, luotXem, trangThai)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             data["tieuDe"],
             data.get("noiDung", ""),
             data.get("hinhAnh"),
-            admin["id"]
+            admin["id"],
+            data.get("tomTat", "").strip() or None,
+            data.get("luotXem", 0),
+            data.get("trangThai", 1)
         ))
         
         conn.commit()
@@ -97,7 +104,8 @@ def get_tin_tuc_by_id(id):
     cursor.execute("""
         SELECT 
             tt.id, tt.tieuDe, tt.noiDung, tt.hinhAnh,
-            tt.ngayDang, nd.hoTen, tt.nguoiDung_id
+            tt.ngayDang, nd.hoTen, tt.nguoiDung_id,
+            tt.tomTat, tt.luotXem, tt.trangThai
         FROM TinTuc tt
         LEFT JOIN NguoiDung nd ON tt.nguoiDung_id = nd.id
         WHERE tt.id = ?
@@ -119,7 +127,10 @@ def get_tin_tuc_by_id(id):
             "hinhAnh": r[3],
             "ngayDang": r[4].isoformat() if r[4] else None,
             "nguoiDang": r[5],
-            "nguoiDung_id": r[6]
+            "nguoiDung_id": r[6],
+            "tomTat": r[7],
+            "luotXem": r[8] if r[8] else 0,
+            "trangThai": bool(r[9]) if r[9] is not None else True
         }
     })
 
@@ -150,12 +161,14 @@ def update_tin_tuc(id):
 
         cursor.execute("""
             UPDATE TinTuc
-            SET tieuDe = ?, noiDung = ?, hinhAnh = ?
+            SET tieuDe = ?, noiDung = ?, hinhAnh = ?, tomTat = ?, trangThai = ?
             WHERE id = ?
         """, (
             data["tieuDe"],
             data.get("noiDung", ""),
             data.get("hinhAnh"),
+            data.get("tomTat", "").strip() or None,
+            data.get("trangThai", 1),
             id
         ))
 

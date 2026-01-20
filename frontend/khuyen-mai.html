@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Mã Khuyến Mãi – BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/khuyen-mai.css">
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="header">
+    <div class="container header-wrap">
+
+        <!-- MOBILE MENU TOGGLE -->
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- LOGO -->
+        <div class="logo" onclick="window.location='index.html'">
+            <img src="images/logo2.jpg" alt="BabyCutie">
+            <span>BabyCutie</span>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="search">
+            <i class="fa fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Tìm món ăn cho bé..." onkeyup="handleSearch(event)">
+        </div>
+
+        <!-- DESKTOP MENU -->
+        <nav class="main-menu">
+            <a href="index.html">Trang chủ</a>
+            <a href="thuc-don.html">Thực đơn</a>
+            <a href="khuyen-mai.html" class="active">Khuyến mãi</a>
+            <a href="tin-tuc.html">Tin tức</a>
+            <a href="lien-he.html">Liên hệ</a>
+        </nav>
+
+        <!-- CART -->
+        <div class="cart-icon" onclick="window.location='gio-hang.html'">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-count" id="cartCount">0</span>
+        </div>
+
+        <!-- LOGIN / USER INFO -->
+        <div class="login-group">
+            <div id="userInfo" style="display: none;">
+                <div class="dropdown">
+                    <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-user"></i> <span id="userName"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="don-hang-cua-toi.html">📦 Đơn hàng của tôi</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()">Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="loginBtn">
+                <div class="dropdown">
+                    <button class="btn-login dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-user"></i> <span class="d-none d-md-inline">Đăng nhập</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="login-khach.html">
+                                👨‍👩‍👧 Khách hàng
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="login-admin.html">
+                                🛠 Admin
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close" onclick="toggleMobileMenu()">
+        <i class="fas fa-times"></i>
+    </button>
+    <nav>
+        <a href="index.html" onclick="toggleMobileMenu()">🏠 Trang chủ</a>
+        <a href="thuc-don.html" onclick="toggleMobileMenu()">🍲 Thực đơn</a>
+        <a href="khuyen-mai.html" class="active" onclick="toggleMobileMenu()">🎉 Khuyến mãi</a>
+        <a href="tin-tuc.html" onclick="toggleMobileMenu()">📰 Tin tức</a>
+        <a href="lien-he.html" onclick="toggleMobileMenu()">📞 Liên hệ</a>
+        <a href="gio-hang.html" onclick="toggleMobileMenu()">🛒 Giỏ hàng</a>
+        <a href="login-khach.html" onclick="toggleMobileMenu()">👤 Đăng nhập</a>
+    </nav>
+</div>
+
+<!-- ================= BREADCRUMB ================= -->
+<section class="breadcrumb-section">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Khuyến mãi</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<!-- ================= HERO SECTION ================= -->
+<section class="promo-hero">
+    <div class="container text-center">
+        <h1>🎉 Mã Khuyến Mãi Hot</h1>
+        <p class="subtitle">Nhận ngay ưu đãi đặc biệt khi đặt hàng tại BabyCutie</p>
+    </div>
+</section>
+
+<!-- ================= FILTER SECTION ================= -->
+<section class="filter-section">
+    <div class="container">
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterPromos('all', this)">
+                <i class="fa fa-fire"></i> Tất cả
+            </button>
+            <button class="filter-tab" onclick="filterPromos('active', this)">
+                <i class="fa fa-check-circle"></i> Đang áp dụng
+            </button>
+            <button class="filter-tab" onclick="filterPromos('percentage', this)">
+                <i class="fa fa-percent"></i> Giảm %
+            </button>
+            <button class="filter-tab" onclick="filterPromos('cash', this)">
+                <i class="fa fa-money-bill"></i> Giảm tiền
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- ================= PROMOTIONS LIST ================= -->
+<section class="promotions-section">
+    <div class="container">
+        <!-- Loading state -->
+        <div id="loadingState" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Đang tải mã khuyến mãi...</p>
+        </div>
+
+        <!-- Promotions grid -->
+        <div class="row" id="promotionsGrid">
+            <!-- Promotions will be loaded here -->
+        </div>
+
+        <!-- Empty state -->
+        <div id="emptyState" class="text-center py-5" style="display: none;">
+            <i class="fa fa-tag" style="font-size: 64px; color: #ccc; margin-bottom: 20px;"></i>
+            <p class="text-muted">Hiện tại chưa có mã khuyến mãi nào</p>
+            <p class="text-muted">Vui lòng quay lại sau để nhận ưu đãi đặc biệt!</p>
+        </div>
+    </div>
+</section>
+
+<!-- ================= HOW TO USE SECTION ================= -->
+<section class="how-to-use-section">
+    <div class="container">
+        <h2 class="text-center mb-5">Cách sử dụng mã khuyến mãi</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">📋</div>
+                    <h5>Chọn mã khuyến mãi</h5>
+                    <p>Xem danh sách và chọn mã phù hợp với đơn hàng của bạn</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">📋</div>
+                    <h5>Copy mã khuyến mãi</h5>
+                    <p>Click nút "Copy" để sao chép mã vào clipboard</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">💳</div>
+                    <h5>Áp dụng khi thanh toán</h5>
+                    <p>Dán mã vào ô "Mã khuyến mãi" khi thanh toán đơn hàng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+    <div class="container footer-wrap">
+        <div>
+            <b>BabyCutie</b>
+            <p>Cháo dinh dưỡng cho bé yêu</p>
+        </div>
+        <div>
+            <p>📞 Hotline: 1900 1234</p>
+            <p>📧 babycutie@gmail.com</p>
+        </div>
+    </div>
+</footer>
+
+<!-- ================= TOAST NOTIFICATION ================= -->
+<div id="toast" class="toast-notification"></div>
+
+<!-- ================= JS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// API URL - Kiểm tra port backend (mặc định 5000)
+const API_URL = "http://127.0.0.1:5000/api/khuyen-mai";
+let allPromos = [];
+let currentFilter = 'all';
+
+console.log("🔗 API URL:", API_URL);
+console.log("📋 Sẵn sàng load mã khuyến mãi...");
+
+// Toast notification function
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = `toast-notification ${type} show`;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// Kiểm tra đăng nhập và hiển thị thông tin
+const token = localStorage.getItem("token");
+const userInfo = JSON.parse(localStorage.getItem("user_info") || '{}');
+
+if (token && userInfo.hoTen) {
+    document.getElementById("userInfo").style.display = "block";
+    document.getElementById("loginBtn").style.display = "none";
+    document.getElementById("userName").textContent = userInfo.hoTen;
+} else {
+    document.getElementById("userInfo").style.display = "none";
+    document.getElementById("loginBtn").style.display = "block";
+}
+
+function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_info");
+    showToast("Đã đăng xuất thành công", "info");
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// Load mã khuyến mãi
+function loadKhuyenMai() {
+    console.log("🔄 Đang load mã khuyến mãi...");
+    const loadingState = document.getElementById("loadingState");
+    const promotionsGrid = document.getElementById("promotionsGrid");
+    const emptyState = document.getElementById("emptyState");
+
+    if (!loadingState || !promotionsGrid || !emptyState) {
+        console.error("❌ Không tìm thấy các element cần thiết");
+        return;
+    }
+
+    loadingState.style.display = "block";
+    promotionsGrid.innerHTML = "";
+    emptyState.style.display = "none";
+
+    console.log("📡 Đang gọi API:", API_URL);
+    
+    // Lấy tất cả mã khuyến mãi (không filter ở backend)
+    fetch(API_URL)
+        .then(res => {
+            console.log("📥 Response status:", res.status);
+            if (!res.ok) {
+                // Kiểm tra nếu là lỗi JSON
+                return res.json().then(err => {
+                    throw new Error(err.message || 'Network response was not ok');
+                }).catch(() => {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                });
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log("✅ Dữ liệu nhận được:", data);
+            loadingState.style.display = "none";
+            
+            // Kiểm tra nếu data có thuộc tính success và success = false
+            if (data.success === false) {
+                throw new Error(data.message || 'Lỗi từ server');
+            }
+            
+            // Nếu data là array thì dùng trực tiếp
+            const promosList = Array.isArray(data) ? data : (data.data || []);
+            console.log(`📊 Số lượng mã khuyến mãi: ${promosList.length}`);
+            allPromos = promosList;
+            
+            if (!promosList || promosList.length === 0) {
+                console.warn("⚠️ Không có mã khuyến mãi nào");
+                emptyState.style.display = "block";
+                return;
+            }
+
+            console.log("🎨 Đang render mã khuyến mãi...");
+            renderPromos(promosList);
+        })
+        .catch(err => {
+            console.error("❌ Lỗi load mã khuyến mãi:", err);
+            loadingState.style.display = "none";
+            if (promotionsGrid) {
+                promotionsGrid.innerHTML = `
+                    <div class="col-12">
+                        <div class="error-state text-center py-5">
+                            <i class="fa fa-exclamation-triangle text-warning" style="font-size: 64px; margin-bottom: 20px;"></i>
+                            <p class="text-danger fw-bold">Không thể tải mã khuyến mãi</p>
+                            <p class="text-muted">${err.message || 'Lỗi không xác định'}</p>
+                            <div class="mt-3">
+                                <p class="text-muted small">💡 Hướng dẫn khắc phục:</p>
+                                <ul class="text-muted small text-start d-inline-block">
+                                    <li>Kiểm tra backend đã chạy chưa (python backend/app.py)</li>
+                                    <li>Kiểm tra URL API: ${API_URL}</li>
+                                    <li>Kiểm tra kết nối database</li>
+                                    <li>Mở Console (F12) để xem chi tiết lỗi</li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-primary mt-3" onclick="loadKhuyenMai()">
+                                <i class="fa fa-refresh"></i> Thử lại
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+}
+
+// Render promotions
+function renderPromos(promos) {
+    console.log("🎨 renderPromos được gọi với", promos.length, "mã khuyến mãi");
+    const promotionsGrid = document.getElementById("promotionsGrid");
+    const loadingState = document.getElementById("loadingState");
+    
+    if (!promotionsGrid) {
+        console.error("❌ Không tìm thấy element promotionsGrid");
+        return;
+    }
+    
+    // Ẩn loading state
+    if (loadingState) {
+        loadingState.style.display = "none";
+    }
+    
+    // Clear grid trước
+    promotionsGrid.innerHTML = "";
+    
+    let html = "";
+
+    promos.forEach((km, index) => {
+        try {
+            console.log(`📝 Đang render mã ${index + 1}:`, km.maKhuyenMai || "N/A");
+            
+            // Validate data
+            if (!km.maKhuyenMai || !km.tenKhuyenMai) {
+                console.warn(`⚠️ Mã khuyến mãi ${index + 1} thiếu dữ liệu:`, km);
+                return;
+            }
+            
+            const loaiGiam = (km.loaiGiamGia === "phan_tram") ? "%" : "đ";
+            let giaTriGiam = "";
+            if (km.loaiGiamGia === "phan_tram") {
+                giaTriGiam = km.giaTriGiam + "%";
+            } else {
+                giaTriGiam = new Intl.NumberFormat('vi-VN').format(km.giaTriGiam || 0) + "đ";
+            }
+            
+            // Format dates
+            let ngayBatDau = 'N/A';
+            let ngayKetThuc = 'N/A';
+            try {
+                if (km.ngayBatDau) {
+                    const date1 = new Date(km.ngayBatDau);
+                    ngayBatDau = date1.toLocaleDateString('vi-VN');
+                }
+                if (km.ngayKetThuc) {
+                    const date2 = new Date(km.ngayKetThuc);
+                    ngayKetThuc = date2.toLocaleDateString('vi-VN');
+                }
+            } catch (e) {
+                console.warn("Lỗi format date:", e);
+            }
+            
+            // Kiểm tra trạng thái
+            const now = new Date();
+            let batDau = null;
+            let ketThuc = null;
+            try {
+                if (km.ngayBatDau) batDau = new Date(km.ngayBatDau);
+                if (km.ngayKetThuc) ketThuc = new Date(km.ngayKetThuc);
+            } catch (e) {
+                console.warn("Lỗi parse date:", e);
+            }
+            
+            // Kiểm tra trạng thái: còn hạn hay hết hạn
+            let isActive = false;
+            let statusText = "Hết hạn";
+            let statusClass = "inactive"; // Mặc định: đỏ (hết hạn)
+            
+            if (km.trangThai) {
+                if (batDau && now < batDau) {
+                    // Chưa đến ngày bắt đầu -> xanh
+                    isActive = false;
+                    statusText = "Chưa bắt đầu";
+                    statusClass = "pending";
+                } else if (ketThuc && now > ketThuc) {
+                    // Đã qua ngày kết thúc -> đỏ
+                    isActive = false;
+                    statusText = "Hết hạn";
+                    statusClass = "inactive";
+                } else {
+                    // Đang trong thời gian hiệu lực -> xanh
+                    isActive = true;
+                    statusText = "Còn hạn";
+                    statusClass = "active";
+                }
+            } else {
+                // Trạng thái = false -> đỏ
+                isActive = false;
+                statusText = "Hết hạn";
+                statusClass = "inactive";
+            }
+            
+            const statusBadge = '<span class="status-badge ' + statusClass + '">' + statusText + '</span>';
+            
+            const expiredClass = !isActive ? ' expired' : '';
+            
+            // Format giá trị
+            const donHangToiThieu = km.donHangToiThieu 
+                ? new Intl.NumberFormat('vi-VN').format(km.donHangToiThieu) + "đ"
+                : "";
+            const giaTriToiDa = (km.giaTriToiDa && km.loaiGiamGia === "phan_tram")
+                ? new Intl.NumberFormat('vi-VN').format(km.giaTriToiDa) + "đ"
+                : "";
+            
+            // Escape special characters in mã khuyến mãi
+            const maKhuyenMai = String(km.maKhuyenMai).replace(/'/g, "&#39;");
+            const tenKhuyenMai = String(km.tenKhuyenMai || "").replace(/"/g, "&quot;");
+            
+            html += '<div class="col-md-6 col-lg-4 mb-4">';
+            html += '<div class="promotion-card' + expiredClass + '">';
+            html += statusBadge;
+            html += '<span class="promotion-badge">🎉 Khuyến mãi</span>';
+            html += '<h4 class="promotion-title">' + tenKhuyenMai + '</h4>';
+            html += '<div class="promotion-discount">Giảm ' + giaTriGiam + '</div>';
+            html += '<div class="promotion-code-wrapper">';
+            html += '<span class="promotion-code">' + maKhuyenMai + '</span>';
+            html += '<button class="btn-copy-code" onclick="copyPromoCode(\'' + maKhuyenMai + '\', this)">';
+            html += '<i class="fa fa-copy"></i> Copy';
+            html += '</button>';
+            html += '</div>';
+            html += '<div class="promotion-details">';
+            
+            if (donHangToiThieu) {
+                html += '<div class="promotion-detail-item">';
+                html += '<i class="fa fa-shopping-cart"></i>';
+                html += '<span>Đơn hàng tối thiểu: <strong>' + donHangToiThieu + '</strong></span>';
+                html += '</div>';
+            }
+            
+            if (giaTriToiDa) {
+                html += '<div class="promotion-detail-item">';
+                html += '<i class="fa fa-gift"></i>';
+                html += '<span>Giảm tối đa: <strong>' + giaTriToiDa + '</strong></span>';
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            html += '<div class="promotion-validity">';
+            html += '<i class="fa fa-calendar"></i> ';
+            html += '<strong>Áp dụng:</strong> ' + ngayBatDau + ' - ' + ngayKetThuc;
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+            
+        } catch (err) {
+            console.error(`❌ Lỗi render mã khuyến mãi ${index + 1}:`, err);
+            console.error("Data:", km);
+        }
+    });
+
+    console.log("✅ HTML đã tạo xong, length:", html.length);
+    
+    if (!html || html.trim().length === 0) {
+        console.error("❌ HTML rỗng!");
+        const emptyState = document.getElementById("emptyState");
+        if (emptyState) {
+            emptyState.style.display = "block";
+        }
+        return;
+    }
+    
+    // Render vào DOM
+    try {
+        promotionsGrid.innerHTML = html;
+        
+        // Kiểm tra kết quả
+        const cards = promotionsGrid.querySelectorAll('.promotion-card');
+        console.log(`✅ Đã render thành công ${cards.length}/${promos.length} promotion cards`);
+        
+        if (cards.length === 0) {
+            console.error("❌ Không có card nào được render!");
+            console.log("📄 HTML sample (first 300 chars):", html.substring(0, 300));
+            
+            // Thử hiển thị empty state
+            const emptyState = document.getElementById("emptyState");
+            if (emptyState) {
+                emptyState.style.display = "block";
+            }
+        } else {
+            console.log("🎉 Render hoàn tất! Cards đã được hiển thị.");
+            
+            // Ẩn empty state nếu có
+            const emptyState = document.getElementById("emptyState");
+            if (emptyState) {
+                emptyState.style.display = "none";
+            }
+        }
+    } catch (err) {
+        console.error("❌ Lỗi khi render HTML vào DOM:", err);
+        console.error("HTML:", html.substring(0, 500));
+    }
+}
+
+// Filter promotions
+function filterPromos(type, buttonElement) {
+    currentFilter = type;
+    
+    // Update active tab
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    if (buttonElement) {
+        buttonElement.classList.add('active');
+    }
+    
+    let filtered = [];
+    
+    switch(type) {
+        case 'all':
+            filtered = allPromos;
+            break;
+        case 'active':
+            const now = new Date();
+            filtered = allPromos.filter(km => {
+                const batDau = km.ngayBatDau ? new Date(km.ngayBatDau) : null;
+                const ketThuc = km.ngayKetThuc ? new Date(km.ngayKetThuc) : null;
+                return km.trangThai && 
+                       (!batDau || now >= batDau) && 
+                       (!ketThuc || now <= ketThuc);
+            });
+            break;
+        case 'percentage':
+            filtered = allPromos.filter(km => km.loaiGiamGia === "phan_tram");
+            break;
+        case 'cash':
+            filtered = allPromos.filter(km => km.loaiGiamGia === "tien_mat");
+            break;
+    }
+    
+    if (filtered.length === 0) {
+        document.getElementById("promotionsGrid").innerHTML = `
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fa fa-filter text-muted" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <p class="text-muted">Không có mã khuyến mãi nào phù hợp với bộ lọc</p>
+                </div>
+            </div>
+        `;
+    } else {
+        renderPromos(filtered);
+    }
+}
+
+// Copy mã khuyến mãi
+function copyPromoCode(code, button) {
+    navigator.clipboard.writeText(code).then(() => {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fa fa-check"></i> Đã copy!';
+        button.classList.add('copied');
+        
+        showToast(`✅ Đã copy mã "${code}"! Bạn có thể dán vào ô mã khuyến mãi khi thanh toán.`, "success");
+        
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.classList.remove('copied');
+        }, 2000);
+    }).catch(err => {
+        // Fallback for older browsers
+        const textArea = document.createElement("textarea");
+        textArea.value = code;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.select();
+        
+        try {
+            document.execCommand('copy');
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fa fa-check"></i> Đã copy!';
+            button.classList.add('copied');
+            showToast(`✅ Đã copy mã "${code}"!`, "success");
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.classList.remove('copied');
+            }, 2000);
+        } catch (err) {
+            showToast("❌ Không thể copy mã. Vui lòng ghi nhớ mã: " + code, "error");
+        }
+        
+        document.body.removeChild(textArea);
+    });
+}
+
+// Search functionality
+function handleSearch(event) {
+    if (event.key === 'Enter' || event.type === 'click') {
+        const searchInput = document.getElementById('searchInput');
+        const keyword = searchInput.value.trim();
+        if (keyword) {
+            window.location.href = `thuc-don.html?search=${encodeURIComponent(keyword)}`;
+        } else {
+            showToast("Vui lòng nhập từ khóa tìm kiếm", "warning");
+        }
+    }
+}
+
+// Mobile Menu Toggle
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenu) {
+        mobileMenu.classList.toggle('active');
+        if (mobileMenu.classList.contains('active')) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Update cart count
+function updateCartCount() {
+    if (!token) {
+        const cartCountEl = document.getElementById("cartCount");
+        if (cartCountEl) cartCountEl.textContent = "0";
+        return;
+    }
+    
+    fetch("http://127.0.0.1:5000/api/gio-hang", {
+        headers: {"Authorization": "Bearer " + token}
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch cart');
+        return res.json();
+    })
+    .then(data => {
+        const total = data.reduce((sum, item) => sum + item.soLuong, 0);
+        const cartCountEl = document.getElementById("cartCount");
+        if (cartCountEl) {
+            cartCountEl.textContent = total;
+            if (total > 0) {
+                cartCountEl.style.display = "flex";
+            } else {
+                cartCountEl.style.display = "none";
+            }
+        }
+    })
+    .catch(() => {
+        const cartCountEl = document.getElementById("cartCount");
+        if (cartCountEl) cartCountEl.textContent = "0";
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("🚀 DOM đã load, bắt đầu khởi tạo trang khuyến mãi...");
+    
+    // Kiểm tra các element cần thiết
+    const promotionsGrid = document.getElementById("promotionsGrid");
+    const loadingState = document.getElementById("loadingState");
+    const emptyState = document.getElementById("emptyState");
+    
+    console.log("📋 Kiểm tra elements:");
+    console.log("  - promotionsGrid:", promotionsGrid ? "✅" : "❌");
+    console.log("  - loadingState:", loadingState ? "✅" : "❌");
+    console.log("  - emptyState:", emptyState ? "✅" : "❌");
+    
+    if (promotionsGrid && loadingState && emptyState) {
+        loadKhuyenMai();
+    } else {
+        console.error("❌ Không tìm thấy các element cần thiết!");
+        console.error("   promotionsGrid:", promotionsGrid);
+        console.error("   loadingState:", loadingState);
+        console.error("   emptyState:", emptyState);
+    }
+    
+    if (token) {
+        updateCartCount();
+    }
+    
+    // Search icon click
+    const searchIcon = document.querySelector('.search i.fa-search');
+    if (searchIcon) {
+        searchIcon.addEventListener('click', handleSearch);
+        searchIcon.style.cursor = 'pointer';
+    }
+});
+</script>
+
+</body>
+</html>

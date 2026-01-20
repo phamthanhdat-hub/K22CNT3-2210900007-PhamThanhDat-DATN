@@ -12,7 +12,7 @@ def get_don_hang_by_user(nguoiDung_id):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT id, tongTien, trangThai, ngayDat, diaChiGiaoHang
+        SELECT id, tongTien, trangThai, ngayDat, diaChiGiaoHang, thoiGianNhanHang, trangThaiNhanHang
         FROM DonHang
         WHERE nguoiDung_id = ?
         ORDER BY ngayDat DESC
@@ -26,8 +26,10 @@ def get_don_hang_by_user(nguoiDung_id):
             "id": r[0],
             "tongTien": float(r[1]),
             "trangThai": r[2],
-            "ngayDat": r[3],
-            "diaChiGiaoHang": r[4]
+            "ngayDat": r[3].isoformat() if r[3] else None,
+            "diaChiGiaoHang": r[4],
+            "thoiGianNhanHang": r[5].isoformat() if r[5] else None,
+            "trangThaiNhanHang": r[6]
         })
 
     return jsonify(data)
@@ -43,7 +45,7 @@ def get_chi_tiet_don_hang(donHang_id):
 
     # Thông tin đơn hàng
     cursor.execute("""
-        SELECT id, nguoiDung_id, tongTien, trangThai, ngayDat, diaChiGiaoHang
+        SELECT id, nguoiDung_id, tongTien, trangThai, ngayDat, diaChiGiaoHang, thoiGianNhanHang, trangThaiNhanHang
         FROM DonHang
         WHERE id = ?
     """, (donHang_id,))
@@ -57,7 +59,8 @@ def get_chi_tiet_don_hang(donHang_id):
         SELECT 
             sp.tenSanPham,
             ctdh.soLuong,
-            ctdh.gia
+            ctdh.gia,
+            ctdh.size
         FROM ChiTietDonHang ctdh
         JOIN SanPham sp ON ctdh.sanPham_id = sp.id
         WHERE ctdh.donHang_id = ?
@@ -70,7 +73,8 @@ def get_chi_tiet_don_hang(donHang_id):
         sanPham.append({
             "tenSanPham": i[0],
             "soLuong": i[1],
-            "gia": float(i[2])
+            "gia": float(i[2]),
+            "size": i[3] if len(i) > 3 else None
         })
 
     return jsonify({
@@ -79,8 +83,10 @@ def get_chi_tiet_don_hang(donHang_id):
             "nguoiDung_id": dh[1],
             "tongTien": float(dh[2]),
             "trangThai": dh[3],
-            "ngayDat": dh[4],
-            "diaChiGiaoHang": dh[5]
+            "ngayDat": dh[4].isoformat() if dh[4] else None,
+            "diaChiGiaoHang": dh[5],
+            "thoiGianNhanHang": dh[6].isoformat() if dh[6] else None,
+            "trangThaiNhanHang": dh[7] if len(dh) > 7 else None
         },
         "sanPham": sanPham
     })
@@ -227,20 +233,22 @@ def tao_don_hang():
             tongTien = 0
 
         # Lấy thời gian nhận hàng (nếu có)
-        thoiGianNhanHang = data.get("thoiGianNhanHang", "").strip() or None
+        from datetime import datetime
+        thoiGianNhanHang_str = data.get("thoiGianNhanHang", "").strip() or None
+        thoiGianNhanHang = None
+        if thoiGianNhanHang_str:
+            try:
+                thoiGianNhanHang = datetime.fromisoformat(thoiGianNhanHang_str.replace("Z", "+00:00"))
+            except:
+                pass
         
-        # Tạo đơn hàng trong database
-        # Lưu thời gian nhận hàng vào diaChiGiaoHang hoặc tạo cột mới
-        # Tạm thời lưu vào diaChiGiaoHang với format: "diaChi | thoiGianNhanHang"
-        diaChiFull = diaChi
-        if thoiGianNhanHang:
-            diaChiFull = f"{diaChi} | Thời gian nhận: {thoiGianNhanHang}"
+        trangThaiNhanHang = data.get("trangThaiNhanHang", "Chưa nhận").strip()
         
         cursor.execute("""
-            INSERT INTO DonHang (nguoiDung_id, tongTien, diaChiGiaoHang)
+            INSERT INTO DonHang (nguoiDung_id, tongTien, diaChiGiaoHang, thoiGianNhanHang, trangThaiNhanHang)
             OUTPUT INSERTED.id
-            VALUES (?, ?, ?)
-        """, (nguoiDung_id, tongTien, diaChiFull))
+            VALUES (?, ?, ?, ?, ?)
+        """, (nguoiDung_id, tongTien, diaChi, thoiGianNhanHang, trangThaiNhanHang))
 
         donHang_id = cursor.fetchone()[0]
 

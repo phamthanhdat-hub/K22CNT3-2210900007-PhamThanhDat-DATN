@@ -13,7 +13,7 @@ def get_all_lien_he():
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT id, hoTen, email, noiDung, ngayGui
+            SELECT id, hoTen, email, noiDung, ngayGui, dienThoai, trangThai
             FROM LienHe
             ORDER BY ngayGui DESC
         """)
@@ -27,7 +27,9 @@ def get_all_lien_he():
                 "hoTen": r[1] if r[1] else "",
                 "email": r[2] if r[2] else "",
                 "noiDung": r[3] if r[3] else "",
-                "ngayGui": r[4].isoformat() if r[4] else None
+                "ngayGui": r[4].isoformat() if r[4] else None,
+                "dienThoai": r[5] if r[5] else None,
+                "trangThai": r[6] if r[6] else "Chưa xử lý"
             })
 
         return jsonify(data)
@@ -55,6 +57,8 @@ def create_lien_he():
         hoTen = data.get("hoTen", "").strip()
         email = data.get("email", "").strip()
         noiDung = data.get("noiDung", "").strip()
+        dienThoai = data.get("dienThoai", "").strip() or None
+        trangThai = data.get("trangThai", "Chưa xử lý").strip()
         
         # Validation
         if not hoTen or len(hoTen) < 2:
@@ -94,9 +98,9 @@ def create_lien_he():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO LienHe (hoTen, email, noiDung)
-            VALUES (?, ?, ?)
-        """, (hoTen, email, noiDung))
+            INSERT INTO LienHe (hoTen, email, noiDung, dienThoai, trangThai)
+            VALUES (?, ?, ?, ?, ?)
+        """, (hoTen, email, noiDung, dienThoai, trangThai))
 
         conn.commit()
         return jsonify({
@@ -121,7 +125,7 @@ def get_lien_he_by_id(id):
     cursor = conn.cursor()
     
     cursor.execute("""
-        SELECT id, hoTen, email, noiDung, ngayGui
+        SELECT id, hoTen, email, noiDung, ngayGui, dienThoai, trangThai
         FROM LienHe
         WHERE id = ?
     """, (id,))
@@ -140,7 +144,9 @@ def get_lien_he_by_id(id):
             "hoTen": r[1] or "",
             "email": r[2] or "",
             "noiDung": r[3] or "",
-            "ngayGui": r[4].isoformat() if r[4] else None
+            "ngayGui": r[4].isoformat() if r[4] else None,
+            "dienThoai": r[5] if r[5] else None,
+            "trangThai": r[6] if r[6] else "Chưa xử lý"
         }
     })
 
@@ -161,6 +167,8 @@ def update_lien_he(id):
         hoTen = data.get("hoTen", "").strip()
         email = data.get("email", "").strip()
         noiDung = data.get("noiDung", "").strip()
+        dienThoai = data.get("dienThoai", "").strip() or None
+        trangThai = data.get("trangThai", "Chưa xử lý").strip()
         
         # Validation
         if not hoTen or len(hoTen) < 2:
@@ -209,9 +217,9 @@ def update_lien_he(id):
 
         cursor.execute("""
             UPDATE LienHe
-            SET hoTen = ?, email = ?, noiDung = ?
+            SET hoTen = ?, email = ?, noiDung = ?, dienThoai = ?, trangThai = ?
             WHERE id = ?
-        """, (hoTen, email, noiDung, id))
+        """, (hoTen, email, noiDung, dienThoai, trangThai, id))
 
         conn.commit()
         return jsonify({

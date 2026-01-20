@@ -15,9 +15,10 @@ def get_all_tin_tuc():
         cursor.execute("""
             SELECT 
                 tt.id, tt.tieuDe, tt.noiDung, tt.hinhAnh,
-                tt.ngayDang, nd.hoTen
+                tt.ngayDang, nd.hoTen, tt.tomTat, tt.luotXem
             FROM TinTuc tt
             LEFT JOIN NguoiDung nd ON tt.nguoiDung_id = nd.id
+            WHERE tt.trangThai = 1
             ORDER BY tt.ngayDang DESC
         """)
 
@@ -31,8 +32,19 @@ def get_all_tin_tuc():
                 "noiDung": r[2] if r[2] else "",
                 "hinhAnh": r[3] if r[3] else None,
                 "ngayDang": r[4].isoformat() if r[4] else None,
-                "nguoiDang": r[5] if r[5] else "Admin"
+                "nguoiDang": r[5] if r[5] else "Admin",
+                "tomTat": r[6] if r[6] else None,
+                "luotXem": r[7] if r[7] else 0
             })
+            
+            # Tăng lượt xem
+            cursor.execute("""
+                UPDATE TinTuc
+                SET luotXem = luotXem + 1
+                WHERE id = ?
+            """, (r[0],))
+        
+        conn.commit()
 
         return jsonify(data)
     
@@ -62,13 +74,16 @@ def create_tin_tuc():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO TinTuc (tieuDe, noiDung, hinhAnh, nguoiDung_id)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO TinTuc (tieuDe, noiDung, hinhAnh, nguoiDung_id, tomTat, luotXem, trangThai)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             tieuDe,
             data.get("noiDung", ""),
             data.get("hinhAnh"),
-            data.get("nguoiDung_id")
+            data.get("nguoiDung_id"),
+            data.get("tomTat", "").strip() or None,
+            data.get("luotXem", 0),
+            data.get("trangThai", 1)
         ))
 
         conn.commit()

@@ -1,11 +1,7 @@
--- =====================================================
--- DATABASE HOÀN CHỈNH VỚI TÍNH NĂNG SIZE (KÍCH THƯỚC)
--- Bao gồm tất cả các bảng và dữ liệu mẫu
--- =====================================================
 
-CREATE DATABASE PTD_DB;
+CREATE DATABASE PTD_Database;
 GO
-USE PTD_DB;
+USE PTD_Database;
 GO
 
 -- =====================================================
@@ -21,8 +17,9 @@ CREATE TABLE NguoiDung (
     vaiTro NVARCHAR(20) NOT NULL 
         CHECK (vaiTro IN (N'admin', N'khach')),
     ngayTao DATETIME DEFAULT GETDATE(),
-    trangThai BIT DEFAULT 1 -- 1: hoạt động, 0: khóa
+    trangThai BIT DEFAULT 1 
 );
+
 INSERT INTO NguoiDung (hoTen, email, matKhau, dienThoai, diaChi, vaiTro)
 VALUES
 (N'Admin BabyCutie', 'admin@babycutie.com', 'admin123', '0378630848', N'Hà Nội', N'admin'),
@@ -30,22 +27,26 @@ VALUES
 (N'Trần Văn Minh', 'minh@gmail.com', '123456', '0903333333', N'Đà Nẵng', N'khach');
 
 -- =====================================================
--- BẢNG: DANH MỤC
+-- BẢNG: DANH MỤC (ĐÃ THÊM: icon, hinhAnh, slug)
 -- =====================================================
 CREATE TABLE DanhMuc (
     id INT IDENTITY(1,1) PRIMARY KEY,
     tenDanhMuc NVARCHAR(200) NOT NULL,
     moTa NVARCHAR(500),
     danhMucCha_id INT NULL,
+    icon NVARCHAR(100) NULL,            
+    hinhAnh NVARCHAR(255) NULL,          
+    slug NVARCHAR(200) NULL,              
 
     CONSTRAINT FK_DanhMuc_Cha
         FOREIGN KEY (danhMucCha_id) REFERENCES DanhMuc(id)
 );
-INSERT INTO DanhMuc (tenDanhMuc, moTa, danhMucCha_id)
+
+INSERT INTO DanhMuc (tenDanhMuc, moTa, danhMucCha_id, icon, hinhAnh, slug)
 VALUES
-(N'Cháo dinh dưỡng', N'Tất cả các loại cháo cho bé', NULL),
-(N'Cháo 6–12 tháng', N'Cháo cho bé ăn dặm', 1),
-(N'Cháo 1–3 tuổi', N'Cháo cho bé lớn', 1);
+(N'Cháo dinh dưỡng', N'Tất cả các loại cháo cho bé', NULL, N'🍲', 'danhmuc_chao.jpg', 'chao-dinh-duong'),
+(N'Cháo 6–12 tháng', N'Cháo cho bé ăn dặm', 1, N'👶', 'danhmuc_6-12thang.jpg', 'chao-6-12-thang'),
+(N'Cháo 1–3 tuổi', N'Cháo cho bé lớn', 1, N'🧒', 'danhmuc_1-3tuoi.jpg', 'chao-1-3-tuoi');
 
 -- =====================================================
 -- BẢNG: SẢN PHẨM (ĐÃ THÊM SIZE)
@@ -56,21 +57,21 @@ CREATE TABLE SanPham (
     moTa NVARCHAR(MAX),
     gia DECIMAL(12,0) NOT NULL,
     hinhAnh NVARCHAR(255),
-    doTuoi NVARCHAR(50), -- 6-12 tháng, 1-3 tuổi
+    doTuoi NVARCHAR(50), 
     protein FLOAT,
     carb FLOAT,
     chatBeo FLOAT,
     danhMuc_id INT NOT NULL,
     ngayTao DATETIME DEFAULT GETDATE(),
     trangThai BIT DEFAULT 1,
-    -- Các cột giá theo size (THÊM MỚI)
-    giaVua DECIMAL(12,0) NULL,  -- Giá size vừa
-    giaLon DECIMAL(12,0) NULL,  -- Giá size lớn
-    giaDai DECIMAL(12,0) NULL,  -- Giá size đại
+    giaVua DECIMAL(12,0) NULL,  
+    giaLon DECIMAL(12,0) NULL, 
+    giaDai DECIMAL(12,0) NULL,  
 
     CONSTRAINT FK_SanPham_DanhMuc
         FOREIGN KEY (danhMuc_id) REFERENCES DanhMuc(id)
 );
+
 INSERT INTO SanPham
 (tenSanPham, moTa, gia, hinhAnh, doTuoi, protein, carb, chatBeo, danhMuc_id, giaVua, giaLon, giaDai)
 VALUES
@@ -93,17 +94,15 @@ CREATE TABLE GioHang (
     nguoiDung_id INT NOT NULL,
     sanPham_id INT NOT NULL,
     soLuong INT NOT NULL CHECK (soLuong > 0),
-    -- Cột size (THÊM MỚI)
-    size NVARCHAR(20) NULL DEFAULT N'vua',  -- 'vua', 'lon', 'dai'
-
+    size NVARCHAR(20) NULL DEFAULT N'vua', 
     CONSTRAINT FK_GioHang_NguoiDung
         FOREIGN KEY (nguoiDung_id) REFERENCES NguoiDung(id)
         ON DELETE CASCADE,
-
     CONSTRAINT FK_GioHang_SanPham
         FOREIGN KEY (sanPham_id) REFERENCES SanPham(id)
         ON DELETE CASCADE
 );
+
 INSERT INTO GioHang (nguoiDung_id, sanPham_id, soLuong, size)
 VALUES
 (2, 1, 2, N'vua'),
@@ -111,7 +110,7 @@ VALUES
 (3, 3, 1, N'vua');
 
 -- =====================================================
--- BẢNG: ĐƠN HÀNG
+-- BẢNG: ĐƠN HÀNG (ĐÃ THÊM: thoiGianNhanHang, trangThaiNhanHang)
 -- =====================================================
 CREATE TABLE DonHang (
     id INT IDENTITY(1,1) PRIMARY KEY,
@@ -120,14 +119,16 @@ CREATE TABLE DonHang (
     trangThai NVARCHAR(50) DEFAULT N'Chờ xác nhận',
     ngayDat DATETIME DEFAULT GETDATE(),
     diaChiGiaoHang NVARCHAR(300),
-
+    thoiGianNhanHang DATETIME NULL,        
+    trangThaiNhanHang NVARCHAR(50) DEFAULT N'Chưa nhận',
     CONSTRAINT FK_DonHang_NguoiDung
         FOREIGN KEY (nguoiDung_id) REFERENCES NguoiDung(id)
 );
-INSERT INTO DonHang (nguoiDung_id, tongTien, diaChiGiaoHang)
+
+INSERT INTO DonHang (nguoiDung_id, tongTien, diaChiGiaoHang, thoiGianNhanHang, trangThaiNhanHang)
 VALUES
-(2, 130000, N'12 Nguyễn Trãi, Q1, TP.HCM'),
-(3, 50000, N'45 Lê Duẩn, Đà Nẵng');
+(2, 130000, N'12 Nguyễn Trãi, Q1, TP.HCM', DATEADD(HOUR, 2, GETDATE()), N'Đang giao'),
+(3, 50000, N'45 Lê Duẩn, Đà Nẵng', DATEADD(HOUR, 3, GETDATE()), N'Chưa nhận');
 
 -- =====================================================
 -- BẢNG: CHI TIẾT ĐƠN HÀNG (ĐÃ THÊM SIZE)
@@ -138,16 +139,14 @@ CREATE TABLE ChiTietDonHang (
     sanPham_id INT NOT NULL,
     soLuong INT NOT NULL,
     gia DECIMAL(12,0) NOT NULL,
-    -- Cột size (THÊM MỚI)
-    size NVARCHAR(20) NULL DEFAULT N'vua',  -- 'vua', 'lon', 'dai'
-
+    size NVARCHAR(20) NULL DEFAULT N'vua',  
     CONSTRAINT FK_CTDH_DonHang
         FOREIGN KEY (donHang_id) REFERENCES DonHang(id)
         ON DELETE CASCADE,
-
     CONSTRAINT FK_CTDH_SanPham
         FOREIGN KEY (sanPham_id) REFERENCES SanPham(id)
 );
+
 INSERT INTO ChiTietDonHang (donHang_id, sanPham_id, soLuong, gia, size)
 VALUES
 (1, 1, 2, 45000, N'vua'),
@@ -155,26 +154,28 @@ VALUES
 (2, 3, 1, 50000, N'vua');
 
 -- =====================================================
--- BẢNG: THANH TOÁN
+-- BẢNG: THANH TOÁN (ĐÃ THÊM: soPhieuThu, filePhieuThu)
 -- =====================================================
 CREATE TABLE ThanhToan (
     id INT IDENTITY(1,1) PRIMARY KEY,
     donHang_id INT NOT NULL,
-    phuongThuc NVARCHAR(50), -- COD, Chuyển khoản
+    phuongThuc NVARCHAR(50),
     trangThai NVARCHAR(50),
     ngayThanhToan DATETIME DEFAULT GETDATE(),
-
-    CONSTRAINT FK_ThanhToan_DonHang
+     soPhieuThu NVARCHAR(50) NULL,      
+    filePhieuThu NVARCHAR(255) NULL,       
+	    CONSTRAINT FK_ThanhToan_DonHang
         FOREIGN KEY (donHang_id) REFERENCES DonHang(id)
         ON DELETE CASCADE
 );
-INSERT INTO ThanhToan (donHang_id, phuongThuc, trangThai)
+
+INSERT INTO ThanhToan (donHang_id, phuongThuc, trangThai, soPhieuThu, filePhieuThu)
 VALUES
-(1, N'COD', N'Đã thanh toán'),
-(2, N'Chuyển khoản', N'Đã thanh toán');
+(1, N'COD', N'Đã thanh toán', 'PT001', NULL),
+(2, N'Chuyển khoản', N'Đã thanh toán', 'PT002', 'phieuthu_002.pdf');
 
 -- =====================================================
--- BẢNG: TIN TỨC
+-- BẢNG: TIN TỨC (ĐÃ THÊM: tomTat, luotXem, trangThai)
 -- =====================================================
 CREATE TABLE TinTuc (
     id INT IDENTITY(1,1) PRIMARY KEY,
@@ -183,11 +184,14 @@ CREATE TABLE TinTuc (
     hinhAnh NVARCHAR(255),
     nguoiDung_id INT,
     ngayDang DATETIME DEFAULT GETDATE(),
-
-    CONSTRAINT FK_TinTuc_NguoiDung
+    tomTat NVARCHAR(500) NULL,             
+    luotXem INT DEFAULT 0,                 
+    trangThai BIT DEFAULT 1,              
+	    CONSTRAINT FK_TinTuc_NguoiDung
         FOREIGN KEY (nguoiDung_id) REFERENCES NguoiDung(id)
 );
-INSERT INTO TinTuc (tieuDe, noiDung, hinhAnh, nguoiDung_id)
+
+INSERT INTO TinTuc (tieuDe, noiDung, hinhAnh, nguoiDung_id, tomTat, luotXem, trangThai)
 VALUES
 (
     N'Lợi ích của cháo cá hồi đối với sự phát triển trí não của bé',
@@ -195,6 +199,9 @@ VALUES
     Ngoài ra, cá hồi còn chứa nhiều protein chất lượng cao giúp bé phát triển cơ bắp và tăng cường sức đề kháng. 
     Mẹ nên cho bé ăn cháo cá hồi 2–3 bữa mỗi tuần để đạt hiệu quả tốt nhất.',
     'tintuc_cahoi.jpg',
+    1,
+    N'Cháo cá hồi giàu Omega 3, DHA và EPA giúp phát triển trí não và tăng cường sức đề kháng cho bé.',
+    156,
     1
 ),
 (
@@ -203,6 +210,9 @@ VALUES
     Giai đoạn này, hệ tiêu hóa của bé đã dần hoàn thiện và có thể làm quen với các loại thực phẩm ngoài sữa mẹ. 
     Mẹ nên bắt đầu với cháo loãng, dễ tiêu và tăng dần độ đặc theo thời gian.',
     'tintuc_andam.jpg',
+    1,
+    N'Thời điểm lý tưởng cho bé bắt đầu ăn dặm là từ 6 tháng tuổi với cháo loãng và dễ tiêu.',
+    234,
     1
 ),
 (
@@ -211,6 +221,9 @@ VALUES
     Các món cháo như cháo gà ác, cháo bò rau ngót, cháo tôm hạt sen không chỉ giàu dinh dưỡng mà còn giúp bé ăn ngon miệng hơn. 
     Việc thay đổi thực đơn thường xuyên sẽ giúp bé không bị ngán.',
     'tintuc_thucdon.jpg',
+    1,
+    N'Thực đơn cháo dinh dưỡng cần đảm bảo đủ 4 nhóm chất để giúp bé tăng cân đều và phát triển khỏe mạnh.',
+    189,
     1
 ),
 (
@@ -219,45 +232,61 @@ VALUES
     Khi hâm nóng, mẹ cần khuấy đều và kiểm tra nhiệt độ trước khi cho bé ăn. 
     Không nên hâm cháo nhiều lần vì có thể làm mất chất dinh dưỡng.',
     'tintuc_baoquan.jpg',
+    1,
+    N'Cháo dinh dưỡng nên bảo quản trong ngăn mát tủ lạnh và sử dụng trong vòng 24 giờ để đảm bảo an toàn.',
+    145,
     1
 );
 
 -- =====================================================
--- BẢNG: LIÊN HỆ
+-- BẢNG: LIÊN HỆ (ĐÃ THÊM: dienThoai, trangThai)
 -- =====================================================
 CREATE TABLE LienHe (
     id INT IDENTITY(1,1) PRIMARY KEY,
     hoTen NVARCHAR(150),
     email NVARCHAR(150),
     noiDung NVARCHAR(500),
-    ngayGui DATETIME DEFAULT GETDATE()
+    ngayGui DATETIME DEFAULT GETDATE(),
+      dienThoai NVARCHAR(20) NULL,           
+    trangThai NVARCHAR(50) DEFAULT N'Chưa xử lý' 
 );
-INSERT INTO LienHe (hoTen, email, noiDung)
+
+INSERT INTO LienHe (hoTen, email, noiDung, dienThoai, trangThai)
 VALUES
 (
     N'Phạm Thị Hương',
     'huongpham@gmail.com',
-    N'Shop cho mình hỏi bé 7 tháng thì nên dùng loại cháo nào là phù hợp nhất ạ?'
+    N'Shop cho mình hỏi bé 7 tháng thì nên dùng loại cháo nào là phù hợp nhất ạ?',
+    '0912345678',
+    N'Đã xử lý'
 ),
 (
     N'Nguyễn Văn Long',
     'longnguyen@gmail.com',
-    N'Mình muốn đặt cháo giao định kỳ trong tuần thì shop có hỗ trợ không?'
+    N'Mình muốn đặt cháo giao định kỳ trong tuần thì shop có hỗ trợ không?',
+    '0923456789',
+    N'Đang xử lý'
 ),
 (
     N'Lê Thị Mai',
     'lemai@gmail.com',
-    N'Shop có giao hàng buổi tối sau 18h không? Mình đi làm về muộn.'
+    N'Shop có giao hàng buổi tối sau 18h không? Mình đi làm về muộn.',
+    '0934567890',
+    N'Chưa xử lý'
 ),
 (
     N'Trần Quốc Bảo',
     'baotran@gmail.com',
-    N'Mình muốn tư vấn thực đơn cháo giúp bé tăng cân đều, shop hỗ trợ giúp mình nhé.'
+    N'Mình muốn tư vấn thực đơn cháo giúp bé tăng cân đều, shop hỗ trợ giúp mình nhé.',
+    '0945678901',
+    N'Chưa xử lý'
 ),
 (
     N'Nguyễn Thị Thu',
     'thuthu@gmail.com',
-    N'Mình đặt đơn hôm qua nhưng chưa thấy xác nhận, nhờ shop kiểm tra giúp mình.'
+    N'Mình đặt đơn hôm qua nhưng chưa thấy xác nhận, nhờ shop kiểm tra giúp mình.',
+    '0956789012',
+    N'Đã xử lý'
 );
 
 -- =====================================================
@@ -270,13 +299,14 @@ CREATE TABLE KhuyenMai (
     loaiGiamGia NVARCHAR(20) NOT NULL 
         CHECK (loaiGiamGia IN (N'phan_tram', N'tien_mat')),
     giaTriGiam DECIMAL(12,0) NOT NULL,
-    giaTriToiDa DECIMAL(12,0),      -- giới hạn giảm tối đa (nếu có)
-    donHangToiThieu DECIMAL(12,0),  -- đơn hàng tối thiểu
+    giaTriToiDa DECIMAL(12,0),      
+    donHangToiThieu DECIMAL(12,0),  
     ngayBatDau DATETIME,
     ngayKetThuc DATETIME,
-    trangThai BIT DEFAULT 1,        -- 1: hoạt động
+    trangThai BIT DEFAULT 1,       
     ngayTao DATETIME DEFAULT GETDATE()
 );
+
 INSERT INTO KhuyenMai
 (tenKhuyenMai, maKhuyenMai, loaiGiamGia, giaTriGiam,
  giaTriToiDa, donHangToiThieu, ngayBatDau, ngayKetThuc)
@@ -350,6 +380,7 @@ CREATE TABLE DonHang_KhuyenMai (
         FOREIGN KEY (khuyenMai_id) REFERENCES KhuyenMai(id)
         ON DELETE CASCADE
 );
+
 INSERT INTO DonHang_KhuyenMai (donHang_id, khuyenMai_id, soTienGiam)
 VALUES
 (1, 1, 30000),
@@ -367,7 +398,6 @@ CREATE TABLE DanhGia (
     noiDung NVARCHAR(500),
     ngayDanhGia DATETIME DEFAULT GETDATE(),
 
-    -- 1 người chỉ được đánh giá 1 sản phẩm 1 lần
     CONSTRAINT UQ_DanhGia UNIQUE (nguoiDung_id, sanPham_id),
 
     CONSTRAINT FK_DanhGia_NguoiDung
@@ -378,6 +408,7 @@ CREATE TABLE DanhGia (
         FOREIGN KEY (sanPham_id) REFERENCES SanPham(id)
         ON DELETE CASCADE
 );
+
 INSERT INTO DanhGia (nguoiDung_id, sanPham_id, soSao, noiDung)
 VALUES
 (2, 1, 5, N'Cháo rất ngon'),
@@ -412,50 +443,43 @@ SELECT 'DonHang_KhuyenMai', COUNT(*) FROM DonHang_KhuyenMai
 UNION ALL
 SELECT 'DanhGia', COUNT(*) FROM DanhGia;
 
--- Kiểm tra các cột size đã được thêm
+-- Kiểm tra các thuộc tính mới
 PRINT '';
-PRINT '=== KIỂM TRA CÁC CỘT SIZE ===';
-SELECT 
-    COLUMN_NAME, 
-    DATA_TYPE, 
-    IS_NULLABLE,
-    COLUMN_DEFAULT
+PRINT '=== KIỂM TRA CÁC THUỘC TÍNH MỚI ===';
+
+-- DanhMuc
+PRINT 'DanhMuc - Các cột mới:';
+SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
 FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME = 'SanPham' 
-    AND COLUMN_NAME IN ('giaVua', 'giaLon', 'giaDai')
-ORDER BY COLUMN_NAME;
+WHERE TABLE_NAME = 'DanhMuc' 
+    AND COLUMN_NAME IN ('icon', 'hinhAnh', 'slug');
 
-SELECT 
-    COLUMN_NAME, 
-    DATA_TYPE, 
-    IS_NULLABLE,
-    COLUMN_DEFAULT
+-- DonHang
+PRINT 'DonHang - Các cột mới:';
+SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
 FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME = 'GioHang' 
-    AND COLUMN_NAME = 'size';
+WHERE TABLE_NAME = 'DonHang' 
+    AND COLUMN_NAME IN ('thoiGianNhanHang', 'trangThaiNhanHang');
 
-SELECT 
-    COLUMN_NAME, 
-    DATA_TYPE, 
-    IS_NULLABLE,
-    COLUMN_DEFAULT
+-- ThanhToan
+PRINT 'ThanhToan - Các cột mới:';
+SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
 FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME = 'ChiTietDonHang' 
-    AND COLUMN_NAME = 'size';
+WHERE TABLE_NAME = 'ThanhToan' 
+    AND COLUMN_NAME IN ('soPhieuThu', 'filePhieuThu');
 
--- Xem một vài sản phẩm với giá size
-PRINT '';
-PRINT '=== XEM SẢN PHẨM VỚI GIÁ SIZE ===';
-SELECT TOP 5
-    id, 
-    tenSanPham, 
-    gia AS 'Giá mặc định',
-    giaVua AS 'Giá size vừa',
-    giaLon AS 'Giá size lớn',
-    giaDai AS 'Giá size đại'
-FROM SanPham
-ORDER BY id;
+-- TinTuc
+PRINT 'TinTuc - Các cột mới:';
+SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'TinTuc' 
+    AND COLUMN_NAME IN ('tomTat', 'luotXem', 'trangThai');
 
-PRINT '';
-PRINT '✅ Database đã được tạo thành công với tính năng SIZE!';
-GO
+-- LienHe
+PRINT 'LienHe - Các cột mới:';
+SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'LienHe' 
+    AND COLUMN_NAME IN ('dienThoai', 'trangThai');
+
+

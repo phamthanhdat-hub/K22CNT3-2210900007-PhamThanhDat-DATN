@@ -62,12 +62,14 @@ def thanh_toan():
         # 2️⃣ Ghi thanh toán vào bảng ThanhToan
         # Trạng thái mặc định: "Chờ xác nhận" cho COD, "Đã thanh toán" cho Chuyển khoản
         trangThai = "Chờ xác nhận" if phuongThuc == "COD" else "Đã thanh toán"
+        soPhieuThu = data.get("soPhieuThu", "").strip() or None
+        filePhieuThu = data.get("filePhieuThu", "").strip() or None
         
         cursor.execute("""
             INSERT INTO ThanhToan
-            (donHang_id, phuongThuc, trangThai)
-            VALUES (?, ?, ?)
-        """, (donHang_id, phuongThuc, trangThai))
+            (donHang_id, phuongThuc, trangThai, soPhieuThu, filePhieuThu)
+            VALUES (?, ?, ?, ?, ?)
+        """, (donHang_id, phuongThuc, trangThai, soPhieuThu, filePhieuThu))
 
         # 3️⃣ Cập nhật trạng thái đơn hàng
         don_hang_trang_thai = "Chờ xác nhận" if phuongThuc == "COD" else "Đã thanh toán"
@@ -117,6 +119,8 @@ def get_thanh_toan_by_don_hang(donHang_id):
                 tt.phuongThuc,
                 tt.trangThai,
                 tt.ngayThanhToan,
+                tt.soPhieuThu,
+                tt.filePhieuThu,
                 dh.nguoiDung_id,
                 dh.tongTien,
                 nd.hoTen
@@ -136,9 +140,11 @@ def get_thanh_toan_by_don_hang(donHang_id):
                 "phuongThuc": r[2],
                 "trangThai": r[3],
                 "ngayThanhToan": r[4].isoformat() if r[4] else None,
-                "nguoiDung_id": r[5],
-                "tongTien": float(r[6]),
-                "hoTen": r[7]
+                "soPhieuThu": r[5],
+                "filePhieuThu": r[6],
+                "nguoiDung_id": r[7],
+                "tongTien": float(r[8]),
+                "hoTen": r[9]
             })
 
         return jsonify(data)
@@ -166,6 +172,8 @@ def get_all_thanh_toan():
                 tt.phuongThuc,
                 tt.trangThai,
                 tt.ngayThanhToan,
+                tt.soPhieuThu,
+                tt.filePhieuThu,
                 dh.nguoiDung_id,
                 dh.tongTien,
                 dh.diaChiGiaoHang,
@@ -189,13 +197,15 @@ def get_all_thanh_toan():
                 "phuongThuc": r[2],
                 "trangThai": r[3],
                 "ngayThanhToan": r[4].isoformat() if r[4] else None,
-                "nguoiDung_id": r[5],
-                "tongTien": float(r[6]),
-                "diaChiGiaoHang": r[7],
-                "ngayDat": r[8].isoformat() if r[8] else None,
-                "hoTen": r[9],
-                "email": r[10],
-                "dienThoai": r[11]
+                "soPhieuThu": r[5],
+                "filePhieuThu": r[6],
+                "nguoiDung_id": r[7],
+                "tongTien": float(r[8]),
+                "diaChiGiaoHang": r[9],
+                "ngayDat": r[10].isoformat() if r[10] else None,
+                "hoTen": r[11],
+                "email": r[12],
+                "dienThoai": r[13]
             })
 
         return jsonify(data)

@@ -13,7 +13,7 @@ def get_all_danh_muc():
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT id, tenDanhMuc, moTa, danhMucCha_id
+            SELECT id, tenDanhMuc, moTa, danhMucCha_id, icon, hinhAnh, slug
             FROM DanhMuc
             ORDER BY tenDanhMuc
         """)
@@ -26,7 +26,10 @@ def get_all_danh_muc():
                 "id": r[0],
                 "tenDanhMuc": r[1],
                 "moTa": r[2],
-                "danhMucCha_id": r[3]
+                "danhMucCha_id": r[3],
+                "icon": r[4],
+                "hinhAnh": r[5],
+                "slug": r[6]
             })
 
         return jsonify(data)
@@ -48,7 +51,7 @@ def get_danh_muc_by_id(id):
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT id, tenDanhMuc, moTa, danhMucCha_id
+            SELECT id, tenDanhMuc, moTa, danhMucCha_id, icon, hinhAnh, slug
             FROM DanhMuc
             WHERE id = ?
         """, (id,))
@@ -61,7 +64,10 @@ def get_danh_muc_by_id(id):
             "id": r[0],
             "tenDanhMuc": r[1],
             "moTa": r[2],
-            "danhMucCha_id": r[3]
+            "danhMucCha_id": r[3],
+            "icon": r[4],
+            "hinhAnh": r[5],
+            "slug": r[6]
         })
 
     except Exception as e:
@@ -85,6 +91,9 @@ def create_danh_muc():
         tenDanhMuc = data.get("tenDanhMuc", "").strip()
         moTa = data.get("moTa", "").strip() or None
         danhMucCha_id = data.get("danhMucCha_id") or None
+        icon = data.get("icon", "").strip() or None
+        hinhAnh = data.get("hinhAnh", "").strip() or None
+        slug = data.get("slug", "").strip() or None
 
         if not tenDanhMuc or len(tenDanhMuc) < 2:
             return jsonify({"success": False, "message": "Tên danh mục phải có ít nhất 2 ký tự"}), 400
@@ -97,6 +106,12 @@ def create_danh_muc():
         if cursor.fetchone():
             return jsonify({"success": False, "message": "Tên danh mục đã tồn tại"}), 400
 
+        # Kiểm tra slug đã tồn tại chưa (nếu có)
+        if slug:
+            cursor.execute("SELECT id FROM DanhMuc WHERE slug = ?", (slug,))
+            if cursor.fetchone():
+                return jsonify({"success": False, "message": "Slug đã tồn tại"}), 400
+
         # Kiểm tra danh mục cha nếu có
         if danhMucCha_id:
             cursor.execute("SELECT id FROM DanhMuc WHERE id = ?", (danhMucCha_id,))
@@ -104,9 +119,9 @@ def create_danh_muc():
                 return jsonify({"success": False, "message": "Danh mục cha không tồn tại"}), 400
 
         cursor.execute("""
-            INSERT INTO DanhMuc (tenDanhMuc, moTa, danhMucCha_id)
-            VALUES (?, ?, ?)
-        """, (tenDanhMuc, moTa, danhMucCha_id))
+            INSERT INTO DanhMuc (tenDanhMuc, moTa, danhMucCha_id, icon, hinhAnh, slug)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (tenDanhMuc, moTa, danhMucCha_id, icon, hinhAnh, slug))
 
         conn.commit()
         return jsonify({"success": True, "message": "Thêm danh mục thành công"})
@@ -131,6 +146,9 @@ def update_danh_muc(id):
         tenDanhMuc = data.get("tenDanhMuc", "").strip()
         moTa = data.get("moTa", "").strip() or None
         danhMucCha_id = data.get("danhMucCha_id") or None
+        icon = data.get("icon", "").strip() or None
+        hinhAnh = data.get("hinhAnh", "").strip() or None
+        slug = data.get("slug", "").strip() or None
 
         if not tenDanhMuc or len(tenDanhMuc) < 2:
             return jsonify({"success": False, "message": "Tên danh mục phải có ít nhất 2 ký tự"}), 400
@@ -148,6 +166,12 @@ def update_danh_muc(id):
         if cursor.fetchone():
             return jsonify({"success": False, "message": "Tên danh mục đã tồn tại"}), 400
 
+        # Kiểm tra slug đã tồn tại chưa (trừ chính nó, nếu có)
+        if slug:
+            cursor.execute("SELECT id FROM DanhMuc WHERE slug = ? AND id != ?", (slug, id))
+            if cursor.fetchone():
+                return jsonify({"success": False, "message": "Slug đã tồn tại"}), 400
+
         # Kiểm tra danh mục cha nếu có
         if danhMucCha_id:
             if danhMucCha_id == id:
@@ -158,9 +182,9 @@ def update_danh_muc(id):
 
         cursor.execute("""
             UPDATE DanhMuc
-            SET tenDanhMuc = ?, moTa = ?, danhMucCha_id = ?
+            SET tenDanhMuc = ?, moTa = ?, danhMucCha_id = ?, icon = ?, hinhAnh = ?, slug = ?
             WHERE id = ?
-        """, (tenDanhMuc, moTa, danhMucCha_id, id))
+        """, (tenDanhMuc, moTa, danhMucCha_id, icon, hinhAnh, slug, id))
 
         conn.commit()
         return jsonify({"success": True, "message": "Cập nhật danh mục thành công"})

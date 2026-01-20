@@ -57,7 +57,14 @@ img {
     align-items: center;
     justify-content: space-between;
     padding: 15px 0;
-    gap: 20px;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+@media (min-width: 992px) {
+    .header-wrap {
+        flex-wrap: nowrap;
+    }
 }
 
 /* LOGO (ENHANCED) */
@@ -70,6 +77,8 @@ img {
     font-size: 22px;
     color: #ff6b81;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-right: 30px;
+    flex-shrink: 0;
 }
 
 .logo img {
@@ -112,6 +121,9 @@ img {
     position: relative;
     flex: 1;
     max-width: 300px;
+    min-width: 200px;
+    margin-left: 0;
+    flex-shrink: 1;
 }
 
 .search input {
@@ -145,50 +157,61 @@ img {
     color: #ff6b81;
 }
 
-/* MENU (ENHANCED) */
+/* MENU (ENHANCED - CẢI THIỆN) */
 nav.main-menu {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-wrap: nowrap;
 }
 
 nav.main-menu a {
-    margin: 0 8px;
+    margin: 0;
     font-weight: 600;
     position: relative;
     color: #555;
-    padding: 8px 16px;
-    border-radius: 20px;
-    transition: all 0.3s ease;
+    padding: 10px 20px;
+    border-radius: 25px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 15px;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 2px solid transparent;
 }
 
 nav.main-menu a:hover {
     color: #ff6b81;
-    background: rgba(255,107,129,0.1);
+    background: linear-gradient(135deg, rgba(255,107,129,0.1), rgba(255,143,163,0.1));
+    border-color: rgba(255,107,129,0.2);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255,107,129,0.2);
 }
 
 nav.main-menu a.active {
-    color: #ff6b81;
-    background: rgba(255,107,129,0.15);
+    color: #ffffff;
+    background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+    border-color: #ff6b81;
+    box-shadow: 0 4px 15px rgba(255,107,129,0.4);
+    font-weight: 700;
+}
+
+nav.main-menu a.active:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255,107,129,0.5);
 }
 
 nav.main-menu a::after {
-    content: "";
-    position: absolute;
-    bottom: 4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #ff6b81, #ff8fa3);
-    border-radius: 10px;
-    transition: all 0.3s ease;
+    display: none;
 }
 
-nav.main-menu a:hover::after,
 nav.main-menu a.active::after {
-    width: 60%;
+    display: none;
 }
 
 /* CART (ENHANCED) */
@@ -837,13 +860,25 @@ section {
     border-radius: 12px;
     transition: all 0.3s ease;
     text-align: center;
+    display: block;
+    width: 100%;
+    background: rgba(255,255,255,0.5);
+    border: 2px solid transparent;
 }
 
-.mobile-menu nav a:hover,
-.mobile-menu nav a.active {
-    background: rgba(255,107,129,0.15);
+.mobile-menu nav a:hover {
+    background: linear-gradient(135deg, rgba(255,107,129,0.1), rgba(255,143,163,0.1));
     color: #ff6b81;
     transform: translateX(5px);
+    border-color: rgba(255,107,129,0.2);
+}
+
+.mobile-menu nav a.active {
+    background: linear-gradient(135deg, #ff6b81, #ff8fa3);
+    color: #ffffff;
+    font-weight: 700;
+    border-color: #ff6b81;
+    box-shadow: 0 4px 12px rgba(255,107,129,0.3);
 }
 
 /* =========================================
@@ -859,18 +894,24 @@ section {
         order: 3;
         max-width: 100%;
         width: 100%;
+        margin-left: 0;
+    }
+    
+    .logo {
+        margin-right: 20px;
     }
 
     nav.main-menu {
         flex-wrap: wrap;
         justify-content: center;
-        gap: 5px;
+        gap: 6px;
     }
 
     nav.main-menu a {
-        margin: 0 4px;
-        padding: 6px 12px;
+        margin: 0;
+        padding: 8px 16px;
         font-size: 14px;
+        min-width: 100px;
     }
 
     .footer-wrap {
@@ -981,6 +1022,10 @@ section {
         padding: 10px 0;
     }
 
+    .logo {
+        margin-right: 15px;
+    }
+    
     .logo img {
         width: 50px;
         height: 50px;
