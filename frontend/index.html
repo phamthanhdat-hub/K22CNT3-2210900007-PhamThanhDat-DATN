@@ -328,6 +328,19 @@
             <p>Cháo dinh dưỡng cho bé yêu</p>
         </div>
         <div>
+            <p><strong>Liên kết nhanh</strong></p>
+            <p>
+                <a href="thuc-don.html" style="color: #666; text-decoration: none; margin-right: 15px;">Thực đơn</a>
+                <a href="khuyen-mai.html" style="color: #666; text-decoration: none; margin-right: 15px;">Khuyến mãi</a>
+                <a href="tin-tuc.html" style="color: #666; text-decoration: none; margin-right: 15px;">Tin tức</a>
+                <a href="lien-he.html" style="color: #666; text-decoration: none;">Liên hệ</a>
+            </p>
+        </div>
+        <div>
+            <p><strong>Thông tin</strong></p>
+            <p>
+                <a href="chinh-sach-bao-mat.html" style="color: #666; text-decoration: none;">Chính sách bảo mật</a>
+            </p>
             <p>📞 Hotline: 1900 1234</p>
             <p>📧 babycutie@gmail.com</p>
         </div>
@@ -869,9 +882,9 @@ function sendChatbotMessage() {
     showTypingIndicator();
     
     // Get bot response after delay
-    setTimeout(() => {
+    setTimeout(async () => {
         hideTypingIndicator();
-        const botResponse = getBotResponse(message);
+        const botResponse = await getBotResponse(message);
         addChatbotMessage(botResponse, 'bot');
     }, 1000);
 }
@@ -898,8 +911,13 @@ function addChatbotMessage(message, type) {
     
     messagesContainer.appendChild(messageDiv);
     
-    // Scroll to bottom
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // Smooth scroll to bottom
+    setTimeout(() => {
+        messagesContainer.scrollTo({
+            top: messagesContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+    }, 100);
 }
 
 // Show typing indicator
@@ -913,13 +931,20 @@ function showTypingIndicator() {
             <i class="fas fa-robot"></i>
         </div>
         <div class="message-content">
-            <p><i class="fas fa-circle" style="font-size: 8px; animation: typing 1.4s infinite;"></i>
-               <i class="fas fa-circle" style="font-size: 8px; animation: typing 1.4s infinite 0.2s;"></i>
-               <i class="fas fa-circle" style="font-size: 8px; animation: typing 1.4s infinite 0.4s;"></i></p>
+            <p>
+                <i class="fas fa-circle" style="font-size: 8px; color: #ff6b81;"></i>
+                <i class="fas fa-circle" style="font-size: 8px; color: #ff6b81;"></i>
+                <i class="fas fa-circle" style="font-size: 8px; color: #ff6b81;"></i>
+            </p>
         </div>
     `;
     messagesContainer.appendChild(typingDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    setTimeout(() => {
+        messagesContainer.scrollTo({
+            top: messagesContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+    }, 100);
 }
 
 // Hide typing indicator
@@ -930,68 +955,285 @@ function hideTypingIndicator() {
     }
 }
 
+// Chatbot data cache
+let chatbotData = {
+    sanPham: [],
+    khuyenMai: [],
+    tinTuc: [],
+    danhMuc: []
+};
+
+// Load data for chatbot
+async function loadChatbotData() {
+    try {
+        // Load sản phẩm
+        const spRes = await fetch('http://127.0.0.1:5000/api/thuc-don/');
+        if (spRes.ok) {
+            chatbotData.sanPham = await spRes.json();
+        }
+        
+        // Load khuyến mãi
+        const kmRes = await fetch('http://127.0.0.1:5000/api/khuyen-mai/?only_active=true');
+        if (kmRes.ok) {
+            chatbotData.khuyenMai = await kmRes.json();
+        }
+        
+        // Load tin tức
+        const ttRes = await fetch('http://127.0.0.1:5000/api/tin-tuc/');
+        if (ttRes.ok) {
+            chatbotData.tinTuc = await ttRes.json();
+        }
+        
+        // Load danh mục
+        const dmRes = await fetch('http://127.0.0.1:5000/api/thuc-don/danh-muc');
+        if (dmRes.ok) {
+            chatbotData.danhMuc = await dmRes.json();
+        }
+    } catch (error) {
+        console.error('Lỗi load dữ liệu cho chatbot:', error);
+    }
+}
+
+// Load data when page loads
+loadChatbotData();
+
+// Tìm kiếm sản phẩm thông minh
+function searchProducts(query) {
+    if (!chatbotData.sanPham || chatbotData.sanPham.length === 0) return [];
+    
+    const lowerQuery = query.toLowerCase().trim();
+    const keywords = lowerQuery.split(/\s+/).filter(k => k.length > 1);
+    
+    // Từ khóa sản phẩm phổ biến
+    const productKeywords = {
+        'cá hồi': ['cá hồi', 'cahoibido', 'cá hồi bí đỏ'],
+        'gà': ['gà', 'gacarot', 'gà cà rốt', 'gà ác'],
+        'bò': ['bò', 'thitboraungot', 'bò rau ngót'],
+        'tôm': ['tôm', 'tomhatsen', 'tôm hạt sen'],
+        'cá lóc': ['cá lóc', 'calocmongtoi', 'cá lóc mồng tơi'],
+        'heo': ['heo', 'thịt heo', 'heobixanh', 'heo bí xanh'],
+        'lươn': ['lươn', 'luonkhoaimon', 'lươn khoai môn'],
+        'sườn': ['sườn', 'suonnoncarot', 'sườn non'],
+        'cá thu': ['cá thu', 'cathuraucu', 'cá thu rau củ']
+    };
+    
+    // Tìm sản phẩm khớp
+    const found = chatbotData.sanPham.filter(sp => {
+        const tenSP = (sp.tenSanPham || '').toLowerCase();
+        const moTa = (sp.moTa || '').toLowerCase();
+        
+        // Kiểm tra từ khóa trực tiếp
+        if (tenSP.includes(lowerQuery) || lowerQuery.includes(tenSP.split(' ')[0])) {
+            return true;
+        }
+        
+        // Kiểm tra theo từ khóa sản phẩm
+        for (const [key, variants] of Object.entries(productKeywords)) {
+            if (lowerQuery.includes(key) || variants.some(v => lowerQuery.includes(v))) {
+                if (tenSP.includes(key) || variants.some(v => tenSP.includes(v))) {
+                    return true;
+                }
+            }
+        }
+        
+        // Kiểm tra từng từ khóa
+        return keywords.some(kw => tenSP.includes(kw) || moTa.includes(kw));
+    });
+    
+    return found;
+}
+
 // Get bot response based on user message
-function getBotResponse(message) {
-    const lowerMessage = message.toLowerCase();
+async function getBotResponse(message) {
+    const lowerMessage = message.toLowerCase().trim();
+    
+    // Liệt kê tất cả sản phẩm
+    if (lowerMessage.includes('có những món') || lowerMessage.includes('danh sách') || 
+        lowerMessage.includes('sản phẩm nào') || lowerMessage.includes('món nào') ||
+        (lowerMessage.includes('có') && lowerMessage.includes('món'))) {
+        if (chatbotData.sanPham.length > 0) {
+            let response = `🍲 Chúng tôi có ${chatbotData.sanPham.length} món cháo dinh dưỡng:\n\n`;
+            chatbotData.sanPham.slice(0, 8).forEach((sp, idx) => {
+                const gia = sp.giaVua || sp.gia;
+                response += `${idx + 1}. ${sp.tenSanPham} - ${parseInt(gia).toLocaleString('vi-VN')}đ\n`;
+            });
+            if (chatbotData.sanPham.length > 8) {
+                response += `\n... và ${chatbotData.sanPham.length - 8} món khác!\n`;
+            }
+            response += '\nBạn có thể xem chi tiết tại trang Thực đơn!';
+            return response;
+        }
+        return '🍲 Chúng tôi có nhiều món cháo dinh dưỡng cho bé. Bạn có thể xem tại trang Thực đơn!';
+    }
+    
+    // Tìm kiếm sản phẩm cụ thể
+    const productSearch = searchProducts(lowerMessage);
+    if (productSearch.length > 0) {
+        const product = productSearch[0];
+        const giaVua = product.giaVua ? parseInt(product.giaVua) : parseInt(product.gia);
+        const giaLon = product.giaLon ? parseInt(product.giaLon) : null;
+        const giaDai = product.giaDai ? parseInt(product.giaDai) : null;
+        
+        let priceInfo = `💰 Giá: ${giaVua.toLocaleString('vi-VN')}đ`;
+        if (giaLon && giaDai) {
+            priceInfo += ` (Vừa) / ${giaLon.toLocaleString('vi-VN')}đ (Lớn) / ${giaDai.toLocaleString('vi-VN')}đ (Đại)`;
+        } else if (giaLon) {
+            priceInfo += ` (Vừa) / ${giaLon.toLocaleString('vi-VN')}đ (Lớn)`;
+        }
+        
+        let nutritionInfo = '';
+        if (product.protein || product.carb || product.chatBeo) {
+            nutritionInfo = `\n🌱 Dinh dưỡng:\n   - Protein: ${product.protein || 'N/A'}g\n   - Carb: ${product.carb || 'N/A'}g\n   - Chất béo: ${product.chatBeo || 'N/A'}g`;
+        }
+        
+        return `🍲 ${product.tenSanPham}\n${priceInfo}\n📝 ${product.moTa || 'Sản phẩm dinh dưỡng cho bé'}\n👶 Độ tuổi: ${product.doTuoi || 'N/A'}${nutritionInfo}\n\nBạn có thể xem chi tiết và đặt hàng tại trang Thực đơn!`;
+    }
     
     // Keywords matching
-    if (lowerMessage.includes('giá') || lowerMessage.includes('price') || lowerMessage.includes('cost')) {
-        return '💰 Giá sản phẩm của chúng tôi dao động từ 25.000đ - 50.000đ tùy theo loại cháo. Bạn có thể xem chi tiết giá tại trang Thực đơn. Chúng tôi thường xuyên có các chương trình khuyến mãi hấp dẫn!';
+    if (lowerMessage.includes('giá') || lowerMessage.includes('price') || lowerMessage.includes('cost') || 
+        lowerMessage.includes('bao nhiêu tiền') || lowerMessage.includes('giá cả')) {
+        if (chatbotData.sanPham.length > 0) {
+            const prices = chatbotData.sanPham.map(sp => {
+                const gia = sp.giaVua || sp.gia;
+                return gia ? parseInt(gia) : null;
+            }).filter(p => p !== null);
+            
+            if (prices.length > 0) {
+                const minPrice = Math.min(...prices);
+                const maxPrice = Math.max(...prices);
+                return `💰 Giá sản phẩm của chúng tôi dao động từ ${minPrice.toLocaleString('vi-VN')}đ - ${maxPrice.toLocaleString('vi-VN')}đ tùy theo loại và size.\n\nChúng tôi có ${chatbotData.sanPham.length} món cháo dinh dưỡng. Mỗi món có 3 size: Vừa, Lớn, Đại với giá khác nhau.\n\nBạn có thể xem chi tiết giá tại trang Thực đơn!`;
+            }
+        }
+        return '💰 Giá sản phẩm của chúng tôi dao động từ 25.000đ - 80.000đ tùy theo loại cháo và size. Bạn có thể xem chi tiết giá tại trang Thực đơn. Chúng tôi thường xuyên có các chương trình khuyến mãi hấp dẫn!';
     }
     
-    if (lowerMessage.includes('đặt hàng') || lowerMessage.includes('order') || lowerMessage.includes('mua')) {
-        return '🛒 Để đặt hàng, bạn có thể:\n1. Chọn món tại trang Thực đơn\n2. Thêm vào giỏ hàng\n3. Điền thông tin và thanh toán\n4. Chúng tôi sẽ giao hàng tận nơi cho bạn!';
+    if (lowerMessage.includes('đặt hàng') || lowerMessage.includes('order') || lowerMessage.includes('mua') ||
+        lowerMessage.includes('mua hàng') || lowerMessage.includes('cách đặt')) {
+        return '🛒 Để đặt hàng, bạn có thể:\n\n1️⃣ Chọn món tại trang Thực đơn\n2️⃣ Chọn size (Vừa/Lớn/Đại) và số lượng\n3️⃣ Thêm vào giỏ hàng\n4️⃣ Kiểm tra giỏ hàng và điền thông tin giao hàng\n5️⃣ Chọn phương thức thanh toán\n6️⃣ Xác nhận đơn hàng\n\nChúng tôi sẽ giao hàng tận nơi cho bạn trong ngày! 🚚';
     }
     
-    if (lowerMessage.includes('giao hàng') || lowerMessage.includes('delivery') || lowerMessage.includes('ship')) {
-        return '🚚 Chúng tôi giao hàng trong ngày, đảm bảo cháo còn nóng hổi khi đến tay bạn. Thời gian giao hàng thường từ 30 phút - 2 giờ tùy theo địa chỉ. Phí giao hàng: 15.000đ - 30.000đ tùy khu vực.';
+    if (lowerMessage.includes('giao hàng') || lowerMessage.includes('delivery') || lowerMessage.includes('ship') ||
+        lowerMessage.includes('thời gian giao') || lowerMessage.includes('bao lâu')) {
+        return '🚚 Thông tin giao hàng:\n\n⏰ Thời gian: Giao hàng trong ngày, từ 30 phút - 2 giờ tùy địa chỉ\n💰 Phí giao hàng: 15.000đ - 30.000đ tùy khu vực\n🌡️ Đảm bảo: Cháo còn nóng hổi khi đến tay bạn\n📍 Khu vực: Giao hàng toàn thành phố\n\nBạn có thể theo dõi đơn hàng sau khi đặt!';
     }
     
     if (lowerMessage.includes('thanh toán') || lowerMessage.includes('payment') || lowerMessage.includes('pay')) {
-        return '💳 Chúng tôi hỗ trợ 2 phương thức thanh toán:\n1. 💵 Thanh toán khi nhận hàng (COD)\n2. 🏦 Chuyển khoản ngân hàng\nBạn có thể chọn phương thức phù hợp khi đặt hàng!';
+        return '💳 Chúng tôi hỗ trợ 2 phương thức thanh toán:\n1. 💵 Thanh toán khi nhận hàng (COD)\n2. 🏦 Chuyển khoản ngân hàng (có thể upload phiếu thu)\n\nBạn có thể chọn phương thức phù hợp khi đặt hàng!';
     }
     
-    if (lowerMessage.includes('dinh dưỡng') || lowerMessage.includes('nutrition') || lowerMessage.includes('thành phần')) {
+    if (lowerMessage.includes('dinh dưỡng') || lowerMessage.includes('nutrition') || lowerMessage.includes('thành phần') ||
+        lowerMessage.includes('chất dinh dưỡng')) {
+        if (chatbotData.sanPham.length > 0) {
+            // Tìm sản phẩm có đầy đủ thông tin dinh dưỡng
+            const sample = chatbotData.sanPham.find(sp => sp.protein && sp.carb && sp.chatBeo) || chatbotData.sanPham[0];
+            return `🌱 Sản phẩm của chúng tôi được nấu từ nguyên liệu tươi sạch, đảm bảo đầy đủ dinh dưỡng cho bé.\n\n📊 Ví dụ: ${sample.tenSanPham}\n   - Protein: ${sample.protein || 'N/A'}g\n   - Carb: ${sample.carb || 'N/A'}g\n   - Chất béo: ${sample.chatBeo || 'N/A'}g\n\nMỗi món cháo đều có thông tin chi tiết về dinh dưỡng. Bạn có thể xem tại trang sản phẩm!`;
+        }
         return '🌱 Sản phẩm của chúng tôi được nấu từ nguyên liệu tươi sạch, đảm bảo đầy đủ dinh dưỡng cho bé. Mỗi món cháo đều có thông tin chi tiết về protein, carb và chất béo. Bạn có thể xem tại trang sản phẩm!';
     }
     
     if (lowerMessage.includes('độ tuổi') || lowerMessage.includes('age') || lowerMessage.includes('tuổi')) {
-        return '👶 Chúng tôi có thực đơn phù hợp cho các độ tuổi:\n- 6-8 tháng: Cháo xay nhuyễn\n- 9-12 tháng: Cháo đặc hơn\n- Trên 1 tuổi: Cháo đầy đủ dinh dưỡng\nBạn có thể chọn món phù hợp với độ tuổi của bé!';
+        if (chatbotData.sanPham.length > 0) {
+            const doTuoiList = [...new Set(chatbotData.sanPham.map(sp => sp.doTuoi).filter(d => d))];
+            return `👶 Chúng tôi có thực đơn phù hợp cho các độ tuổi:\n${doTuoiList.map(dt => `- ${dt}`).join('\n')}\n\nBạn có thể chọn món phù hợp với độ tuổi của bé tại trang Thực đơn!`;
+        }
+        return '👶 Chúng tôi có thực đơn phù hợp cho các độ tuổi:\n- 6-12 tháng: Cháo xay nhuyễn\n- 1-3 tuổi: Cháo đầy đủ dinh dưỡng\n\nBạn có thể chọn món phù hợp với độ tuổi của bé!';
     }
     
     if (lowerMessage.includes('liên hệ') || lowerMessage.includes('contact') || lowerMessage.includes('hotline')) {
         return '📞 Bạn có thể liên hệ với chúng tôi qua:\n- Hotline: 1900 1234\n- Email: babycutie@gmail.com\n- Hoặc truy cập trang Liên hệ để gửi tin nhắn trực tiếp!';
     }
     
-    if (lowerMessage.includes('khuyến mãi') || lowerMessage.includes('promotion') || lowerMessage.includes('sale') || lowerMessage.includes('giảm giá')) {
-        return '🎉 Chúng tôi thường xuyên có các chương trình khuyến mãi hấp dẫn! Hãy theo dõi trang web hoặc fanpage để không bỏ lỡ các ưu đãi đặc biệt. Khách hàng mới sẽ nhận được ưu đãi đặc biệt!';
+    if (lowerMessage.includes('khuyến mãi') || lowerMessage.includes('promotion') || lowerMessage.includes('sale') || 
+        lowerMessage.includes('giảm giá') || lowerMessage.includes('mã giảm') || lowerMessage.includes('mã khuyến mãi') ||
+        lowerMessage.includes('voucher') || lowerMessage.includes('ưu đãi')) {
+        if (chatbotData.khuyenMai.length > 0) {
+            const activePromos = chatbotData.khuyenMai.slice(0, 5);
+            let response = `🎉 Chúng tôi đang có ${chatbotData.khuyenMai.length} chương trình khuyến mãi:\n\n`;
+            activePromos.forEach((km, idx) => {
+                const loai = km.loaiGiamGia === 'phan_tram' ? `${km.giaTriGiam}%` : `${parseInt(km.giaTriGiam).toLocaleString('vi-VN')}đ`;
+                const minOrder = km.donHangToiThieu ? `\n   📋 Đơn tối thiểu: ${parseInt(km.donHangToiThieu).toLocaleString('vi-VN')}đ` : '';
+                const maxDiscount = km.giaTriToiDa ? `\n   ⬆️ Giảm tối đa: ${parseInt(km.giaTriToiDa).toLocaleString('vi-VN')}đ` : '';
+                response += `${idx + 1}. 🎁 ${km.tenKhuyenMai}\n   🔑 Mã: **${km.maKhuyenMai}**\n   💰 Giảm: ${loai}${minOrder}${maxDiscount}\n\n`;
+            });
+            response += '💡 Bạn có thể xem tất cả mã khuyến mãi và copy mã tại trang Khuyến mãi!';
+            return response;
+        }
+        return '🎉 Chúng tôi thường xuyên có các chương trình khuyến mãi hấp dẫn! Hãy theo dõi trang web hoặc fanpage để không bỏ lỡ các ưu đãi đặc biệt. Khách hàng mới sẽ nhận được ưu đãi đặc biệt!\n\nBạn có thể xem tại trang Khuyến mãi!';
     }
     
-    if (lowerMessage.includes('chào') || lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('xin chào')) {
-        return 'Xin chào! 👋 Tôi rất vui được hỗ trợ bạn. Bạn có câu hỏi gì về sản phẩm, đặt hàng hay dịch vụ của BabyCutie không?';
+    if (lowerMessage.includes('tin tức') || lowerMessage.includes('news') || lowerMessage.includes('bài viết')) {
+        if (chatbotData.tinTuc.length > 0) {
+            const latestNews = chatbotData.tinTuc.slice(0, 3);
+            let response = '📰 Tin tức mới nhất:\n\n';
+            latestNews.forEach(tt => {
+                response += `📄 ${tt.tieuDe}\n   ${tt.tomTat || tt.noiDung.substring(0, 100) + '...'}\n\n`;
+            });
+            response += 'Bạn có thể đọc thêm tại trang Tin tức!';
+            return response;
+        }
+        return '📰 Chúng tôi thường xuyên cập nhật các bài viết về dinh dưỡng cho bé. Bạn có thể xem tại trang Tin tức!';
+    }
+    
+    if (lowerMessage.includes('danh mục') || lowerMessage.includes('category') || lowerMessage.includes('loại')) {
+        if (chatbotData.danhMuc.length > 0) {
+            const mainCats = chatbotData.danhMuc.filter(dm => !dm.danhMucCha_id);
+            let response = '📂 Danh mục sản phẩm:\n\n';
+            mainCats.forEach(dm => {
+                response += `${dm.icon || '📁'} ${dm.tenDanhMuc}\n   ${dm.moTa || ''}\n\n`;
+            });
+            response += 'Bạn có thể xem chi tiết tại trang Thực đơn!';
+            return response;
+        }
+        return '📂 Chúng tôi có nhiều danh mục cháo dinh dưỡng phù hợp với từng độ tuổi của bé. Bạn có thể xem tại trang Thực đơn!';
+    }
+    
+    if (lowerMessage.includes('chào') || lowerMessage.includes('hello') || lowerMessage.includes('hi') || 
+        lowerMessage.includes('xin chào') || lowerMessage.includes('alo')) {
+        const productCount = chatbotData.sanPham.length || 10;
+        const promoCount = chatbotData.khuyenMai.length || 0;
+        let response = `Xin chào! 👋 Tôi là BabyCutie Bot, rất vui được hỗ trợ bạn.\n\n`;
+        response += `🍲 Chúng tôi có ${productCount} món cháo dinh dưỡng cho bé`;
+        if (promoCount > 0) {
+            response += `\n🎁 Đang có ${promoCount} chương trình khuyến mãi`;
+        }
+        response += `\n\nBạn có thể hỏi tôi về:\n`;
+        response += `• 💰 Giá sản phẩm\n`;
+        response += `• 🍲 Thông tin món cháo\n`;
+        response += `• 🛒 Cách đặt hàng\n`;
+        response += `• 🎁 Khuyến mãi\n`;
+        response += `• 📰 Tin tức\n`;
+        response += `• 📞 Liên hệ\n\nBạn muốn biết gì? 😊`;
+        return response;
     }
     
     if (lowerMessage.includes('cảm ơn') || lowerMessage.includes('thank') || lowerMessage.includes('thanks')) {
         return 'Không có gì! 😊 Nếu bạn có thêm câu hỏi nào khác, đừng ngần ngại hỏi tôi nhé. Chúc bạn và bé yêu một ngày tốt lành! ❤️';
     }
     
-    // Default response
-    return 'Xin lỗi, tôi chưa hiểu rõ câu hỏi của bạn. 😅 Bạn có thể hỏi tôi về:\n- 💰 Giá sản phẩm\n- 🛒 Cách đặt hàng\n- 🚚 Thời gian giao hàng\n- 💳 Phương thức thanh toán\n- 📞 Thông tin liên hệ\nHoặc bạn có thể gọi hotline 1900 1234 để được tư vấn trực tiếp!';
-}
-
-// Add typing animation CSS
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes typing {
-        0%, 60%, 100% {
-            opacity: 0.3;
-        }
-        30% {
-            opacity: 1;
+    // Tìm kiếm mơ hồ - gợi ý sản phẩm
+    if (lowerMessage.length > 2 && lowerMessage.length < 20) {
+        const suggestions = chatbotData.sanPham.filter(sp => {
+            const tenSP = (sp.tenSanPham || '').toLowerCase();
+            return tenSP.includes(lowerMessage) || lowerMessage.split(' ').some(word => 
+                word.length > 2 && tenSP.includes(word)
+            );
+        }).slice(0, 3);
+        
+        if (suggestions.length > 0) {
+            let response = `🔍 Có thể bạn đang tìm:\n\n`;
+            suggestions.forEach((sp, idx) => {
+                const gia = sp.giaVua || sp.gia;
+                response += `${idx + 1}. ${sp.tenSanPham} - ${parseInt(gia).toLocaleString('vi-VN')}đ\n`;
+            });
+            response += `\nBạn có thể hỏi chi tiết về bất kỳ món nào!`;
+            return response;
         }
     }
-`;
-document.head.appendChild(style);
+    
+    // Default response
+    return 'Xin lỗi, tôi chưa hiểu rõ câu hỏi của bạn. 😅\n\nBạn có thể hỏi tôi về:\n• 💰 Giá sản phẩm\n• 🍲 Tên món cháo (ví dụ: "cháo cá hồi", "cháo gà")\n• 🛒 Cách đặt hàng\n• 🚚 Thời gian giao hàng\n• 💳 Phương thức thanh toán\n• 🎁 Khuyến mãi\n• 📰 Tin tức\n• 👶 Độ tuổi phù hợp\n• 📞 Thông tin liên hệ\n\nHoặc bạn có thể gọi hotline 1900 1234 để được tư vấn trực tiếp! 📞';
+}
+
 </script>
 
 </body>

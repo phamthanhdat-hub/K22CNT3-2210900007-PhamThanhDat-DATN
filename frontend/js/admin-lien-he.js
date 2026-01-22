@@ -125,6 +125,14 @@ function renderLienHeList(data) {
         const hoTen = contact.hoTen || "Khách hàng";
         const email = contact.email || "Chưa có email";
 
+        const trangThai = contact.trangThai || "Chưa xử lý";
+        let statusClass = "chua-xu-ly";
+        if (trangThai.includes("Đã xử lý") || trangThai.includes("Đã")) {
+            statusClass = "da-xu-ly";
+        } else if (trangThai.includes("Đang") || trangThai.includes("đang")) {
+            statusClass = "dang-xu-ly";
+        }
+        
         const card = document.createElement("div");
         card.className = "col-md-6 col-lg-4";
         card.innerHTML = `
@@ -139,6 +147,9 @@ function renderLienHeList(data) {
                         </a>
                         <div class="contact-date">
                             <i class="fa fa-calendar"></i> ${ngayGui}
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <span class="status-badge ${statusClass}">${escapeHtml(trangThai)}</span>
                         </div>
                     </div>
                 </div>
@@ -207,6 +218,17 @@ function viewContact(id) {
             })
             : "Chưa có";
         document.getElementById("viewNoiDung").textContent = contact.noiDung || "Chưa có nội dung";
+        
+        // Hiển thị trạng thái nếu có
+        const trangThai = contact.trangThai || "Chưa xử lý";
+        let statusClass = "chua-xu-ly";
+        if (trangThai.includes("Đã xử lý") || trangThai.includes("Đã")) {
+            statusClass = "da-xu-ly";
+        } else if (trangThai.includes("Đang") || trangThai.includes("đang")) {
+            statusClass = "dang-xu-ly";
+        }
+        
+        document.getElementById("viewTrangThai").innerHTML = `<span class="status-badge ${statusClass}">${escapeHtml(trangThai)}</span>`;
         
         // Set buttons
         const editBtn = document.getElementById("editFromModalBtn");

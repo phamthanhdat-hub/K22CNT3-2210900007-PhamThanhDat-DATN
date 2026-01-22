@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>404 - Không tìm thấy trang | BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .error-404-page {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ffe5ec 0%, #fff6f8 50%, #ffeef2 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 40px 15px;
+        }
+        .error-404-page::before {
+            content: "";
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,107,129,0.12) 0%, transparent 70%);
+            top: -250px;
+            right: -250px;
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+        .error-404-page::after {
+            content: "";
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,143,163,0.1) 0%, transparent 70%);
+            bottom: -200px;
+            left: -200px;
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(50px, 50px) rotate(180deg); }
+        }
+        .error-404-box {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            max-width: 600px;
+            width: 100%;
+            padding: 60px 45px;
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border: 2px solid rgba(255,107,129,0.1);
+            position: relative;
+            z-index: 1;
+            animation: zoomIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .error-404-number {
+            font-size: 120px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b81 0%, #ff8fa3 50%, #ffb3c1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .error-404-icon {
+            font-size: 80px;
+            color: #ff6b81;
+            margin-bottom: 20px;
+            animation: rotate 3s linear infinite;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error-404-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #ff6b81;
+            margin-bottom: 15px;
+        }
+        .error-404-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .error-404-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-home {
+            background: linear-gradient(135deg, #ff6b81 0%, #ff8fa3 50%, #ffb3c1 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(255,107,129,0.4);
+        }
+        .btn-home:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,107,129,0.6);
+            color: white;
+        }
+        .btn-back {
+            background: white;
+            color: #ff6b81;
+            border: 2px solid #ff6b81;
+            padding: 14px 32px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-back:hover {
+            background: #ff6b81;
+            color: white;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="window.location='index.html'">
+            <img src="images/logo2.jpg" alt="BabyCutie">
+            <span>BabyCutie</span>
+        </div>
+        <nav class="main-menu">
+            <a href="index.html">Trang chủ</a>
+            <a href="thuc-don.html">Thực đơn</a>
+            <a href="khuyen-mai.html">Khuyến mãi</a>
+            <a href="tin-tuc.html">Tin tức</a>
+            <a href="lien-he.html">Liên hệ</a>
+        </nav>
+    </div>
+</header>
+
+<section class="error-404-page">
+    <div class="error-404-box">
+        <div class="error-404-number">404</div>
+        <div class="error-404-icon">🍲</div>
+        <h1 class="error-404-title">Trang không tồn tại</h1>
+        <p class="error-404-message">
+            Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.<br>
+            Vui lòng quay lại trang chủ hoặc sử dụng menu để điều hướng.
+        </p>
+        <div class="error-404-actions">
+            <a href="index.html" class="btn-home">
+                <i class="fa fa-home"></i> Về trang chủ
+            </a>
+            <a href="javascript:history.back()" class="btn-back">
+                <i class="fa fa-arrow-left"></i> Quay lại
+            </a>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,107,129,0.1);">
+            <p style="color: #999; font-size: 14px; margin-bottom: 10px;">
+                Tự động chuyển về trang chủ sau <strong id="countdown">10</strong> giây...
+            </p>
+            <button onclick="cancelRedirect()" class="btn-back" style="padding: 8px 20px; font-size: 14px;">
+                <i class="fa fa-times"></i> Hủy tự động chuyển
+            </button>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container footer-wrap">
+        <div>
+            <b>BabyCutie</b>
+            <p>Cháo dinh dưỡng cho bé yêu</p>
+        </div>
+        <div>
+            <p>📞 Hotline: 1900 1234</p>
+            <p>📧 babycutie@gmail.com</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Auto redirect logic
+let countdownTimer = null;
+let redirectTimer = null;
+let countdown = 10;
+let isRedirectCancelled = false;
+
+function startAutoRedirect() {
+    if (isRedirectCancelled) return;
+    
+    const countdownEl = document.getElementById('countdown');
+    if (!countdownEl) return;
+    
+    countdownTimer = setInterval(() => {
+        if (isRedirectCancelled) {
+            clearInterval(countdownTimer);
+            return;
+        }
+        
+        countdown--;
+        countdownEl.textContent = countdown;
+        
+        if (countdown <= 0) {
+            clearInterval(countdownTimer);
+            window.location.href = 'index.html';
+        }
+    }, 1000);
+    
+    redirectTimer = setTimeout(() => {
+        if (!isRedirectCancelled) {
+            window.location.href = 'index.html';
+        }
+    }, 10000);
+}
+
+function cancelRedirect() {
+    isRedirectCancelled = true;
+    if (countdownTimer) clearInterval(countdownTimer);
+    if (redirectTimer) clearTimeout(redirectTimer);
+    
+    const countdownEl = document.getElementById('countdown');
+    const cancelBtn = document.querySelector('button[onclick="cancelRedirect()"]');
+    
+    if (countdownEl) {
+        countdownEl.parentElement.innerHTML = '<p style="color: #10b981; font-size: 14px;"><i class="fa fa-check-circle"></i> Đã hủy tự động chuyển</p>';
+    }
+    if (cancelBtn) {
+        cancelBtn.style.display = 'none';
+    }
+}
+
+// Start auto redirect when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    startAutoRedirect();
+    
+    // Smooth scroll to error box
+    setTimeout(() => {
+        document.querySelector('.error-404-box').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+        });
+    }, 100);
+});
+
+// Track page view (analytics)
+console.log('404 Error - Page not found:', window.location.href);
+</script>
+
+</body>
+</html>

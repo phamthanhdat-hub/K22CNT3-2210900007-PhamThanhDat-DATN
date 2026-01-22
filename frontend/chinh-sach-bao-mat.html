@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chính sách bảo mật | BabyCutie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/lien-he.css">
+    <style>
+        .policy-page {
+            padding: 40px 0 80px;
+            background: linear-gradient(135deg, #ffffff, #fff6f8);
+        }
+        .policy-wrapper {
+            background: linear-gradient(135deg, #ffffff, #fff6f8);
+            border-radius: 32px;
+            padding: 50px;
+            box-shadow: 0 15px 50px rgba(255,107,129,0.15);
+            border: 2px solid rgba(255,107,129,0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .policy-title {
+            color: #ff6b81;
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .policy-section {
+            margin-bottom: 40px;
+        }
+        .policy-section h3 {
+            color: #ff6b81;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .policy-section h3 i {
+            font-size: 28px;
+        }
+        .policy-section p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+        .policy-section ul {
+            color: #555;
+            line-height: 1.8;
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        .policy-section ul li {
+            margin-bottom: 10px;
+        }
+        .policy-contact {
+            background: linear-gradient(135deg, #fff6f8, #ffffff);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(255,107,129,0.2);
+            margin-top: 30px;
+        }
+        .policy-contact h4 {
+            color: #ff6b81;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+        .policy-contact p {
+            margin-bottom: 8px;
+        }
+        .policy-contact a {
+            color: #ff6b81;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .policy-contact a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff6b81 0%, #ff8fa3 50%, #ffb3c1 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255,107,129,0.4);
+            transition: all 0.3s ease;
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255,107,129,0.6);
+        }
+        
+        .back-to-top.show {
+            display: flex;
+        }
+        
+        .policy-section {
+            scroll-margin-top: 100px;
+        }
+        
+        .policy-section.active {
+            background: rgba(255,107,129,0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #ff6b81;
+            transition: all 0.3s ease;
+        }
+        
+        .policy-nav {
+            position: sticky;
+            top: 100px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(255,107,129,0.1);
+            border: 2px solid rgba(255,107,129,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .policy-nav h5 {
+            color: #ff6b81;
+            font-weight: 800;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .policy-nav a {
+            display: block;
+            padding: 10px 15px;
+            color: #666;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .policy-nav a:hover,
+        .policy-nav a.active {
+            background: linear-gradient(135deg, #fff6f8, #ffffff);
+            color: #ff6b81;
+            font-weight: 600;
+            transform: translateX(5px);
+        }
+        
+        @media print {
+            .policy-nav,
+            .back-to-top,
+            .header,
+            .footer,
+            button {
+                display: none !important;
+            }
+            
+            .policy-wrapper {
+                box-shadow: none;
+                border: none;
+                padding: 20px;
+            }
+            
+            .policy-section {
+                page-break-inside: avoid;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .policy-nav {
+                position: static;
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-wrap">
+        <div class="logo" onclick="window.location='index.html'">
+            <img src="images/logo2.jpg" alt="BabyCutie">
+            <span>BabyCutie</span>
+        </div>
+        <nav class="main-menu">
+            <a href="index.html">Trang chủ</a>
+            <a href="thuc-don.html">Thực đơn</a>
+            <a href="khuyen-mai.html">Khuyến mãi</a>
+            <a href="tin-tuc.html">Tin tức</a>
+            <a href="lien-he.html">Liên hệ</a>
+        </nav>
+    </div>
+</header>
+
+<section class="policy-page">
+    <div class="container">
+        <div class="row">
+            <!-- Navigation Sidebar -->
+            <div class="col-lg-3 d-none d-lg-block">
+                <div class="policy-nav">
+                    <h5><i class="fa fa-list"></i> Mục lục</h5>
+                    <a href="#section-1" onclick="scrollToSection('section-1')">1. Giới thiệu</a>
+                    <a href="#section-2" onclick="scrollToSection('section-2')">2. Thông tin thu thập</a>
+                    <a href="#section-3" onclick="scrollToSection('section-3')">3. Mục đích sử dụng</a>
+                    <a href="#section-4" onclick="scrollToSection('section-4')">4. Bảo mật thông tin</a>
+                    <a href="#section-5" onclick="scrollToSection('section-5')">5. Chia sẻ thông tin</a>
+                    <a href="#section-6" onclick="scrollToSection('section-6')">6. Quyền khách hàng</a>
+                    <a href="#section-7" onclick="scrollToSection('section-7')">7. Cookie</a>
+                    <a href="#section-8" onclick="scrollToSection('section-8')">8. Thay đổi chính sách</a>
+                    <a href="#section-contact" onclick="scrollToSection('section-contact')">Liên hệ</a>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="policy-wrapper">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+                        <h1 class="policy-title" style="margin: 0;"><i class="fa fa-shield-alt"></i> Chính sách bảo mật</h1>
+                        <button onclick="printPolicy()" class="btn-home" style="padding: 10px 20px; font-size: 14px;">
+                            <i class="fa fa-print"></i> In trang
+                        </button>
+                    </div>
+                    <p style="text-align: center; color: #666; margin-bottom: 40px;">
+                        Cập nhật lần cuối: <strong>Tháng 1, 2025</strong>
+                    </p>
+
+            <div class="policy-section" id="section-1">
+                <h3><i class="fa fa-info-circle"></i> 1. Giới thiệu</h3>
+                <p>
+                    BabyCutie cam kết bảo vệ thông tin cá nhân của khách hàng. Chính sách bảo mật này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ thông tin của bạn khi sử dụng dịch vụ của chúng tôi.
+                </p>
+            </div>
+
+            <div class="policy-section" id="section-2">
+                <h3><i class="fa fa-database"></i> 2. Thông tin chúng tôi thu thập</h3>
+                <p>Chúng tôi thu thập các thông tin sau khi bạn đăng ký và sử dụng dịch vụ:</p>
+                <ul>
+                    <li><strong>Thông tin cá nhân:</strong> Họ tên, email, số điện thoại, địa chỉ giao hàng</li>
+                    <li><strong>Thông tin đơn hàng:</strong> Sản phẩm đã mua, số lượng, giá trị đơn hàng</li>
+                    <li><strong>Thông tin thanh toán:</strong> Phương thức thanh toán, thông tin giao dịch (được mã hóa)</li>
+                    <li><strong>Thông tin kỹ thuật:</strong> Địa chỉ IP, trình duyệt, thiết bị truy cập</li>
+                </ul>
+            </div>
+
+            <div class="policy-section" id="section-3">
+                <h3><i class="fa fa-cog"></i> 3. Mục đích sử dụng thông tin</h3>
+                <p>Chúng tôi sử dụng thông tin của bạn để:</p>
+                <ul>
+                    <li>Xử lý và giao hàng đơn hàng của bạn</li>
+                    <li>Liên hệ với bạn về đơn hàng và dịch vụ</li>
+                    <li>Cải thiện chất lượng sản phẩm và dịch vụ</li>
+                    <li>Gửi thông tin khuyến mãi (nếu bạn đồng ý)</li>
+                    <li>Đảm bảo an toàn và ngăn chặn gian lận</li>
+                </ul>
+            </div>
+
+            <div class="policy-section" id="section-4">
+                <h3><i class="fa fa-lock"></i> 4. Bảo mật thông tin</h3>
+                <p>
+                    Chúng tôi áp dụng các biện pháp bảo mật kỹ thuật và quản lý để bảo vệ thông tin của bạn khỏi truy cập trái phép, mất mát hoặc phá hủy. Tuy nhiên, không có phương thức truyền tải qua Internet nào là 100% an toàn.
+                </p>
+            </div>
+
+            <div class="policy-section" id="section-5">
+                <h3><i class="fa fa-share-alt"></i> 5. Chia sẻ thông tin</h3>
+                <p>
+                    Chúng tôi không bán, cho thuê hoặc chia sẻ thông tin cá nhân của bạn cho bên thứ ba, trừ các trường hợp:
+                </p>
+                <ul>
+                    <li>Đối tác giao hàng (chỉ thông tin cần thiết để giao hàng)</li>
+                    <li>Yêu cầu của cơ quan pháp luật</li>
+                    <li>Bảo vệ quyền lợi và an toàn của BabyCutie và khách hàng</li>
+                </ul>
+            </div>
+
+            <div class="policy-section" id="section-6">
+                <h3><i class="fa fa-user-edit"></i> 6. Quyền của khách hàng</h3>
+                <p>Bạn có quyền:</p>
+                <ul>
+                    <li>Truy cập và chỉnh sửa thông tin cá nhân</li>
+                    <li>Yêu cầu xóa tài khoản và dữ liệu cá nhân</li>
+                    <li>Từ chối nhận email marketing</li>
+                    <li>Khiếu nại về việc xử lý thông tin cá nhân</li>
+                </ul>
+            </div>
+
+            <div class="policy-section" id="section-7">
+                <h3><i class="fa fa-cookie"></i> 7. Cookie</h3>
+                <p>
+                    Website của chúng tôi sử dụng cookie để cải thiện trải nghiệm người dùng. Bạn có thể tắt cookie trong cài đặt trình duyệt, nhưng điều này có thể ảnh hưởng đến một số chức năng của website.
+                </p>
+            </div>
+
+            <div class="policy-section" id="section-8">
+                <h3><i class="fa fa-sync-alt"></i> 8. Thay đổi chính sách</h3>
+                <p>
+                    Chúng tôi có thể cập nhật chính sách bảo mật này theo thời gian. Mọi thay đổi sẽ được thông báo trên trang web này với ngày cập nhật mới nhất.
+                </p>
+            </div>
+
+            <div class="policy-contact" id="section-contact">
+                <h4><i class="fa fa-envelope"></i> Liên hệ</h4>
+                <p>Nếu bạn có câu hỏi về chính sách bảo mật, vui lòng liên hệ:</p>
+                <p><strong>Email:</strong> <a href="mailto:babycutie@gmail.com">babycutie@gmail.com</a></p>
+                <p><strong>Hotline:</strong> <a href="tel:19001234">1900 1234</a></p>
+                <p><strong>Địa chỉ:</strong> 123 Đường ABC, Quận XYZ, Hà Nội, Việt Nam</p>
+            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" onclick="scrollToTop()" id="backToTopBtn">
+    <i class="fa fa-arrow-up"></i>
+</button>
+
+<footer class="footer">
+    <div class="container footer-wrap">
+        <div>
+            <b>BabyCutie</b>
+            <p>Cháo dinh dưỡng cho bé yêu</p>
+        </div>
+        <div>
+            <p>📞 Hotline: 1900 1234</p>
+            <p>📧 babycutie@gmail.com</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Smooth scroll to section
+function scrollToSection(sectionId) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+        element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+        
+        // Highlight section
+        element.classList.add('active');
+        setTimeout(() => {
+            element.classList.remove('active');
+        }, 2000);
+        
+        // Update active nav link
+        document.querySelectorAll('.policy-nav a').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + sectionId) {
+                link.classList.add('active');
+            }
+        });
+    }
+}
+
+// Scroll to top
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+// Show/hide back to top button
+window.addEventListener('scroll', () => {
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    if (window.scrollY > 300) {
+        backToTopBtn.classList.add('show');
+    } else {
+        backToTopBtn.classList.remove('show');
+    }
+    
+    // Highlight current section in nav
+    const sections = document.querySelectorAll('.policy-section');
+    const navLinks = document.querySelectorAll('.policy-nav a');
+    
+    let currentSection = '';
+    sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 150 && rect.bottom >= 150) {
+            currentSection = section.id;
+        }
+    });
+    
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + currentSection) {
+            link.classList.add('active');
+        }
+    });
+});
+
+// Handle hash in URL
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.hash) {
+        setTimeout(() => {
+            scrollToSection(window.location.hash.substring(1));
+        }, 500);
+    }
+    
+    // Smooth scroll for all anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            scrollToSection(targetId);
+        });
+    });
+});
+
+// Print functionality
+function printPolicy() {
+    window.print();
+}
+</script>
+
+</body>
+</html>
