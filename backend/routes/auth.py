@@ -168,6 +168,123 @@ def register():
 
 
 # =========================
+# QUÊN MẬT KHẨU - KIỂM TRA EMAIL
+# =========================
+@auth_bp.route("/forgot-password/check", methods=["POST"])
+def forgot_password_check():
+    try:
+        data = request.json
+        email = (data.get("email") or "").strip()
+
+        if not email:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng nhập email"
+            }), 400
+
+        import re
+        email_pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+        if not re.match(email_pattern, email):
+            return jsonify({
+                "success": False,
+                "message": "Email không hợp lệ"
+            }), 400
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id FROM NguoiDung
+            WHERE email = ? AND vaiTro = N'khach' AND trangThai = 1
+        """, (email,))
+        row = cursor.fetchone()
+
+        if not row:
+            return jsonify({
+                "success": False,
+                "message": "Không tìm thấy tài khoản khách hàng nào với email này"
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "message": "Email hợp lệ. Vui lòng đặt lại mật khẩu mới."
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
+
+
+# =========================
+# QUÊN MẬT KHẨU - ĐẶT LẠI MẬT KHẨU
+# =========================
+@auth_bp.route("/forgot-password/reset", methods=["POST"])
+def forgot_password_reset():
+    try:
+        data = request.json
+        email = (data.get("email") or "").strip()
+        matKhauMoi = data.get("matKhauMoi") or ""
+        xacNhanMatKhau = data.get("xacNhanMatKhau") or ""
+
+        if not email:
+            return jsonify({
+                "success": False,
+                "message": "Vui lòng nhập email"
+            }), 400
+
+        if not matKhauMoi or len(matKhauMoi) < 6:
+            return jsonify({
+                "success": False,
+                "message": "Mật khẩu mới phải có ít nhất 6 ký tự"
+            }), 400
+
+        if matKhauMoi != xacNhanMatKhau:
+            return jsonify({
+                "success": False,
+                "message": "Mật khẩu xác nhận không khớp"
+            }), 400
+
+        import re
+        email_pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+        if not re.match(email_pattern, email):
+            return jsonify({
+                "success": False,
+                "message": "Email không hợp lệ"
+            }), 400
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id FROM NguoiDung
+            WHERE email = ? AND vaiTro = N'khach' AND trangThai = 1
+        """, (email,))
+        row = cursor.fetchone()
+
+        if not row:
+            return jsonify({
+                "success": False,
+                "message": "Không tìm thấy tài khoản khách hàng nào với email này"
+            }), 404
+
+        cursor.execute("""
+            UPDATE NguoiDung SET matKhau = ? WHERE email = ? AND vaiTro = N'khach'
+        """, (matKhauMoi, email))
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Đặt lại mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới."
+        })
+    except Exception as e:
+        if "conn" in locals():
+            conn.rollback()
+        return jsonify({
+            "success": False,
+            "message": f"Lỗi hệ thống: {str(e)}"
+        }), 500
+
+
+# =========================
 # CẬP NHẬT THÔNG TIN KHÁCH HÀNG
 # =========================
 @auth_bp.route("/update-profile", methods=["PUT"])
