@@ -10,15 +10,17 @@ def get_db():
         )
         return conn
     except pyodbc.Error as e:
-        print(f"❌ LỖI KẾT NỐI DATABASE: {str(e)}")
-        print(f"📋 Chi tiết:")
-        print(f"   - Server: DESKTOP-HD2ANFT\\MSSQLSERVER03")
-        print(f"   - Database: PTD_Database")
-        print(f"\n💡 Hướng dẫn khắc phục:")
-        print(f"   1. Kiểm tra SQL Server đã chạy chưa")
-        print(f"   2. Kiểm tra tên database 'PTD_Database' đã tồn tại chưa")
-        print(f"   3. Kiểm tra tên instance SQL Server có đúng không")
-        print(f"   4. Chạy file PTD_SQL.sql để tạo database và các bảng")
+        # NOTE: Avoid emojis here to prevent Windows console encoding errors.
+        print(f"[DB ERROR] Failed to connect: {str(e)}")
+        print("[DB INFO]")
+        print("  - Server: DESKTOP-HD2ANFT\\MSSQLSERVER03")
+        print("  - Database: PTD_Database")
+        print("\n[HINT]")
+        print("  1. Check SQL Server service is running")
+        print("  2. Check database 'PTD_Database' exists")
+        print("  3. Check SQL Server instance name is correct")
+        print("  4. Run PTD_SQL.sql to create DB/tables")
         raise
 
-print("✅ Module db.py đã load")
+# Avoid emojis to prevent encoding issues on Windows terminals.
+print("[DB] db.py loaded")

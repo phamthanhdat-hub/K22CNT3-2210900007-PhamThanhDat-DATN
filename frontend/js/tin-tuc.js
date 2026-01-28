@@ -422,7 +422,6 @@ function updateLikeCounts() {
             }
         }
     });
-    
     Object.keys(likeCounts).forEach(id => {
         const count = likeCounts[id];
         document.querySelectorAll(`.like-count-${id}`).forEach(el => {

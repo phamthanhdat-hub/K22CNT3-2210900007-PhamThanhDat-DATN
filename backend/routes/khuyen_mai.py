@@ -11,18 +11,19 @@ khuyen_mai_bp = Blueprint("khuyen_mai", __name__)
 def get_all_khuyen_mai():
     conn = None
     try:
-        print("🔄 Bắt đầu xử lý request GET /api/khuyen-mai")
+        # Avoid emojis for Windows console compatibility
+        print("[KHUYEN_MAI] Start GET /api/khuyen-mai")
         conn = get_db()
         cursor = conn.cursor()
         
         # Lấy tham số query (nếu có)
         only_active = request.args.get("only_active", "false").lower() == "true"
-        print(f"📋 only_active = {only_active}")
+        print(f"[KHUYEN_MAI] only_active = {only_active}")
         
         if only_active:
             # Chỉ lấy mã đang hoạt động (dùng cho trang chủ)
             now = datetime.now()
-            print(f"⏰ Thời gian hiện tại: {now}")
+            print(f"[KHUYEN_MAI] now = {now}")
             cursor.execute("""
                 SELECT 
                     id, tenKhuyenMai, maKhuyenMai, loaiGiamGia,
@@ -37,7 +38,7 @@ def get_all_khuyen_mai():
         else:
             # Lấy tất cả mã khuyến mãi (dùng cho trang khuyến mãi)
             now = datetime.now()
-            print(f"⏰ Lấy tất cả mã khuyến mãi, thời gian hiện tại: {now}")
+            print(f"[KHUYEN_MAI] Get all promotions, now = {now}")
             cursor.execute("""
                 SELECT 
                     id, tenKhuyenMai, maKhuyenMai, loaiGiamGia,
@@ -55,7 +56,7 @@ def get_all_khuyen_mai():
             """, (now, now))
 
         rows = cursor.fetchall()
-        print(f"📊 Số dòng query được: {len(rows)}")
+        print(f"[KHUYEN_MAI] rows = {len(rows)}")
         data = []
 
         for idx, r in enumerate(rows):
@@ -71,7 +72,7 @@ def get_all_khuyen_mai():
                         else:
                             ngay_bat_dau = str(r[7])
                     except Exception as e:
-                        print(f"⚠️ Lỗi xử lý ngayBatDau cho row {idx}: {e}")
+                        print(f"[KHUYEN_MAI] Warning ngayBatDau row {idx}: {e}")
                         ngay_bat_dau = None
                 
                 if r[8]:  # ngayKetThuc
@@ -81,7 +82,7 @@ def get_all_khuyen_mai():
                         else:
                             ngay_ket_thuc = str(r[8])
                     except Exception as e:
-                        print(f"⚠️ Lỗi xử lý ngayKetThuc cho row {idx}: {e}")
+                        print(f"[KHUYEN_MAI] Warning ngayKetThuc row {idx}: {e}")
                         ngay_ket_thuc = None
                 
                 # Xử lý BIT (trangThai)
@@ -108,10 +109,10 @@ def get_all_khuyen_mai():
                 }
                 
                 data.append(item)
-                print(f"   ✅ Mã {idx + 1}: {item['maKhuyenMai']} - {item['tenKhuyenMai']}")
+                print(f"   [KHUYEN_MAI] {idx + 1}: {item['maKhuyenMai']} - {item['tenKhuyenMai']}")
                 
             except Exception as e:
-                print(f"❌ Lỗi xử lý row {idx}: {e}")
+                print(f"[KHUYEN_MAI] Error processing row {idx}: {e}")
                 import traceback
                 traceback.print_exc()
                 continue
@@ -119,13 +120,13 @@ def get_all_khuyen_mai():
         if conn:
             conn.close()
         
-        print(f"\n✅ API /api/khuyen-mai trả về {len(data)} mã khuyến mãi")
+        print(f"\n[KHUYEN_MAI] /api/khuyen-mai returns {len(data)} items")
         if len(data) > 0:
-            print(f"   Mẫu dữ liệu đầu tiên: {data[0]}")
+            print(f"   [KHUYEN_MAI] First item sample: {data[0]}")
         return jsonify(data)
     
     except Exception as e:
-        print(f"❌ LỖI API /api/khuyen-mai: {str(e)}")
+        print(f"[KHUYEN_MAI] ERROR /api/khuyen-mai: {str(e)}")
         import traceback
         traceback.print_exc()
         

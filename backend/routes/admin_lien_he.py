@@ -3,17 +3,39 @@ from db import get_db
 
 admin_lien_he_bp = Blueprint("admin_lien_he", __name__)
 
+def _get_lienhe_columns(cursor):
+    """Return set of column names for table LienHe (lowercased)."""
+    cursor.execute("""
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'LienHe'
+    """)
+    return {str(r[0]).lower() for r in cursor.fetchall() if r and r[0]}
+
 # =====================================================
 # LẤY TẤT CẢ LIÊN HỆ
 # =====================================================
 @admin_lien_he_bp.route("", methods=["GET"])
 def get_all_lien_he():
+    conn = None
     try:
         conn = get_db()
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT id, hoTen, email, noiDung, ngayGui, dienThoai, trangThai
+        cols = _get_lienhe_columns(cursor)
+        select_fields = ["id", "hoTen", "email", "noiDung", "ngayGui"]
+        if "dienthoai" in cols:
+            select_fields.append("dienThoai")
+        else:
+            select_fields.append("NULL AS dienThoai")
+
+        if "trangthai" in cols:
+            select_fields.append("trangThai")
+        else:
+            select_fields.append("N'Chưa xử lý' AS trangThai")
+
+        cursor.execute(f"""
+            SELECT {", ".join(select_fields)}
             FROM LienHe
             ORDER BY ngayGui DESC
         """)
@@ -39,12 +61,20 @@ def get_all_lien_he():
             "success": False,
             "message": f"Lỗi hệ thống: {str(e)}"
         }), 500
+    finally:
+        if conn:
+            try:
+                cursor.close()
+                conn.close()
+            except:
+                pass
 
 # =====================================================
 # TẠO LIÊN HỆ MỚI (ADMIN)
 # =====================================================
 @admin_lien_he_bp.route("", methods=["POST"])
 def create_lien_he():
+    conn = None
     try:
         data = request.json
         
@@ -96,11 +126,26 @@ def create_lien_he():
         
         conn = get_db()
         cursor = conn.cursor()
+        cols = _get_lienhe_columns(cursor)
 
-        cursor.execute("""
-            INSERT INTO LienHe (hoTen, email, noiDung, dienThoai, trangThai)
-            VALUES (?, ?, ?, ?, ?)
-        """, (hoTen, email, noiDung, dienThoai, trangThai))
+        insert_cols = ["hoTen", "email", "noiDung"]
+        insert_vals = [hoTen, email, noiDung]
+
+        if "dienthoai" in cols:
+            insert_cols.append("dienThoai")
+            insert_vals.append(dienThoai)
+
+        if "trangthai" in cols:
+            insert_cols.append("trangThai")
+            insert_vals.append(trangThai or "Chưa xử lý")
+
+        placeholders = ", ".join(["?"] * len(insert_cols))
+        col_sql = ", ".join(insert_cols)
+
+        cursor.execute(f"""
+            INSERT INTO LienHe ({col_sql})
+            VALUES ({placeholders})
+        """, tuple(insert_vals))
 
         conn.commit()
         return jsonify({
@@ -115,46 +160,75 @@ def create_lien_he():
             "success": False,
             "message": f"Lỗi hệ thống: {str(e)}"
         }), 500
+    finally:
+        if conn:
+            try:
+                cursor.close()
+                conn.close()
+            except:
+                pass
 
 # =====================================================
 # LẤY CHI TIẾT 1 LIÊN HỆ
 # =====================================================
 @admin_lien_he_bp.route("/<int:id>", methods=["GET"])
 def get_lien_he_by_id(id):
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        SELECT id, hoTen, email, noiDung, ngayGui, dienThoai, trangThai
-        FROM LienHe
-        WHERE id = ?
-    """, (id,))
-    
-    r = cursor.fetchone()
-    if not r:
+    conn = None
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cols = _get_lienhe_columns(cursor)
+
+        select_fields = ["id", "hoTen", "email", "noiDung", "ngayGui"]
+        if "dienthoai" in cols:
+            select_fields.append("dienThoai")
+        else:
+            select_fields.append("NULL AS dienThoai")
+
+        if "trangthai" in cols:
+            select_fields.append("trangThai")
+        else:
+            select_fields.append("N'Chưa xử lý' AS trangThai")
+
+        cursor.execute(f"""
+            SELECT {", ".join(select_fields)}
+            FROM LienHe
+            WHERE id = ?
+        """, (id,))
+        
+        r = cursor.fetchone()
+        if not r:
+            return jsonify({
+                "success": False,
+                "message": "Không tìm thấy liên hệ"
+            }), 404
+        
         return jsonify({
-            "success": False,
-            "message": "Không tìm thấy liên hệ"
-        }), 404
-    
-    return jsonify({
-        "success": True,
-        "data": {
-            "id": r[0],
-            "hoTen": r[1] or "",
-            "email": r[2] or "",
-            "noiDung": r[3] or "",
-            "ngayGui": r[4].isoformat() if r[4] else None,
-            "dienThoai": r[5] if r[5] else None,
-            "trangThai": r[6] if r[6] else "Chưa xử lý"
-        }
-    })
+            "success": True,
+            "data": {
+                "id": r[0],
+                "hoTen": r[1] or "",
+                "email": r[2] or "",
+                "noiDung": r[3] or "",
+                "ngayGui": r[4].isoformat() if r[4] else None,
+                "dienThoai": r[5] if r[5] else None,
+                "trangThai": r[6] if r[6] else "Chưa xử lý"
+            }
+        })
+    finally:
+        if conn:
+            try:
+                cursor.close()
+                conn.close()
+            except:
+                pass
 
 # =====================================================
 # CẬP NHẬT LIÊN HỆ
 # =====================================================
 @admin_lien_he_bp.route("/<int:id>", methods=["PUT"])
 def update_lien_he(id):
+    conn = None
     try:
         data = request.json
         
@@ -206,6 +280,7 @@ def update_lien_he(id):
         
         conn = get_db()
         cursor = conn.cursor()
+        cols = _get_lienhe_columns(cursor)
         
         # Kiểm tra liên hệ có tồn tại không
         cursor.execute("SELECT id FROM LienHe WHERE id = ?", (id,))
@@ -215,11 +290,25 @@ def update_lien_he(id):
                 "message": "Không tìm thấy liên hệ"
             }), 404
 
-        cursor.execute("""
+        # Update theo schema hiện có
+        set_parts = ["hoTen = ?", "email = ?", "noiDung = ?"]
+        vals = [hoTen, email, noiDung]
+
+        if "dienthoai" in cols:
+            set_parts.append("dienThoai = ?")
+            vals.append(dienThoai)
+
+        if "trangthai" in cols:
+            set_parts.append("trangThai = ?")
+            vals.append(trangThai or "Chưa xử lý")
+
+        vals.append(id)
+
+        cursor.execute(f"""
             UPDATE LienHe
-            SET hoTen = ?, email = ?, noiDung = ?, dienThoai = ?, trangThai = ?
+            SET {", ".join(set_parts)}
             WHERE id = ?
-        """, (hoTen, email, noiDung, dienThoai, trangThai, id))
+        """, tuple(vals))
 
         conn.commit()
         return jsonify({
@@ -234,12 +323,20 @@ def update_lien_he(id):
             "success": False,
             "message": f"Lỗi hệ thống: {str(e)}"
         }), 500
+    finally:
+        if conn:
+            try:
+                cursor.close()
+                conn.close()
+            except:
+                pass
 
 # =====================================================
 # XÓA LIÊN HỆ
 # =====================================================
 @admin_lien_he_bp.route("/<int:id>", methods=["DELETE"])
 def delete_lien_he(id):
+    conn = None
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -267,4 +364,11 @@ def delete_lien_he(id):
             "success": False,
             "message": f"Lỗi hệ thống: {str(e)}"
         }), 500
+    finally:
+        if conn:
+            try:
+                cursor.close()
+                conn.close()
+            except:
+                pass
 

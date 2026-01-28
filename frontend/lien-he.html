@@ -388,7 +388,8 @@ document.getElementById("contactForm").onsubmit = function(e) {
     btn.disabled = true;
     btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang gửi...';
 
-    fetch("http://127.0.0.1:5000/api/lien-he", {
+    // Use trailing slash to avoid Flask redirect (308) issues on some setups
+    fetch("http://127.0.0.1:5000/api/lien-he/", {
         method: "POST",
         headers: { 
             "Content-Type": "application/json"

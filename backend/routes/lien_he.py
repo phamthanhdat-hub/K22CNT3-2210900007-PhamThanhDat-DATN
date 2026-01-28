@@ -3,6 +3,15 @@ from db import get_db
 
 lien_he_bp = Blueprint("lien_he", __name__)
 
+def _get_lienhe_columns(cursor):
+    """Return set of column names for table LienHe (lowercased)."""
+    cursor.execute("""
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'LienHe'
+    """)
+    return {str(r[0]).lower() for r in cursor.fetchall() if r and r[0]}
+
 # ===============================
 # KHÁCH GỬI LIÊN HỆ
 # ===============================
@@ -68,19 +77,35 @@ def gui_lien_he():
         conn = get_db()
         cursor = conn.cursor()
 
-        # Debug: In ra thông tin để kiểm tra
-        print(f"📝 Attempting to insert: hoTen={hoTen}, email={email}, dienThoai={dienThoai}, noiDung length={len(noiDung)}")
+        # Debug (avoid emojis for Windows console compatibility)
+        print(f"[LIEN_HE] Attempting to insert: hoTen={hoTen}, email={email}, dienThoai={dienThoai}, noiDung_len={len(noiDung)}")
 
-        # Insert vào bảng LienHe với trangThai mặc định là "Chưa xử lý"
+        # Insert vào bảng LienHe (tự tương thích schema: có/không có dienThoai,trangThai)
         try:
-            cursor.execute("""
-                INSERT INTO LienHe (hoTen, email, noiDung, dienThoai, trangThai)
-                VALUES (?, ?, ?, ?, ?)
-            """, (hoTen, email, noiDung, dienThoai, "Chưa xử lý"))
+            cols = _get_lienhe_columns(cursor)
+
+            insert_cols = ["hoTen", "email", "noiDung"]
+            insert_vals = [hoTen, email, noiDung]
+
+            if "dienthoai" in cols:
+                insert_cols.append("dienThoai")
+                insert_vals.append(dienThoai)
+
+            if "trangthai" in cols:
+                insert_cols.append("trangThai")
+                insert_vals.append("Chưa xử lý")
+
+            placeholders = ", ".join(["?"] * len(insert_cols))
+            col_sql = ", ".join(insert_cols)
+
+            cursor.execute(f"""
+                INSERT INTO LienHe ({col_sql})
+                VALUES ({placeholders})
+            """, tuple(insert_vals))
             conn.commit()
-            print("✅ Insert successful!")
+            print(f"[LIEN_HE] Insert successful. Columns used: {insert_cols}")
         except Exception as db_error:
-            print(f"❌ Database error during insert: {str(db_error)}")
+            print(f"[LIEN_HE] Database error during insert: {str(db_error)}")
             raise
         
         return jsonify({
@@ -95,8 +120,8 @@ def gui_lien_he():
             except:
                 pass
         error_msg = str(e)
-        print(f"❌ Error in gui_lien_he: {error_msg}")  # Debug log
-        print(f"📋 Error type: {type(e).__name__}")  # Debug log
+        print(f"[LIEN_HE] Error in gui_lien_he: {error_msg}")  # Debug log
+        print(f"[LIEN_HE] Error type: {type(e).__name__}")  # Debug log
         
         # Xử lý các lỗi cụ thể
         if "Invalid object name" in error_msg or "LienHe" in error_msg or "does not exist" in error_msg.lower():
@@ -138,8 +163,20 @@ def get_lien_he():
         conn = get_db()
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT id, hoTen, email, noiDung, ngayGui, dienThoai, trangThai
+        cols = _get_lienhe_columns(cursor)
+        select_fields = ["id", "hoTen", "email", "noiDung", "ngayGui"]
+        if "dienthoai" in cols:
+            select_fields.append("dienThoai")
+        else:
+            select_fields.append("NULL AS dienThoai")
+
+        if "trangthai" in cols:
+            select_fields.append("trangThai")
+        else:
+            select_fields.append("N'Chưa xử lý' AS trangThai")
+
+        cursor.execute(f"""
+            SELECT {", ".join(select_fields)}
             FROM LienHe
             ORDER BY ngayGui DESC
         """)
